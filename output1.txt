@@ -1,0 +1,8 @@
+20375331
+pass: local && global var test
+pass: loop && cond test
+please input an int between 1 and 10(border included):
+pass: AddExp test. input: 2. input*2: 4.
+pass: (B) Array test
+pass: (A) Exp test
+Test ends
