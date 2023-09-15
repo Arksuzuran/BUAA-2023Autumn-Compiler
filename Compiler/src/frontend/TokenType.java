@@ -72,6 +72,9 @@ public enum TokenType {
             "for", "return", "const", "getint",
             "if", "else", "void", "printf");
 
+    public String getStr(){
+        return str;
+    }
     // 判断所给字符串是否是保留字 如果是则返回其对应的TOKEN枚举类型
     public static TokenType isReservedToken(String str){
         if(reservedTokenList.contains(str)){
@@ -79,9 +82,17 @@ public enum TokenType {
         }
         return null;
     }
-
-    @Override
-    public String toString() {
-        return this.str;
+    // 根据所给str返回相应的非标识符或常量的TokenType
+    public static TokenType calTokenType(String str){
+        for(TokenType tokenType : TokenType.values()){
+            if(tokenType.getStr().equals(str)){
+                return tokenType;
+            }
+        }
+        return null;
     }
+//    @Override
+//    public String toString() {
+//        return this.str;
+//    }
 }
