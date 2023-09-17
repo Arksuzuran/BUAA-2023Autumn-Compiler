@@ -1,10 +1,12 @@
 package frontend;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
- * @Description Token type enum
+ * @Description Token类型的枚举类，同时保存有保留字、双分界符等常量及其相应方法
  * @Author H1KARI
  * @Date 2023/9/14
  **/
@@ -24,6 +26,7 @@ public enum TokenType {
     VOIDTK("void"),
 
     // 运算符
+    NOT("!"),
     AND("&&"),
     OR("||"),
     PLUS("+"),
@@ -37,7 +40,6 @@ public enum TokenType {
     GEQ(">="),
     EQL("=="),
     NEQ("!="),
-    NOT("!"),
     LSS("<"),
     RSS(">"),
 
@@ -59,38 +61,47 @@ public enum TokenType {
     STRCON("\".*?\"");
 
     private final String str;
-
+    public String getStr(){
+        return str;
+    }
     //    private final int id;
     TokenType(String str) {
         this.str = str;
-//        this.id = id;
+    }
+    // 从字符串到TokenType的映射
+    private static final Map<String, TokenType> str2TokenTypeMap = new HashMap<>();
+    static {
+        for (TokenType tokenType : TokenType.values()) {
+            str2TokenTypeMap.put(tokenType.getStr(), tokenType);
+        }
+    }
+    // 根据所给str返回相应的非标识符或常量的TokenType
+    public static TokenType getTokenType(String str){
+        return str2TokenTypeMap.get(str);
     }
 
+    // 1.保留字
     // 保留字列表
     public static final List<String> reservedTokenList = Arrays.asList(
             "int", "main", "break", "continue",
             "for", "return", "const", "getint",
             "if", "else", "void", "printf");
-
-    public String getStr(){
-        return str;
-    }
     // 判断所给字符串是否是保留字 如果是则返回其对应的TOKEN枚举类型
     public static TokenType isReservedToken(String str){
         if(reservedTokenList.contains(str)){
-            return TokenType.valueOf(str);
+            return getTokenType(str);
         }
         return null;
     }
-    // 根据所给str返回相应的非标识符或常量的TokenType
-    public static TokenType calTokenType(String str){
-        for(TokenType tokenType : TokenType.values()){
-            if(tokenType.getStr().equals(str)){
-                return tokenType;
-            }
-        }
-        return null;
-    }
+
+
+    // 2.单/双字符分界符
+    // 单字符分界符列表
+    public static final List<Character> singleCharDeliList = Arrays.asList(
+            '+', '-', '*', '/', '%', '>', '<', '=', '!', ',', ';', '(', ')', '[', ']', '{', '}');
+    // 双字符分界符中 首字符的列表
+    public static final List<Character> doubleCharDeliList = Arrays.asList(
+            '&', '|', '<', '>', '=', '!');
 //    @Override
 //    public String toString() {
 //        return this.str;

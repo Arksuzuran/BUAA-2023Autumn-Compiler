@@ -19,7 +19,11 @@ public class Lexer {
     private int lineNum;    // 当前所在行号
     private Token<?> token;
 
-    private final List<Token<?>> lexerResultList = new ArrayList<>();  //扫描结果列表
+    // 扫描结果列表
+    private final List<Token<?>> lexerResultList = new ArrayList<>();
+    public List<Token<?>> getLexerResultList(){
+        return lexerResultList;
+    }
 
     public Lexer(String text) {
         this.text = text;
@@ -45,37 +49,58 @@ public class Lexer {
             pos++;
         }
     }
+
     // 跳过注释
-    private void jumpNote(){
+    // return 0: 未跳过任何注释
+    // return 1: 跳过了注释
+    private int jumpNote(){
         if(pos >= maxPos){
-            return;
+            return 0;
         }
         // 多行注释
-        if(text.charAt(pos) == '\\' && text.charAt(pos+1) == '*'){
+        if(text.charAt(pos) == '/' && text.charAt(pos+1) == '*'){
+            pos += 2;
             while(pos <= maxPos){
-                //可以跳出注释了
-                if(pos < maxPos && text.charAt(pos) == '*' && text.charAt(pos+1) == '\\'){
+                // 更新行号
+                if (pos < maxPos && text.charAt(pos) == '\r' && text.charAt(pos + 1) == '\n') {
+                    lineNum++;
                     pos += 2;
-                  return;
+                } else if (text.charAt(pos) == '\n') {
+                    lineNum++;
+                    pos++;
+                }
+                //可以跳出注释了
+                if(pos < maxPos && text.charAt(pos) == '*' && text.charAt(pos+1) == '/'){
+                    pos += 2;
+                  return 1;
                 }
                 pos++;
             }
         }
         // 单行注释
-        else if(text.charAt(pos) == '\\' && text.charAt(pos+1) == '\\') {
+        else if(text.charAt(pos) == '/' && text.charAt(pos+1) == '/') {
+            pos += 2;
             while (pos <= maxPos) {
-                //可以跳出注释了
+//                System.out.println("扫描注释：" + text.charAt(pos) + "\n");
+                //可以跳出注释了，同时别忘了更新行号
                 if (pos < maxPos && text.charAt(pos) == '\r' && text.charAt(pos + 1) == '\n') {
+                    lineNum++;
                     pos += 2;
-                    return;
+                    return 1;
                 } else if (text.charAt(pos) == '\n') {
+                    lineNum++;
                     pos++;
-                    return;
+                    return 1;
                 }
                 pos++;
             }
         }
+        if(pos >= maxPos){
+            return 1;
+        }
+        return 0;
     }
+
     // 立即获取下一个token
     public Token<?> next () throws LexerException {
         // 当前是否在单行注释中
@@ -89,13 +114,14 @@ public class Lexer {
 
         // 跳过注释和空白符
         jumpWhiteCharacter();
-        jumpNote();
-        jumpWhiteCharacter();
+        while(jumpNote() != 0){
+            jumpWhiteCharacter();
+        }
+
         // 已经完成读取
         if (pos > maxPos) {
             return null;
         }
-
         // 按照首字符进行贪心匹配
         char chr = text.charAt(pos);
         // 1.数字开头 应为数字
@@ -106,10 +132,6 @@ public class Lexer {
             while (endPos <= maxPos && Character.isDigit(text.charAt(endPos))) {
                 endPos++;
             }
-            // 查看最末尾字符，如果不是空字符则报错
-            if(endPos <= maxPos && !Character.isWhitespace(text.charAt(endPos))){
-                throw new LexerException(lineNum);
-            }
             String str = text.substring(pos, endPos);
             // 注意不要忘了更新pos
             pos = endPos;
@@ -118,8 +140,8 @@ public class Lexer {
             token = new Token<Integer>(Integer.parseInt(str), lineNum, TokenType.INTCON);
 
         }
-        // 2.字母开头 应为保留字或者标识符
-        else if (Character.isLetter(chr)) {
+        // 2.字母或下划线开头 应为保留字或者标识符
+        else if (Character.isLetter(chr) || chr == '_') {
             int endPos = pos + 1; // 截取字符串的末端的后一个位置
 
             // 截取该token的字符串
@@ -128,10 +150,6 @@ public class Lexer {
                             Character.isLetter(text.charAt(endPos)) ||
                             text.charAt(endPos) == '_')) {
                 endPos++;
-            }
-            // 查看最末尾字符，如果不是空字符则报错
-            if(endPos <= maxPos && !Character.isWhitespace(text.charAt(endPos))){
-                throw new LexerException(lineNum);
             }
             String str = text.substring(pos, endPos);
             // 注意不要忘了更新pos
@@ -167,8 +185,55 @@ public class Lexer {
             // 生成token对象
             token = new Token<String>(str, lineNum, TokenType.STRCON);
         }
+        // 4.单字符或双字符分隔符
+        else{
+            boolean flagSingle = TokenType.singleCharDeliList.contains(chr);
+            boolean flagDouble = TokenType.doubleCharDeliList.contains(chr);
+            TokenType tokenType = null;
+            String str = "";
+            int posMove = 0;
+            // 对于单字符分隔符，那么直接生成token
+            if(flagSingle){
+                tokenType = TokenType.getTokenType((str = text.substring(pos, pos+1)));
+                posMove = 1;
+            }
+            // 可能的双字符分隔符 要截取两位来生成token
+            if(pos < maxPos && flagDouble){
+                TokenType tmp = TokenType.getTokenType(text.substring(pos, pos+2));
+                // 确认生成成功后，再进行记录，以防覆盖单双皆可的结果
+                if(tmp != null){
+                    tokenType = tmp;
+                    str = text.substring(pos, pos+2);
+                    posMove = 2;
+                }
+            }
+            if(tokenType != null){
+                token = new Token<String>(str, lineNum, tokenType);
+                pos += posMove;
+            }
+        }
+        // 进行记录
+        if(token != null){
+            lexerResultList.add(token);
+        }
         return token;
     }
+
+    // 直接进行一次完整的扫描
+    public void doLexicalAnalysisByPass(boolean printResult){
+        Token<?> token = null;
+        try {
+            do {
+                token = next();
+                if (token != null && printResult) {
+                    System.out.println(token);
+                }
+            } while (token != null);
+        } catch (LexerException e) {
+            System.out.println(e);
+        }
+    }
+
 
 }
 
