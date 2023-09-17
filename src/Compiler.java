@@ -15,16 +15,21 @@ import java.io.IOException;
  **/
 public class Compiler {
     public String inputTextPath = "";
+    public String outputTextPath = "";
     public File inputFile = null;
     public String inputText = "";
-
-    Compiler(String inputTextPath){
+    Compiler(String inputTextPath, String outputTextPath){
         this.inputTextPath = inputTextPath;
+        this.outputTextPath = outputTextPath;
     }
     // 读取输入文件
     public String readInputFile(){
+        // 需要根据当前类的路径
         inputFile = new File(inputTextPath);
-        System.out.println(inputFile.getAbsolutePath());
+        if(Config.atLocalTest){
+            inputFile = new File(Config.localInputFilePath);
+        }
+        System.out.println("读取输入文件：" + inputFile.getAbsolutePath());
         try {
             FileReader reader = new FileReader(inputFile);
             StringBuilder stringBuilder = new StringBuilder();
@@ -59,7 +64,11 @@ public class Compiler {
             String result = stringBuilder.toString();
 
             try{
-                File file = new File(Config.outputFilePath);
+                File file = new File(outputTextPath);
+                if(Config.atLocalTest){
+                    file = new File(Config.localOutputFilePath);
+                }
+                System.out.println("输出词法分析文件至：" + file.getAbsolutePath());
                 if(!file.exists()){
                     file.createNewFile();
                 }
@@ -73,8 +82,7 @@ public class Compiler {
 
     public static void main(String[] args) {
         System.out.println("hell, word!");
-
-        Compiler compiler = new Compiler(Config.inputFilePath);
+        Compiler compiler = new Compiler(Config.inputFilePath, Config.outputFilePath);
         compiler.readInputFile();
         compiler.DoLexicalAnalysis();
     }

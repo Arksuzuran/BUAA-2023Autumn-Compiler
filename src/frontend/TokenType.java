@@ -11,10 +11,17 @@ import java.util.Map;
  * @Date 2023/9/14
  **/
 public enum TokenType {
+    // 标识符
+    IDENFR("[a-zA-Z_][a-zA-Z_0-9]*"),
+    // int整数
+    INTCON("[1-9][0-9]*|0"),
+    // 字符串
+    STRCON("\".*?\""),
+
     // 保留字
-    INTTK("int"),
     MAINTK("main"),
     CONSTTK("const"),
+    INTTK("int"),
     BREAKTK("break"),
     CONTINUETK("continue"),
     IFTK("if"),
@@ -41,7 +48,7 @@ public enum TokenType {
     EQL("=="),
     NEQ("!="),
     LSS("<"),
-    RSS(">"),
+    GRE(">"),
 
     // 括号、逗号、分号
     LPARENT("("),
@@ -51,14 +58,7 @@ public enum TokenType {
     LBRACE("{"),
     RBRACE("}"),
     SEMICN(";"),
-    COMMA(","),
-
-    // 标识符
-    IDENFR("[a-zA-Z_][a-zA-Z_0-9]*"),
-    // int整数
-    INTCON("[1-9][0-9]*|0"),
-    // 字符串
-    STRCON("\".*?\"");
+    COMMA(",");
 
     private final String str;
     public String getStr(){

@@ -41,11 +41,6 @@ public class Lexer {
             if(text.charAt(pos) == '\n'){
                 lineNum++;
             }
-            // windows下换行符为两个，\r\n
-            else if(text.charAt(pos) == '\r' && pos < maxPos && text.charAt(pos+1) == '\n'){
-                pos++;
-                lineNum++;
-            }
             pos++;
         }
     }
@@ -61,18 +56,14 @@ public class Lexer {
         if(text.charAt(pos) == '/' && text.charAt(pos+1) == '*'){
             pos += 2;
             while(pos <= maxPos){
-                // 更新行号
-                if (pos < maxPos && text.charAt(pos) == '\r' && text.charAt(pos + 1) == '\n') {
-                    lineNum++;
-                    pos += 2;
-                } else if (text.charAt(pos) == '\n') {
-                    lineNum++;
-                    pos++;
-                }
-                //可以跳出注释了
+                // 可以跳出注释了
                 if(pos < maxPos && text.charAt(pos) == '*' && text.charAt(pos+1) == '/'){
                     pos += 2;
-                  return 1;
+                    return 1;
+                }
+                // 无法跳出注释，那么更新行号，同时继续往后扫描
+                if (text.charAt(pos) == '\n') {
+                    lineNum++;
                 }
                 pos++;
             }
@@ -82,12 +73,8 @@ public class Lexer {
             pos += 2;
             while (pos <= maxPos) {
 //                System.out.println("扫描注释：" + text.charAt(pos) + "\n");
-                //可以跳出注释了，同时别忘了更新行号
-                if (pos < maxPos && text.charAt(pos) == '\r' && text.charAt(pos + 1) == '\n') {
-                    lineNum++;
-                    pos += 2;
-                    return 1;
-                } else if (text.charAt(pos) == '\n') {
+                // 可以跳出注释了，同时别忘了更新行号
+                if (text.charAt(pos) == '\n') {
                     lineNum++;
                     pos++;
                     return 1;
@@ -95,6 +82,7 @@ public class Lexer {
                 pos++;
             }
         }
+        // 注释一直持续到文件末尾，那么也算作是扫描到了注释
         if(pos >= maxPos){
             return 1;
         }
@@ -103,25 +91,18 @@ public class Lexer {
 
     // 立即获取下一个token
     public Token<?> next () throws LexerException {
-        // 当前是否在单行注释中
-        boolean inSingleNote = false;
-        // 当前是否处在多行注释中
-        boolean inMultipleNote = false;
-        // 当前是否处在字符串中
-        boolean inStrNote = false;
         // 清空当前token
         token = null;
-
         // 跳过注释和空白符
         jumpWhiteCharacter();
         while(jumpNote() != 0){
             jumpWhiteCharacter();
         }
-
         // 已经完成读取
         if (pos > maxPos) {
             return null;
         }
+//        System.out.println("调用next方法开始扫描：" + text.charAt(pos));
         // 按照首字符进行贪心匹配
         char chr = text.charAt(pos);
         // 1.数字开头 应为数字
@@ -137,8 +118,7 @@ public class Lexer {
             pos = endPos;
 
             // 生成token对象
-            token = new Token<Integer>(Integer.parseInt(str), lineNum, TokenType.INTCON);
-
+            token = new Token<Integer>(Integer.parseInt(str), str, lineNum, TokenType.INTCON);
         }
         // 2.字母或下划线开头 应为保留字或者标识符
         else if (Character.isLetter(chr) || chr == '_') {
@@ -159,11 +139,11 @@ public class Lexer {
             TokenType type = TokenType.isReservedToken(str); // 先判断是否是保留字
             // 是保留字
             if(type!=null){
-                token = new Token<String>(str, lineNum, type);
+                token = new Token<String>(str, str, lineNum, type);
             }
             // 是标识符
             else{
-                token = new Token<String>(str, lineNum, TokenType.IDENFR);
+                token = new Token<String>(str, str, lineNum, TokenType.IDENFR);
             }
         }
         // 3.双引号 格式化字符串
@@ -183,7 +163,7 @@ public class Lexer {
             pos = endPos;
 
             // 生成token对象
-            token = new Token<String>(str, lineNum, TokenType.STRCON);
+            token = new Token<String>(str, str, lineNum, TokenType.STRCON);
         }
         // 4.单字符或双字符分隔符
         else{
@@ -208,7 +188,7 @@ public class Lexer {
                 }
             }
             if(tokenType != null){
-                token = new Token<String>(str, lineNum, tokenType);
+                token = new Token<String>(str, str, lineNum, tokenType);
                 pos += posMove;
             }
         }

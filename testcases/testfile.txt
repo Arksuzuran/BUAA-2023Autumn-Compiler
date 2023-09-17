@@ -176,7 +176,7 @@ int main() {
     int result2 = 3 * fun4(2*result1) - 1;
     fun5(-result2, 2*7/5%3, arr1, arr2, arr2[1]);
     fun7(var1, arr1, arr2, arr2[0]);
-    printf("Test ends");
+    printf("Test ends %d", 1);
 //    0 && fun1() && fun3(var1, arr1, arr2, arr2[0]);
     return 0;
 }
