@@ -13,4 +13,5 @@ public class DeclNode {
         this.constDeclNode = constDeclNode;
         this.varDeclNode = varDeclNode;
     }
+
 }

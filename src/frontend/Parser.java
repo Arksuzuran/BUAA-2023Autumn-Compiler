@@ -7,7 +7,7 @@ import token.TokenType;
 import java.util.ArrayList;
 
 /**
- * @Description 语法分析器 递归下降子程序
+ * @Description 语法分析器 递归下降子程序实现
  * @Author  H1KARI
  * @Date 2023/9/18
  **/
@@ -29,9 +29,8 @@ public class Parser {
         this.curToken = tokens.get(pos);
     }
 
-    // 所有匹配最终都会归结到对终结符的匹配上
-    // 将当前token与指定类型的token相匹配
-    // 匹配成功则推进匹配进度，否则进行报错
+    // 所有匹配最终都会归结到对终结符的匹配上，而取下一个终结符的时机就是上一个终结符被读取时，因此将这两个操作合二为一：
+    // 将当前token与指定类型的token相匹配，匹配成功则推进匹配进度pos++，否则进行报错
     private Token matchToken(TokenType tokenType) {
         if(curToken.type == tokenType){
             Token tmp = curToken;
@@ -52,7 +51,9 @@ public class Parser {
         }
         return false;
     }
+    //
     // 递归下降子程序
+    //
 
     // CompUnit → {Decl} {FuncDef} MainFuncDef
     // MainFuncDef  int main()
@@ -74,12 +75,13 @@ public class Parser {
         mainFuncDefNode = MainFuncDef();
         return new CompUnitNode(declNodes, funcDefNodes, mainFuncDefNode);
     }
+
     //  Decl → ConstDecl | VarDecl
     //  在First集合中，ConstDecl 带有 'const'
     private DeclNode Decl(){
         ConstDeclNode constDeclNode = null;
         VarDeclNode varDeclNode = null;
-        if(preMatchToken(0, TokenType.CONSTTK)){
+        if(curToken.type == TokenType.CONSTTK){
             constDeclNode = ConstDecl();
         } else {
             varDeclNode = VarDecl();
@@ -99,16 +101,109 @@ public class Parser {
     private ConstDeclNode ConstDecl(){
         Token constToken = matchToken(TokenType.CONSTTK);
         BTypeNode bTypeNode = BType();
-
-        return null;
+        ConstDefNode constDefNode = ConstDef();
+        ArrayList<Token> commas = new ArrayList<>();
+        ArrayList<ConstDefNode> constDefNodes = new ArrayList<>();
+        while(curToken.type == TokenType.COMMA){
+            commas.add(matchToken(TokenType.COMMA));
+            constDefNodes.add(ConstDef());
+        }
+        Token semicnToken = matchToken(TokenType.SEMICN);
+        return new ConstDeclNode(constToken, bTypeNode, constDefNode, commas, constDefNodes, semicnToken);
     }
 
+    // VarDecl → BType VarDef { ',' VarDef } ';'
     private VarDeclNode VarDecl(){
-        return null;
+        BTypeNode bTypeNode = BType();
+        ArrayList<VarDefNode> varDefNodes = new ArrayList<>();
+        ArrayList<Token> commas = new ArrayList<>();
+        varDefNodes.add(VarDef());
+        while(curToken.type == TokenType.COMMA){
+            commas.add(matchToken(TokenType.COMMA));
+            varDefNodes.add(VarDef());
+        }
+        Token semicnToken = matchToken(TokenType.SEMICN);
+        return new VarDeclNode(bTypeNode, varDefNodes, commas, semicnToken);
     }
 
+    // BType → 'int'
     private BTypeNode BType() {
         Token intToken = matchToken(TokenType.INTTK);
         return new BTypeNode(intToken);
+    }
+
+    // ConstDef → Ident { '[' ConstExp ']' } '=' ConstInitVal
+    private ConstDefNode ConstDef(){
+        Token identToken = matchToken(TokenType.IDENFR);
+        ArrayList<Token> lbrackTokens = new ArrayList<>();
+        ArrayList<ConstExpNode> constExpNodes = new ArrayList<>();
+        ArrayList<Token> rbrackTokens = new ArrayList<>();
+        while(curToken.type == TokenType.LBRACK){
+            lbrackTokens.add(matchToken(TokenType.LBRACK));
+            constExpNodes.add(ConstExp());
+            rbrackTokens.add(matchToken(TokenType.RBRACK));
+        }
+        Token assignToken = matchToken(TokenType.ASSIGN);
+        ConstInitValNode constInitValNode = ConstInitVal();
+        return new ConstDefNode(identToken, lbrackTokens, constExpNodes, rbrackTokens, assignToken, constInitValNode);
+    }
+
+    private ConstExpNode ConstExp(){
+        return null;
+    }
+
+    // ConstInitVal → ConstExp | '{' [ ConstInitVal { ',' ConstInitVal } ] '}'
+    // 后者的first是 LBRACE, 以此进行区分
+    private ConstInitValNode ConstInitVal(){
+        ConstExpNode constExpNode = null;
+        Token lbraceToken = null;
+        ArrayList<ConstInitValNode> constInitValNodes = new ArrayList<>();
+        ArrayList<Token> commas = new ArrayList<>();
+        Token rbraceToken = null;
+        // 数组的初始化, 以{开头
+        if(curToken.type == TokenType.LBRACE){
+            lbraceToken = matchToken(TokenType.LBRACE);
+            // 下一个token不是右括号, 那么中间应当含有constinitval
+            if(curToken.type != TokenType.RBRACE){
+                constInitValNodes.add(ConstInitVal());
+                while(curToken.type == TokenType.COMMA){
+                    commas.add(matchToken(TokenType.COMMA));
+                    constInitValNodes.add(ConstInitVal());
+                }
+            }
+            // 无论中间是否有数组初始值，都应该匹配右括号
+            rbraceToken = matchToken(TokenType.RBRACE);
+        }
+        // 非数组初始化，仅有一个constexp
+        else {
+            constExpNode = ConstExp();
+        }
+        return new ConstInitValNode(constExpNode, lbraceToken, constInitValNodes, commas, rbraceToken);
+    }
+
+    // VarDef → Ident { '[' ConstExp ']' } | Ident { '[' ConstExp ']' } '=' InitVal
+    private VarDefNode VarDef(){
+        Token identToken = matchToken(TokenType.IDENFR);
+        ArrayList<Token> lbrackTokens = new ArrayList<>();
+        ArrayList<ConstExpNode> constExpNodes = new ArrayList<>();
+        ArrayList<Token> rbrackTokens = new ArrayList<>();
+        Token assignToken = null;
+        InitValNode initValNode = null;
+        // 数组指定元素初始化
+        while(curToken.type == TokenType.LBRACK){
+            lbrackTokens.add(matchToken(TokenType.LBRACK));
+            constExpNodes.add(ConstExp());
+            rbrackTokens.add(matchToken(TokenType.RBRACK));
+        }
+        // 根据是否有等号来判断是否执行初始化
+        if(curToken.type == TokenType.ASSIGN){
+            assignToken = matchToken(TokenType.ASSIGN);
+            initValNode = InitVal();
+        }
+        return new VarDefNode(identToken, lbrackTokens, constExpNodes, rbrackTokens, assignToken, initValNode);
+    }
+
+    private InitValNode InitVal(){
+        return null;
     }
 }
