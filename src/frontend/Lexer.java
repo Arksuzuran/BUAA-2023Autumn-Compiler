@@ -1,6 +1,8 @@
 package frontend;
 
 import exception.LexerException;
+import token.Token;
+import token.TokenType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,11 +19,11 @@ public class Lexer {
     private int pos;        // 当前扫描到了文本字符串的哪个单词
 
     private int lineNum;    // 当前所在行号
-    private Token<?> token;
+    private Token token;
 
     // 扫描结果列表
-    private final List<Token<?>> lexerResultList = new ArrayList<>();
-    public List<Token<?>> getLexerResultList(){
+    private final ArrayList<Token> lexerResultList = new ArrayList<>();
+    public ArrayList<Token> getLexerResultList(){
         return lexerResultList;
     }
 
@@ -90,7 +92,7 @@ public class Lexer {
     }
 
     // 立即获取下一个token
-    public Token<?> next () throws LexerException {
+    public Token next () throws LexerException {
         // 清空当前token
         token = null;
         // 跳过注释和空白符
@@ -118,7 +120,7 @@ public class Lexer {
             pos = endPos;
 
             // 生成token对象
-            token = new Token<Integer>(Integer.parseInt(str), str, lineNum, TokenType.INTCON);
+            token = new Token(str, lineNum, TokenType.INTCON);
         }
         // 2.字母或下划线开头 应为保留字或者标识符
         else if (Character.isLetter(chr) || chr == '_') {
@@ -139,11 +141,11 @@ public class Lexer {
             TokenType type = TokenType.isReservedToken(str); // 先判断是否是保留字
             // 是保留字
             if(type!=null){
-                token = new Token<String>(str, str, lineNum, type);
+                token = new Token(str, lineNum, type);
             }
             // 是标识符
             else{
-                token = new Token<String>(str, str, lineNum, TokenType.IDENFR);
+                token = new Token(str, lineNum, TokenType.IDENFR);
             }
         }
         // 3.双引号 格式化字符串
@@ -163,7 +165,7 @@ public class Lexer {
             pos = endPos;
 
             // 生成token对象
-            token = new Token<String>(str, str, lineNum, TokenType.STRCON);
+            token = new Token(str, lineNum, TokenType.STRCON);
         }
         // 4.单字符或双字符分隔符
         else{
@@ -188,7 +190,7 @@ public class Lexer {
                 }
             }
             if(tokenType != null){
-                token = new Token<String>(str, str, lineNum, tokenType);
+                token = new Token(str, lineNum, tokenType);
                 pos += posMove;
             }
         }
@@ -196,12 +198,13 @@ public class Lexer {
         if(token != null){
             lexerResultList.add(token);
         }
+        // 在此产生报错
         return token;
     }
 
     // 直接进行一次完整的扫描
     public void doLexicalAnalysisByPass(boolean printResult){
-        Token<?> token = null;
+        Token token = null;
         try {
             do {
                 token = next();

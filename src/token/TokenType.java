@@ -1,4 +1,4 @@
-package frontend;
+package token;
 
 import java.util.Arrays;
 import java.util.HashMap;
