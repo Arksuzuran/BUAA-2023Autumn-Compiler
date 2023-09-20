@@ -7,10 +7,11 @@ import token.Token;
  * @Author
  * @Date 2023/9/19
  **/
-public class BTypeNode {
+public class BTypeNode extends Node{
     private Token BTypeToken;
 
     public BTypeNode(Token BTypeToken) {
+        super(NodeType.BType);
         this.BTypeToken = BTypeToken;
     }
 }

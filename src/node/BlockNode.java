@@ -1,0 +1,24 @@
+package node;
+
+import token.Token;
+import token.TokenType;
+
+import java.util.ArrayList;
+
+/**
+ * @Description 语句块 Block → '{' { BlockItem } '}'
+ * @Author
+ * @Date 2023/9/20
+ **/
+public class BlockNode extends Node{
+    private Token lbraceToken;
+    private ArrayList<BlockItemNode> blockItemNodes;
+    private Token rbraceToken;
+
+    public BlockNode(Token lbraceToken, ArrayList<BlockItemNode> blockItemNodes, Token rbraceToken) {
+        super(NodeType.Block);
+        this.lbraceToken = lbraceToken;
+        this.blockItemNodes = blockItemNodes;
+        this.rbraceToken = rbraceToken;
+    }
+}

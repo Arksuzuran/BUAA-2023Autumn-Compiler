@@ -10,7 +10,7 @@ import java.util.ArrayList;
  * @Author HIKARI
  * @Date 2023/9/19
  **/
-public class VarDefNode {
+public class VarDefNode extends Node{
     private Token identToken;
     private ArrayList<Token> lbrackTokens;
     private ArrayList<ConstExpNode> constExpNodes;
@@ -19,6 +19,7 @@ public class VarDefNode {
     private InitValNode initValNode;
 
     public VarDefNode(Token identToken, ArrayList<Token> lbrackTokens, ArrayList<ConstExpNode> constExpNodes, ArrayList<Token> rbrackTokens, Token assignToken, InitValNode initValNode) {
+        super(NodeType.VarDef);
         this.identToken = identToken;
         this.lbrackTokens = lbrackTokens;
         this.constExpNodes = constExpNodes;

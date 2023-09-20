@@ -10,16 +10,17 @@ import java.util.ArrayList;
  * @Author
  * @Date 2023/9/19
  **/
-public class VarDeclNode {
+public class VarDeclNode extends Node{
     private BTypeNode bTypeNode;
     private ArrayList<VarDefNode> varDefNodes;
-    private ArrayList<Token> commas;
+    private ArrayList<Token> commaTokens;
     private Token semicnToken;
 
-    public VarDeclNode(BTypeNode bTypeNode, ArrayList<VarDefNode> varDefNodes, ArrayList<Token> commas, Token semicnToken) {
+    public VarDeclNode(BTypeNode bTypeNode, ArrayList<VarDefNode> varDefNodes, ArrayList<Token> commaTokens, Token semicnToken) {
+        super(NodeType.VarDecl);
         this.bTypeNode = bTypeNode;
         this.varDefNodes = varDefNodes;
-        this.commas = commas;
+        this.commaTokens = commaTokens;
         this.semicnToken = semicnToken;
     }
 }

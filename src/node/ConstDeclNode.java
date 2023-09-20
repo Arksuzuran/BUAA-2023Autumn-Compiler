@@ -9,7 +9,7 @@ import java.util.ArrayList;
  * @Author
  * @Date 2023/9/19
  **/
-public class ConstDeclNode {
+public class ConstDeclNode extends Node{
     private Token constToken;
     private BTypeNode bTypeNode;
     private ConstDefNode constDefNode;
@@ -18,6 +18,7 @@ public class ConstDeclNode {
     private Token semicnToken;
 
     public ConstDeclNode(Token constToken, BTypeNode bTypeNode, ConstDefNode constDefNode, ArrayList<Token> commaTokens, ArrayList<ConstDefNode> constDefNodes, Token semicnToken) {
+        super(NodeType.ConstDecl);
         this.constToken = constToken;
         this.bTypeNode = bTypeNode;
         this.constDefNode = constDefNode;
