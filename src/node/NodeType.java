@@ -33,5 +33,9 @@ public enum NodeType {
     EqExp,
     LAndExp,
     LOrExp,
-    ConstExp,
+    ConstExp;
+
+    public String getOutputString(){
+        return "<" + this.toString() + ">";
+    }
 }

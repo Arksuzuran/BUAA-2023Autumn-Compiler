@@ -1,6 +1,7 @@
 package node;
 
 import token.Token;
+import utils.IO;
 
 import java.util.ArrayList;
 
@@ -24,5 +25,26 @@ public class ConstInitValNode extends Node{
         this.constInitValNodes = constInitValNodes;
         this.commaTokens = commaTokens;
         this.rbraceToken = rbraceToken;
+    }
+
+    @Override
+    public void print() {
+        if(lbraceToken != null){
+            lbraceToken.print();
+            if(!constInitValNodes.isEmpty()){
+                constInitValNodes.get(0).print();
+                if(!commaTokens.isEmpty()){
+                    for(int i=0; i<commaTokens.size(); i++){
+                        commaTokens.get(i).print();
+                        constInitValNodes.get(i+1).print();
+                    }
+                }
+            }
+            rbraceToken.print();
+        }
+        else if(constExpNode != null){
+            constExpNode.print();
+        }
+        printNodeType();
     }
 }

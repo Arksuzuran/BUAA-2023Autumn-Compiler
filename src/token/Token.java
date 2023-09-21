@@ -1,5 +1,7 @@
 package token;
 
+import utils.IO;
+
 /**
  * @Description 封装Token
  * @Author  HIKARI
@@ -18,5 +20,10 @@ public class Token {
     @Override
     public String toString(){
         return type + " " + str;
+    }
+
+    // 将当前token输出至文件
+    public void print(){
+        IO.write(this.toString(), true);
     }
 }

@@ -1,6 +1,7 @@
 package node;
 
 import token.Token;
+import utils.IO;
 
 import java.util.ArrayList;
 
@@ -25,5 +26,17 @@ public class ConstDeclNode extends Node{
         this.commaTokens = commaTokens;
         this.constDefNodes = constDefNodes;
         this.semicnToken = semicnToken;
+    }
+
+    @Override
+    public void print() {
+        constToken.print();
+        bTypeNode.print();
+        constDefNode.print();
+        for(int i=0; i<commaTokens.size(); i++){
+            commaTokens.get(i).print();
+            constDefNodes.get(i).print();
+        }
+        printNodeType();
     }
 }

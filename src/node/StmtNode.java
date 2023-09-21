@@ -36,11 +36,124 @@ public class StmtNode extends Node{
     private ArrayList<Token> tokens;
     private ArrayList<Node> nodes;
 
-
-    public StmtNode(StmtType type, ArrayList<Token> tokens, ArrayList<Node> nodes) {
+    private int posFlag;    // +1: 首个forstmt， +2：第二个forstmt
+    public StmtNode(StmtType type, ArrayList<Token> tokens, ArrayList<Node> nodes, int posFlag) {
         super(NodeType.Stmt);
         this.type = type;
         this.tokens = tokens;
         this.nodes = nodes;
+        this.posFlag = posFlag;
+    }
+
+    @Override
+    public void print() {
+        int t = 0, n = 0;
+        switch (type) {
+            // 'if' '(' Cond ')' Stmt [ 'else' Stmt ]
+            case IF -> {
+                // if (
+                tokens.get(t++).print();
+                tokens.get(t++).print();
+                // Cond
+                nodes.get(n++).print();
+                // )
+                tokens.get(t++).print();
+                // Stmt
+                nodes.get(n++).print();
+                // else Stmt
+                if(tokens.size() > 3){
+                    tokens.get(t).print();
+                    nodes.get(n).print();
+                }
+            }
+            // 'for' '(' [ForStmt] ';' [Cond] ';' [forStmt] ')' Stmt
+            case FOR -> {
+                // 'for' '('
+                tokens.get(t++).print();
+                tokens.get(t++).print();
+                // [ForStmt]
+                if(posFlag == 1 || posFlag == 7){
+                    nodes.get(n++).print();
+                }
+                // ;
+                tokens.get(t++).print();
+                // [Cond]
+                if(posFlag == 2 || posFlag == 7){
+                    nodes.get(n++).print();
+                }
+                // ;
+                tokens.get(t++).print();
+                // [ForStmt]
+                if(posFlag == 4 || posFlag == 7){
+                    nodes.get(n++).print();
+                }
+                // )
+                tokens.get(t).print();
+                // Stmt
+                nodes.get(n).print();
+            }
+            // 'break' ';' | 'continue' ';'
+            case BREAK, CONTINUE -> {
+                tokens.get(t++).print();
+                tokens.get(t).print();
+            }
+            // 'return' [Exp] ';'
+            case RETURN -> {
+                tokens.get(t++).print();
+                if(!nodes.isEmpty()){
+                    nodes.get(n).print();
+                }
+                tokens.get(t).print();
+            }
+            // 'printf''('FormatString{','Exp}')'';'
+            case PRINTF -> {
+                // printf
+                tokens.get(t++).print();
+                // (
+                tokens.get(t++).print();
+                // FormatString
+                tokens.get(t++).print();
+                // {','Exp}
+                for(; n<nodes.size();){
+                    tokens.get(t++).print();
+                    nodes.get(n++).print();
+                }
+                tokens.get(t++).print();
+                tokens.get(t).print();
+            }
+            // LVal '=' Exp ';'
+            case LVALASSIGN -> {
+                nodes.get(n++).print();
+                tokens.get(t++).print();
+                nodes.get(n).print();
+                tokens.get(t).print();
+            }
+            //  [Exp] ';'
+            case EXP -> {
+                if(!nodes.isEmpty()){
+                    nodes.get(n).print();
+                }
+                tokens.get(t).print();
+            }
+            // Block
+            case Block -> {
+                nodes.get(n).print();
+            }
+            // LVal '=' 'getint''('')'';'
+            case LVALGETINT -> {
+                nodes.get(n).print();
+                // =
+                tokens.get(t++).print();
+                // getint
+                tokens.get(t++).print();
+                // (
+                tokens.get(t++).print();
+                // )
+                tokens.get(t++).print();
+                // ;
+                tokens.get(t).print();
+            }
+        }
+        printNodeType();
     }
 }

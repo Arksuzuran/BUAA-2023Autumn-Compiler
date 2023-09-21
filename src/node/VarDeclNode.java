@@ -2,6 +2,7 @@ package node;
 
 import token.Token;
 import token.TokenType;
+import utils.IO;
 
 import java.util.ArrayList;
 
@@ -22,5 +23,17 @@ public class VarDeclNode extends Node{
         this.varDefNodes = varDefNodes;
         this.commaTokens = commaTokens;
         this.semicnToken = semicnToken;
+    }
+
+    @Override
+    public void print() {
+        bTypeNode.print();
+        varDefNodes.get(0).print();
+        for(int i=0; i<commaTokens.size(); i++){
+            commaTokens.get(i).print();
+            varDefNodes.get(i+1).print();
+        }
+        semicnToken.print();
+        printNodeType();
     }
 }

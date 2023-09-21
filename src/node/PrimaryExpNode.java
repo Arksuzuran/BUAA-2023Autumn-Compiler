@@ -3,7 +3,7 @@ package node;
 import token.Token;
 
 /**
- * @Description TODO
+ * @Description 基本表达式 PrimaryExp → '(' Exp ')' | LVal | Number
  * @Author
  * @Date 2023/9/20
  **/
@@ -21,5 +21,19 @@ public class PrimaryExpNode extends Node{
         this.rparentToken = rparentToken;
         this.lValNode = lValNode;
         this.numberNode = numberNode;
+    }
+
+    @Override
+    public void print(){
+        if(lparentToken!=null){
+            lparentToken.print();
+            expNode.print();
+            rparentToken.print();
+        } else if(lValNode != null) {
+            lValNode.print();
+        } else {
+            numberNode.print();
+        }
+        printNodeType();
     }
 }

@@ -1,5 +1,7 @@
 package node;
 
+import utils.IO;
+
 /**
  * @Description TODO
  * @Author
@@ -15,4 +17,14 @@ public class DeclNode extends Node{
         this.varDeclNode = varDeclNode;
     }
 
+    // 不必输出本结点
+    @Override
+    public void print() {
+        if(constDeclNode!=null){
+            constDeclNode.print();
+        }
+        if(varDeclNode!=null){
+            varDeclNode.print();
+        }
+    }
 }

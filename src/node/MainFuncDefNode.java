@@ -23,4 +23,14 @@ public class MainFuncDefNode extends Node{
         this.rparentToken = rparentToken;
         this.blockNode = blockNode;
     }
+
+    @Override
+    public void print() {
+        intToken.print();
+        mainToken.print();
+        lparentToken.print();
+        rparentToken.print();
+        blockNode.print();
+        printNodeType();
+    }
 }

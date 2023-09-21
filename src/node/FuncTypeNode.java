@@ -14,4 +14,10 @@ public class FuncTypeNode extends Node{
         super(NodeType.FuncType);
         this.type = type;
     }
+
+    @Override
+    public void print() {
+        type.print();
+        printNodeType();
+    }
 }

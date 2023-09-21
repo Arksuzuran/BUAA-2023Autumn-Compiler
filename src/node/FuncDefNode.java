@@ -25,4 +25,17 @@ public class FuncDefNode extends Node{
         this.rparentToken = rparentToken;
         this.blockNode = blockNode;
     }
+
+    @Override
+    public void print() {
+        funcTypeNode.print();
+        identToken.print();
+        lparentToken.print();
+        if(funcFParamsNode != null){
+            funcFParamsNode.print();
+        }
+        rparentToken.print();
+        blockNode.print();
+        printNodeType();
+    }
 }

@@ -12,6 +12,7 @@ import java.util.ArrayList;
  * @Date 2023/9/18
  **/
 public class Parser {
+    int flag = 0;
     // 词法分析器的token列表
     private final ArrayList<Token> tokens;
 
@@ -21,7 +22,7 @@ public class Parser {
     private int maxPos;
     // 当前token
     private Token curToken;
-
+    private CompUnitNode parsingResultNode = null;
     public Parser(ArrayList<Token> tokens) {
         this.tokens = tokens;
         this.pos = 0;
@@ -29,13 +30,30 @@ public class Parser {
         this.curToken = tokens.get(pos);
     }
 
+    // 进行语法分析
+    public void doParsing(){
+        if(tokens!=null && !tokens.isEmpty()){
+            parsingResultNode = CompUnit();
+        }
+    }
+    // 返回语法分析结果
+    public CompUnitNode getParsingResultNode(){
+        return parsingResultNode;
+    }
+    // 输出语法分析结果至文件
+    public void outputParsingResult(){
+        parsingResultNode.print();
+    }
+
     // 所有匹配最终都会归结到对终结符的匹配上，而取下一个终结符的时机就是上一个终结符被读取时，因此将这两个操作合二为一：
     // 将当前token与指定类型的token相匹配，匹配成功则推进匹配进度pos++，否则进行报错
     private Token matchToken(TokenType tokenType) {
         if (curToken.type == tokenType) {
             Token tmp = curToken;
+//            System.out.println("匹配成功:" + tmp);
             if (pos < maxPos) {
-                curToken = tokens.get(++pos);
+                pos++;
+                curToken = tokens.get(pos);
             }
             return tmp;
         }
@@ -61,6 +79,7 @@ public class Parser {
     // 回溯至上一次标记点
     private void recoverPos() {
         pos = savedPos;
+        curToken = tokens.get(pos);
     }
     //
     // 递归下降子程序
@@ -110,7 +129,9 @@ public class Parser {
             funcFParamsNode = FuncFParams();
         }
         Token rparentToken = matchToken(TokenType.RPARENT);
+//        System.out.println("即将从FuncDef进入block" + curToken);
         BlockNode blockNode = Block();
+//        System.out.println("离开block" + curToken);
         return new FuncDefNode(funcTypeNode, identToken, lparentToken, funcFParamsNode, rparentToken, blockNode);
     }
 
@@ -257,6 +278,10 @@ public class Parser {
 
     // 表达式 Exp → AddExp
     private ExpNode Exp() {
+        if(flag < 50){
+//            System.out.println("exp:" + curToken);
+            flag++;
+        }
         AddExpNode addExpNode = AddExp();
         return new ExpNode(addExpNode);
     }
@@ -304,6 +329,7 @@ public class Parser {
     }
 
     private BlockNode Block() {
+//        System.out.println("进入block" + curToken);
         Token lbraceToken = matchToken(TokenType.LBRACE);
         ArrayList<BlockItemNode> blockItemNodes = new ArrayList<>();
         while (curToken.type != TokenType.RBRACE) {
@@ -336,16 +362,23 @@ public class Parser {
         | LVal '=' 'getint''('')'';'
         | 'printf''('FormatString{','Exp}')'';' // 1.有Exp 2.无Exp
      */
+
     private StmtNode Stmt() {
         ArrayList<Token> tokens = new ArrayList<>();
         ArrayList<Node> nodes = new ArrayList<>();
         StmtNode.StmtType type;
+        int posFlag = 0;
+        if(flag <= 50){
+//            System.out.println("进入stmt" + curToken);
+            flag++;
+        }
         switch (curToken.type) {
             case LBRACE -> { // 语句块 Block → '{' { BlockItem } '}'
                 nodes.add(Block());
                 type = StmtNode.StmtType.Block;
             }
             case IFTK -> {  //  'if' '(' Cond ')' Stmt [ 'else' Stmt ]
+                tokens.add(matchToken(TokenType.IFTK));
                 tokens.add(matchToken(TokenType.LPARENT));
                 nodes.add(Cond());
                 tokens.add(matchToken(TokenType.RPARENT));
@@ -359,21 +392,23 @@ public class Parser {
             case FORTK -> { //  'for' '(' [ForStmt] ';' [Cond] ';' [forStmt] ')' Stmt
                 tokens.add(matchToken(TokenType.FORTK));
                 tokens.add(matchToken(TokenType.LPARENT));
-                // ForStmt
+                // 第一个ForStmt
                 if (curToken.type != TokenType.SEMICN) {
                     nodes.add(ForStmt());
+                    posFlag++;
                 }
                 tokens.add(matchToken(TokenType.SEMICN));
                 // Cond
                 if (curToken.type != TokenType.SEMICN) {
                     nodes.add(Cond());
+                    posFlag += 2;
                 }
                 tokens.add(matchToken(TokenType.SEMICN));
-                // forStmt
-                if (curToken.type != TokenType.SEMICN) {
+                // 第二个forStmt
+                if (curToken.type != TokenType.RPARENT) {
                     nodes.add(ForStmt());
+                    posFlag += 4;
                 }
-                tokens.add(matchToken(TokenType.SEMICN));
                 tokens.add(matchToken(TokenType.RPARENT));
                 nodes.add(Stmt());
                 type = StmtNode.StmtType.FOR;
@@ -390,7 +425,10 @@ public class Parser {
             }
             case RETURNTK -> {  // 'return' [Exp] ';'
                 tokens.add(matchToken(TokenType.RETURNTK));
-                nodes.add(Exp());
+                if(curToken.type != TokenType.SEMICN){
+                    nodes.add(Exp());
+                }
+                tokens.add(matchToken(TokenType.SEMICN));
                 type = StmtNode.StmtType.RETURN;
             }
             case PRINTFTK -> {  // 'printf''('FormatString{','Exp}')'';'
@@ -412,39 +450,48 @@ public class Parser {
                 //  LVal '=' 'getint''('')'';'
                 // 其中：左值表达式 LVal → Ident {'[' Exp ']'}
                 //      表达式 Exp → AddExp → MulExp → UnaryExp  → PrimaryExp | Ident   PrimaryExp → '('
-                // 先使用Exp消去LVal和Exp
-                savePos();
-                ExpNode expNode = Exp();
-                // 直接为分号，应该是Exp
+                // 直接为分号，则无需进行任何操作
                 if (curToken.type == TokenType.SEMICN) {
-                    nodes.add(expNode);
                     tokens.add(matchToken(TokenType.SEMICN));
                     type = StmtNode.StmtType.EXP;
                 }
-                // 非分号，那么进行回溯以读取LVal
-                else {
-                    recoverPos();
-                    LValNode lValNode = LVal();
-                    nodes.add(lValNode);
-                    tokens.add(matchToken(TokenType.ASSIGN));
-                    // LVal '=' 'getint''('')'';'
-                    if (preMatchToken(1, TokenType.GETINTTK)) {
-                        tokens.add(matchToken(TokenType.GETINTTK));
-                        tokens.add(matchToken(TokenType.LPARENT));
-                        tokens.add(matchToken(TokenType.RPARENT));
+                else{
+                    // 先使用Exp消去LVal和Exp
+                    savePos();
+//                    System.out.println("stmt开始进行试探性检验" + curToken);
+                    ExpNode expNode = Exp();
+//                    System.out.println("stmt检验完成" + curToken);
+                    // 直接为分号，应该是Exp
+                    if (curToken.type == TokenType.SEMICN) {
+                        nodes.add(expNode);
                         tokens.add(matchToken(TokenType.SEMICN));
-                        type = StmtNode.StmtType.LVALGETINT;
+                        type = StmtNode.StmtType.EXP;
                     }
-                    // LVal '=' Exp ';'
+                    // 非分号，那么进行回溯以读取LVal
                     else {
-                        nodes.add(Exp());
-                        tokens.add(matchToken(TokenType.SEMICN));
-                        type = StmtNode.StmtType.LVALASSIGN;
+                        recoverPos();
+                        LValNode lValNode = LVal();
+                        nodes.add(lValNode);
+                        tokens.add(matchToken(TokenType.ASSIGN));
+                        // LVal '=' 'getint''('')'';'
+                        if (curToken.type == TokenType.GETINTTK) {
+                            tokens.add(matchToken(TokenType.GETINTTK));
+                            tokens.add(matchToken(TokenType.LPARENT));
+                            tokens.add(matchToken(TokenType.RPARENT));
+                            tokens.add(matchToken(TokenType.SEMICN));
+                            type = StmtNode.StmtType.LVALGETINT;
+                        }
+                        // LVal '=' Exp ';'
+                        else {
+                            nodes.add(Exp());
+                            tokens.add(matchToken(TokenType.SEMICN));
+                            type = StmtNode.StmtType.LVALASSIGN;
+                        }
                     }
                 }
             }
         }
-        return new StmtNode(type, tokens, nodes);
+        return new StmtNode(type, tokens, nodes, posFlag);
     }
 
     // 条件表达式 Cond → LOrExp
@@ -455,6 +502,7 @@ public class Parser {
 
     // 左值表达式 LVal → Ident {'[' Exp ']'} //1.普通变量 2.一维数组 3.二维数组
     private LValNode LVal() {
+//        System.out.println("当前正在分析" + curToken);
         Token identToken = matchToken(TokenType.IDENFR);
         ArrayList<Token> lbrackTokens = new ArrayList<>();
         ArrayList<ExpNode> expNodes = new ArrayList<>();
@@ -490,16 +538,17 @@ public class Parser {
 
     // 基本表达式 PrimaryExp → '(' Exp ')' | LVal | Number
     private PrimaryExpNode PrimaryExp() {
+
         Token lparentToken = null;
         ExpNode expNode = null;
         Token rparentToken = null;
         LValNode lValNode = null;
         NumberNode numberNode = null;
         // '(' Exp ')'
-        if (curToken.type == TokenType.LBRACK) {
+        if (curToken.type == TokenType.LPARENT) {
             lparentToken = matchToken(TokenType.LPARENT);
             expNode = Exp();
-            rparentToken = matchToken(TokenType.LPARENT);
+            rparentToken = matchToken(TokenType.RPARENT);
         }
         // Number
         else if (curToken.type == TokenType.INTCON) {
@@ -520,6 +569,7 @@ public class Parser {
 
     // 一元表达式 UnaryExp → PrimaryExp | Ident '(' [FuncRParams] ')'
     private UnaryExpNode UnaryExp() {
+//        System.out.println("unary" + curToken);
         PrimaryExpNode primaryExpNode = null;
         Token identToken = null;
         Token lparentToken = null;
@@ -528,7 +578,7 @@ public class Parser {
         UnaryOpNode unaryOpNode = null;
         UnaryExpNode unaryExpNode = null;
         // Ident '(' [FuncRParams] ')'
-        if(curToken.type == TokenType.IDENFR){
+        if(curToken.type == TokenType.IDENFR && preMatchToken(1, TokenType.LPARENT)){
             identToken = matchToken(TokenType.IDENFR);
             lparentToken = matchToken(TokenType.LPARENT);
             if(curToken.type != TokenType.RPARENT){
@@ -583,6 +633,7 @@ public class Parser {
         UnaryExpNode unaryExpNode = UnaryExp();
         Token opToken = null;
         MulExpNode mulExpNode = null;
+
         if(curToken.type == TokenType.MULT || curToken.type == TokenType.DIV || curToken.type == TokenType.MOD){
             opToken = matchToken(curToken.type);
             mulExpNode = MulExp();

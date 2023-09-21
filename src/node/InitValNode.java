@@ -24,4 +24,25 @@ public class InitValNode extends Node{
         this.commaTokens = commaTokens;
         this.rbraceToken = rbraceToken;
     }
+
+    @Override
+    public void print() {
+        if(expNode != null){
+            expNode.print();
+        }
+        else{
+            lbraceToken.print();
+            if(!initValNodes.isEmpty()){
+                initValNodes.get(0).print();
+                if(!commaTokens.isEmpty()){
+                    for(int i=0; i<commaTokens.size(); i++){
+                        commaTokens.get(i).print();
+                        initValNodes.get(i+1).print();
+                    }
+                }
+            }
+            rbraceToken.print();
+        }
+        printNodeType();
+    }
 }

@@ -1,11 +1,12 @@
 package node;
 
 import token.Token;
+import utils.IO;
 
 import java.util.ArrayList;
 
 /**
- * @Description TODO
+ * @Description ConstDef → Ident { '[' ConstExp ']' } '=' ConstInitVal
  * @Author
  * @Date 2023/9/19
  **/
@@ -25,5 +26,18 @@ public class ConstDefNode extends Node{
         this.rbrackTokens = rbrackTokens;
         this.assignToken = assignToken;
         this.constInitValNode = constInitValNode;
+    }
+
+    @Override
+    public void print() {
+        identToken.print();
+        for(int i=0; i<lbrackTokens.size(); i++){
+            lbrackTokens.get(i).print();
+            constExpNodes.get(i).print();
+            rbrackTokens.get(i).print();
+        }
+        assignToken.print();
+        constInitValNode.print();
+        printNodeType();
     }
 }

@@ -4,7 +4,7 @@ import token.Token;
 import token.TokenType;
 
 /**
- * @Description TODO
+ * @Description 语句 ForStmt → LVal '=' Exp
  * @Author
  * @Date 2023/9/20
  **/
@@ -18,5 +18,13 @@ public class ForStmtNode extends Node{
         this.lValNode = lValNode;
         this.assignToken = assignToken;
         this.expNode = expNode;
+    }
+
+    @Override
+    public void print(){
+        lValNode.print();
+        assignToken.print();
+        expNode.print();
+        printNodeType();
     }
 }

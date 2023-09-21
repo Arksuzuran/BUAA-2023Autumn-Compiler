@@ -21,4 +21,16 @@ public class BlockNode extends Node{
         this.blockItemNodes = blockItemNodes;
         this.rbraceToken = rbraceToken;
     }
+
+    @Override
+    public void print() {
+        lbraceToken.print();
+        if(!blockItemNodes.isEmpty()){
+            for (BlockItemNode blockItemNode : blockItemNodes){
+                blockItemNode.print();
+            }
+        }
+        rbraceToken.print();
+        printNodeType();
+    }
 }

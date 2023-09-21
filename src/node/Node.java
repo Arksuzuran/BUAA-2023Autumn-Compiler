@@ -1,10 +1,18 @@
 package node;
 
+import utils.IO;
+
 public abstract class Node {
     public NodeType type;
-//    public abstract void printNode();
+
+    // 将当前node输出至文件
+    public abstract void print();
 
     public Node(NodeType type) {
         this.type = type;
+    }
+
+    public void printNodeType(){
+        IO.write(type.getOutputString(), true);
     }
 }

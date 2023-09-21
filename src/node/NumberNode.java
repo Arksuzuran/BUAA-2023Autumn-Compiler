@@ -3,7 +3,7 @@ package node;
 import token.Token;
 
 /**
- * @Description TODO
+ * @Description 数值 Number → IntConst
  * @Author
  * @Date 2023/9/20
  **/
@@ -13,5 +13,11 @@ public class NumberNode extends Node{
     public NumberNode(Token intConstToken) {
         super(NodeType.Number);
         this.intConstToken = intConstToken;
+    }
+
+    @Override
+    public void print(){
+        intConstToken.print();
+        printNodeType();
     }
 }

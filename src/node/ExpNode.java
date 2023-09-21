@@ -1,7 +1,7 @@
 package node;
 
 /**
- * @Description TODO
+ * @Description 表达式 Exp → AddExp
  * @Author
  * @Date 2023/9/20
  **/
@@ -11,5 +11,11 @@ public class ExpNode extends Node{
     public ExpNode(AddExpNode addExpNode) {
         super(NodeType.Exp);
         this.addExpNode = addExpNode;
+    }
+
+    @Override
+    public void print(){
+        addExpNode.print();
+        printNodeType();
     }
 }

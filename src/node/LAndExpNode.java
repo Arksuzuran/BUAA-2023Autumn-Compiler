@@ -3,7 +3,7 @@ package node;
 import token.Token;
 
 /**
- * @Description TODO
+ * @Description 逻辑与表达式 LAndExp → EqExp | LAndExp '&&' EqExp
  * @Author
  * @Date 2023/9/21
  **/
@@ -17,5 +17,16 @@ public class LAndExpNode extends Node{
         this.eqExpNode = eqExpNode;
         this.opToken = opToken;
         this.lAndExpNode = lAndExpNode;
+    }
+
+    // 逻辑与表达式 LAndExp → EqExp | EqExp '&&' LAndExp
+    @Override
+    public void print(){
+        eqExpNode.print();
+        printNodeType();    // 紧跟在后输出
+        if(opToken != null){
+            opToken.print();
+            lAndExpNode.print();
+        }
     }
 }

@@ -25,4 +25,22 @@ public class FuncFParamNode extends Node{
         this.rbrackTokens = rbrackTokens;
         this.constExpNodes = constExpNodes;
     }
+
+    @Override
+    public void print() {
+        bTypeNode.print();
+        identToken.print();
+        if(!lbrackTokens.isEmpty()){
+            lbrackTokens.get(0).print();
+            rbrackTokens.get(0).print();
+            if(!constExpNodes.isEmpty()){
+                for(int i=0; i<constExpNodes.size(); i++){
+                    lbrackTokens.get(i+1).print();
+                    constExpNodes.get(i).print();
+                    rbrackTokens.get(i+1).print();
+                }
+            }
+        }
+        printNodeType();
+    }
 }

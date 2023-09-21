@@ -27,4 +27,21 @@ public class VarDefNode extends Node{
         this.assignToken = assignToken;
         this.initValNode = initValNode;
     }
+
+    @Override
+    public void print() {
+        identToken.print();
+        if(!lbrackTokens.isEmpty()){
+            for (int i=0; i<lbrackTokens.size(); i++){
+                lbrackTokens.get(i).print();
+                constExpNodes.get(i).print();
+                rbrackTokens.get(i).print();
+            }
+        }
+        if(assignToken != null){
+            assignToken.print();
+            initValNode.print();
+        }
+        printNodeType();
+    }
 }

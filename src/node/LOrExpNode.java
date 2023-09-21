@@ -3,7 +3,7 @@ package node;
 import token.Token;
 
 /**
- * @Description TODO
+ * @Description 逻辑或表达式 LOrExp → LAndExp | LOrExp '||' LAndExp
  * @Author
  * @Date 2023/9/20
  **/
@@ -17,5 +17,16 @@ public class LOrExpNode extends Node{
         this.lAndExpNode = lAndExpNode;
         this.opToken = opToken;
         this.lOrExpNode = lOrExpNode;
+    }
+
+    // 逻辑或表达式 LOrExp → LAndExp | LAndExp '||' LOrExp
+    @Override
+    public void print(){
+        lAndExpNode.print();
+        printNodeType();    // 紧跟在后输出
+        if(opToken != null){
+            opToken.print();
+            lOrExpNode.print();
+        }
     }
 }

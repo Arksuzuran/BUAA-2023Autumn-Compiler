@@ -14,4 +14,14 @@ public class BlockItemNode extends Node{
         this.declNode = declNode;
         this.stmtNode = stmtNode;
     }
+
+    // 不必输出
+    @Override
+    public void print() {
+        if(declNode != null){
+            declNode.print();
+        } else {
+            stmtNode.print();
+        }
+    }
 }

@@ -18,4 +18,16 @@ public class FuncFParamsNode extends Node{
         this.funcFParamNodes = funcFParamNodes;
         this.commaTokens = commaTokens;
     }
+
+    @Override
+    public void print() {
+        funcFParamNodes.get(0).print();
+        if(!commaTokens.isEmpty()){
+            for(int i=0; i<commaTokens.size(); i++){
+                commaTokens.get(i).print();
+                funcFParamNodes.get(i+1).print();
+            }
+        }
+        printNodeType();
+    }
 }

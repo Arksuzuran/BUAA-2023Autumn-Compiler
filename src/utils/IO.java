@@ -1,11 +1,9 @@
 package utils;
 
 import config.Config;
+import token.Token;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 
 /**
  * @Description 读写文件工具类
@@ -38,7 +36,7 @@ public class IO {
     public static void write(String filePath, String content){
         try{
             File file = new File(filePath);
-            System.out.println("输出至文件：" + file.getAbsolutePath());
+            System.out.println("覆写至文件：" + file.getAbsolutePath());
             if(!file.exists()){
                 file.createNewFile();
             }
@@ -48,14 +46,52 @@ public class IO {
             System.out.println("文件输出失败" + e);
         }
     }
-    // 默认写入已配置好的路径
+
+    // 默认覆写入已配置好的路径
     public static void write(String content){
         String filePath = Config.atLocalTest ? Config.localOutputFilePath : Config.outputFilePath;
         write(filePath, content);
     }
+
+    // 将字符串追加写入指定路径的文件
+    public static void write(String filePath, String content, boolean appending){
+        if(!appending){
+            write(filePath, content);
+            return;
+        }
+        try{
+            File file = new File(filePath);
+//            System.out.println("追加写至文件：" + file.getAbsolutePath() + "内容：" + content);
+            if(!file.exists()){
+                file.createNewFile();
+            }
+            FileWriter fileWriter = new FileWriter(file, true);
+            fileWriter.write(content + '\n');
+            fileWriter.flush();
+            fileWriter.close();
+        } catch (IOException e){
+            System.out.println("文件输出失败" + e);
+        }
+    }
+    // 默认写入已配置好的路径
+    public static void write(String content, boolean appending){
+        if(!appending){
+            write(content);
+            return;
+        }
+        String filePath = Config.atLocalTest ? Config.localOutputFilePath : Config.outputFilePath;
+        write(filePath, content, appending);
+    }
+
     // 默认读入已配置好的路径
     public static String read(){
         String filePath = Config.atLocalTest ? Config.localInputFilePath : Config.inputFilePath;
         return read(filePath);
+    }
+
+    // 重载 写Token
+    public static void write(Token token){
+        String filePath = Config.atLocalTest ? Config.localOutputFilePath : Config.outputFilePath;
+        write(filePath, token.toString());
     }
 }

@@ -1,5 +1,7 @@
 package node;
 
+import utils.IO;
+
 import java.util.ArrayList;
 
 /**
@@ -17,5 +19,22 @@ public class CompUnitNode extends Node{
         this.declNodes = declNodes;
         this.funcDefNodes = funcDefNodes;
         this.mainFuncDefNode = mainFuncDefNode;
+    }
+
+
+    @Override
+    public void print() {
+        if(!declNodes.isEmpty()){
+            for(DeclNode declNode : declNodes){
+                declNode.print();
+            }
+        }
+        if(!funcDefNodes.isEmpty()){
+            for (FuncDefNode funcDefNode : funcDefNodes){
+                funcDefNode.print();
+            }
+        }
+        mainFuncDefNode.print();
+        printNodeType();
     }
 }
