@@ -19,14 +19,16 @@ public class EqExpNode extends Node{
         this.eqExpNode = eqExpNode;
     }
 
-    // 相等性表达式 EqExp → RelExp | RelExp ('==' | '!=') EqExp
+    // 相等性表达式 EqExp → RelExp | EqExp ('==' | '!=') RelExp
     @Override
     public void print(){
-        relExpNode.print();
-        printNodeType();    // 紧跟在后输出
-        if(opToken != null){
-            opToken.print();
+        if(opToken == null){
+            relExpNode.print();
+        } else {
             eqExpNode.print();
+            opToken.print();
+            relExpNode.print();
         }
+        printNodeType();
     }
 }

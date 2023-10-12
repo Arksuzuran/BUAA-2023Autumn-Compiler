@@ -5,6 +5,7 @@ import token.Token;
 import token.TokenType;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 /**
  * @Description 语法分析器 递归下降子程序实现
@@ -278,10 +279,10 @@ public class Parser {
 
     // 表达式 Exp → AddExp
     private ExpNode Exp() {
-        if(flag < 50){
-//            System.out.println("exp:" + curToken);
-            flag++;
-        }
+//        if(flag < 50){
+////            System.out.println("exp:" + curToken);
+//            flag++;
+//        }
         AddExpNode addExpNode = AddExp();
         return new ExpNode(addExpNode);
     }
@@ -367,11 +368,11 @@ public class Parser {
         ArrayList<Token> tokens = new ArrayList<>();
         ArrayList<Node> nodes = new ArrayList<>();
         StmtNode.StmtType type;
-        int posFlag = 0;
-        if(flag <= 50){
+        ArrayList<Boolean> posFlag = new ArrayList<>(Arrays.asList(false, false, false));   // for语句的三个槽位
+//        if(flag <= 50){
 //            System.out.println("进入stmt" + curToken);
-            flag++;
-        }
+//            flag++;
+//        }
         switch (curToken.type) {
             case LBRACE -> { // 语句块 Block → '{' { BlockItem } '}'
                 nodes.add(Block());
@@ -392,24 +393,28 @@ public class Parser {
             case FORTK -> { //  'for' '(' [ForStmt] ';' [Cond] ';' [forStmt] ')' Stmt
                 tokens.add(matchToken(TokenType.FORTK));
                 tokens.add(matchToken(TokenType.LPARENT));
+
                 // 第一个ForStmt
                 if (curToken.type != TokenType.SEMICN) {
                     nodes.add(ForStmt());
-                    posFlag++;
+                    posFlag.set(0, true);
                 }
                 tokens.add(matchToken(TokenType.SEMICN));
+
                 // Cond
                 if (curToken.type != TokenType.SEMICN) {
                     nodes.add(Cond());
-                    posFlag += 2;
+                    posFlag.set(1, true);
                 }
                 tokens.add(matchToken(TokenType.SEMICN));
+
                 // 第二个forStmt
                 if (curToken.type != TokenType.RPARENT) {
                     nodes.add(ForStmt());
-                    posFlag += 4;
+                    posFlag.set(2, true);
                 }
                 tokens.add(matchToken(TokenType.RPARENT));
+
                 nodes.add(Stmt());
                 type = StmtNode.StmtType.FOR;
             }
@@ -524,14 +529,18 @@ public class Parser {
     }
 
     // 加减表达式 AddExp → MulExp | AddExp ('+' | '−') MulExp
-    // AddExp → MulExp | MulExp ('+' | '−') AddExp
     private AddExpNode AddExp() {
         MulExpNode mulExpNode = MulExp();
         Token opToken = null;
         AddExpNode addExpNode = null;
-        if(curToken.type == TokenType.PLUS || curToken.type == TokenType.MINU){
+
+        // 存在('+' | '−') 那么捕获外层结构，然后组装回一层层的AddExp
+        while(curToken.type == TokenType.PLUS || curToken.type == TokenType.MINU){
+            // 将上一轮捕获的单位进行组装
+            addExpNode = new AddExpNode(mulExpNode, opToken, addExpNode);
+            // 以('+' | '−') MulExp為單位继续进行捕获
             opToken = matchToken(curToken.type);
-            addExpNode = AddExp();
+            mulExpNode = MulExp();
         }
         return new AddExpNode(mulExpNode, opToken, addExpNode);
     }
@@ -624,19 +633,18 @@ public class Parser {
     }
 
     // 乘除模表达式 MulExp → UnaryExp | MulExp ('*' | '/' | '%') UnaryExp
-    // 按照右递归处理 MulExp → UnaryExp | UnaryExp ('*' | '/' | '%') MulExp
-    // 考虑到最后输出该子树时，序列为 <UnaryExp> <MulExp> * <UnaryExp> <MulExp> * <UnaryExp> <MulExp> * ... <UnaryExp> <MulExp>
-    // 观察不难发现，我们的<MulExp>一定在<UnaryExp>之后！因此只需改变输出顺序，在输出<UnaryExp>之后立即输出<MulExp>即可，而非最后输出！
-
     // 可以考虑循环提取所有unary之后再拼接回去
     private MulExpNode MulExp(){
         UnaryExpNode unaryExpNode = UnaryExp();
         Token opToken = null;
         MulExpNode mulExpNode = null;
 
-        if(curToken.type == TokenType.MULT || curToken.type == TokenType.DIV || curToken.type == TokenType.MOD){
+        // 存在('+' | '−') 那么捕获外层结构，然后组装回一层层的AddExp
+        while(curToken.type == TokenType.MULT || curToken.type == TokenType.DIV || curToken.type == TokenType.MOD){
+            // 将上一轮捕获的单位进行组装
+            mulExpNode = new MulExpNode(unaryExpNode, opToken, mulExpNode);
             opToken = matchToken(curToken.type);
-            mulExpNode = MulExp();
+            unaryExpNode = UnaryExp();
         }
         return new MulExpNode(unaryExpNode, opToken, mulExpNode);
     }
@@ -647,48 +655,56 @@ public class Parser {
         AddExpNode addExpNode = AddExp();
         Token opToken = null;
         RelExpNode relExpNode = null;
-        if(curToken.type == TokenType.LSS || curToken.type == TokenType.GRE || curToken.type == TokenType.LEQ || curToken.type == TokenType.GEQ){
+
+        while(curToken.type == TokenType.LSS || curToken.type == TokenType.GRE || curToken.type == TokenType.LEQ || curToken.type == TokenType.GEQ){
+            // 将上一轮捕获的单位进行组装
+            relExpNode = new RelExpNode(addExpNode, opToken, relExpNode);
             opToken = matchToken(curToken.type);
-            relExpNode = RelExp();
+            addExpNode = AddExp();
         }
         return new RelExpNode(addExpNode, opToken, relExpNode);
     }
 
     // 相等性表达式 EqExp → RelExp | EqExp ('==' | '!=') RelExp
-    // EqExp → RelExp | RelExp ('==' | '!=') EqExp
     private EqExpNode EqExp(){
         RelExpNode relExpNode = RelExp();
         Token opToken = null;
         EqExpNode eqExpNode = null;
-        if(curToken.type == TokenType.EQL || curToken.type == TokenType.NEQ){
+        while(curToken.type == TokenType.EQL || curToken.type == TokenType.NEQ){
+            // 将上一轮捕获的单位进行组装
+            eqExpNode = new EqExpNode(relExpNode, opToken, eqExpNode);
             opToken = matchToken(curToken.type);
-            eqExpNode = EqExp();
+            relExpNode = RelExp();
         }
         return new EqExpNode(relExpNode, opToken, eqExpNode);
     }
 
     // 逻辑与表达式 LAndExp → EqExp | LAndExp '&&' EqExp
-    // LAndExp → EqExp | EqExp '&&' LAndExp
     private LAndExpNode LAndExp(){
         EqExpNode eqExpNode = EqExp();
         Token opToken = null;
         LAndExpNode lAndExpNode = null;
-        if(curToken.type == TokenType.AND){
+
+        while(curToken.type == TokenType.AND){
+            // 将上一轮捕获的单位进行组装
+            lAndExpNode = new LAndExpNode(eqExpNode, opToken, lAndExpNode);
             opToken = matchToken(curToken.type);
-            lAndExpNode = LAndExp();
+            eqExpNode = EqExp();
         }
         return new LAndExpNode(eqExpNode, opToken, lAndExpNode);
     }
 
     // 逻辑或表达式 LOrExp → LAndExp | LOrExp '||' LAndExp
-    // LOrExp → LAndExp | LAndExp '||' LOrExp
     private LOrExpNode LOrExp(){
         LAndExpNode lAndExpNode = LAndExp();
         Token opToken = null;
         LOrExpNode lOrExpNode = null;
-        if (curToken.type == TokenType.OR){
+
+        while(curToken.type == TokenType.OR){
+            // 将上一轮捕获的单位进行组装
+            lOrExpNode = new LOrExpNode(lAndExpNode, opToken, lOrExpNode);
             opToken = matchToken(curToken.type);
-            lOrExpNode = LOrExp();
+            lAndExpNode = LAndExp();
         }
         return new LOrExpNode(lAndExpNode, opToken, lOrExpNode);
     }

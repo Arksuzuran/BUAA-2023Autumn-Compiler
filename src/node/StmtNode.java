@@ -36,8 +36,8 @@ public class StmtNode extends Node{
     private ArrayList<Token> tokens;
     private ArrayList<Node> nodes;
 
-    private int posFlag;    // +1: 首个forstmt， +2：第二个forstmt
-    public StmtNode(StmtType type, ArrayList<Token> tokens, ArrayList<Node> nodes, int posFlag) {
+    private ArrayList<Boolean> posFlag;    // 首个forstmt，第二个Cond, 第三个forstmt
+    public StmtNode(StmtType type, ArrayList<Token> tokens, ArrayList<Node> nodes, ArrayList<Boolean> posFlag) {
         super(NodeType.Stmt);
         this.type = type;
         this.tokens = tokens;
@@ -72,19 +72,19 @@ public class StmtNode extends Node{
                 tokens.get(t++).print();
                 tokens.get(t++).print();
                 // [ForStmt]
-                if(posFlag == 1 || posFlag == 7){
+                if(posFlag.get(0)){
                     nodes.get(n++).print();
                 }
                 // ;
                 tokens.get(t++).print();
                 // [Cond]
-                if(posFlag == 2 || posFlag == 7){
+                if(posFlag.get(1)){
                     nodes.get(n++).print();
                 }
                 // ;
                 tokens.get(t++).print();
                 // [ForStmt]
-                if(posFlag == 4 || posFlag == 7){
+                if(posFlag.get(2)){
                     nodes.get(n++).print();
                 }
                 // )

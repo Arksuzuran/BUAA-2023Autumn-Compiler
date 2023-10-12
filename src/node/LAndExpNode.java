@@ -19,14 +19,16 @@ public class LAndExpNode extends Node{
         this.lAndExpNode = lAndExpNode;
     }
 
-    // 逻辑与表达式 LAndExp → EqExp | EqExp '&&' LAndExp
+    // 逻辑与表达式 LAndExp → EqExp | LAndExp '&&' EqExp
     @Override
     public void print(){
-        eqExpNode.print();
-        printNodeType();    // 紧跟在后输出
-        if(opToken != null){
-            opToken.print();
+        if(opToken == null){
+            eqExpNode.print();
+        } else {
             lAndExpNode.print();
+            opToken.print();
+            eqExpNode.print();
         }
+        printNodeType();
     }
 }

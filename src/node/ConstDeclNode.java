@@ -6,7 +6,7 @@ import utils.IO;
 import java.util.ArrayList;
 
 /**
- * @Description TODO
+ * @Description 常量声明 ConstDecl → 'const' BType ConstDef { ',' ConstDef } ';'
  * @Author
  * @Date 2023/9/19
  **/
@@ -37,6 +37,7 @@ public class ConstDeclNode extends Node{
             commaTokens.get(i).print();
             constDefNodes.get(i).print();
         }
+        semicnToken.print();
         printNodeType();
     }
 }

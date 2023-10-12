@@ -20,13 +20,16 @@ public class AddExpNode extends Node{
     }
 
     // 加减表达式 AddExp → MulExp | MulExp ('+' | '−') AddExp
+    // 加减表达式 AddExp → MulExp | AddExp ('+' | '−') MulExp
     @Override
     public void print(){
-        mulExpNode.print();
-        printNodeType();    // 紧跟在后输出
-        if(opToken != null){
-            opToken.print();
+        if(opToken == null){
+            mulExpNode.print();
+        } else {
             addExpNode.print();
+            opToken.print();
+            mulExpNode.print();
         }
+        printNodeType();    // 紧跟在后输出
     }
 }

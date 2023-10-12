@@ -82,5 +82,6 @@ public class Compiler {
         compiler.readInputFile();
         compiler.doLexicalAnalysis();
         compiler.doParsing();
+        System.out.println("执行完成!");
     }
 }

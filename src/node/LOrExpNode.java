@@ -19,14 +19,15 @@ public class LOrExpNode extends Node{
         this.lOrExpNode = lOrExpNode;
     }
 
-    // 逻辑或表达式 LOrExp → LAndExp | LAndExp '||' LOrExp
-    @Override
+    // 逻辑或表达式 LOrExp → LAndExp | LOrExp '||' LAndExp
     public void print(){
-        lAndExpNode.print();
-        printNodeType();    // 紧跟在后输出
-        if(opToken != null){
-            opToken.print();
+        if(opToken == null){
+            lAndExpNode.print();
+        } else {
             lOrExpNode.print();
+            opToken.print();
+            lAndExpNode.print();
         }
+        printNodeType();
     }
 }

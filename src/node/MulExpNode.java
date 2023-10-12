@@ -19,14 +19,17 @@ public class MulExpNode extends Node{
         this.mulExpNode = mulExpNode;
     }
 
-    // MulExp → UnaryExp | UnaryExp ('*' | '/' | '%') MulExp
+    // MulExp → UnaryExp | MulExp ('*' | '/' | '%') UnaryExp
     @Override
     public void print(){
-        unaryExpNode.print();
-        printNodeType();    // 紧跟在unaryexp后输出
-        if(opToken != null){
-            opToken.print();
+        if(opToken == null){
+            unaryExpNode.print();
+        } else {
             mulExpNode.print();
+            opToken.print();
+            unaryExpNode.print();
         }
+        printNodeType();
     }
+
 }

@@ -46,7 +46,6 @@ public class IO {
             System.out.println("文件输出失败" + e);
         }
     }
-
     // 默认覆写入已配置好的路径
     public static void write(String content){
         String filePath = Config.atLocalTest ? Config.localOutputFilePath : Config.outputFilePath;
@@ -54,7 +53,7 @@ public class IO {
     }
 
     // 将字符串追加写入指定路径的文件
-    public static void write(String filePath, String content, boolean appending){
+    public static void write(String filePath, String content, boolean appending, boolean println){
         if(!appending){
             write(filePath, content);
             return;
@@ -66,21 +65,25 @@ public class IO {
                 file.createNewFile();
             }
             FileWriter fileWriter = new FileWriter(file, true);
-            fileWriter.write(content + '\n');
+            if(println){
+                fileWriter.write(content + '\n');
+            } else {
+                fileWriter.write(content);
+            }
             fileWriter.flush();
             fileWriter.close();
         } catch (IOException e){
             System.out.println("文件输出失败" + e);
         }
     }
-    // 默认写入已配置好的路径
-    public static void write(String content, boolean appending){
+    // 默认追加写入已配置好的路径
+    public static void write(String content, boolean appending, boolean println){
         if(!appending){
             write(content);
             return;
         }
         String filePath = Config.atLocalTest ? Config.localOutputFilePath : Config.outputFilePath;
-        write(filePath, content, appending);
+        write(filePath, content, appending, println);
     }
 
     // 默认读入已配置好的路径

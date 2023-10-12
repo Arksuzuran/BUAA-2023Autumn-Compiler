@@ -24,6 +24,6 @@ public class Token {
 
     // 将当前token输出至文件
     public void print(){
-        IO.write(this.toString(), true);
+        IO.write(this.toString(), true, true);
     }
 }

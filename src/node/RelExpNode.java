@@ -19,14 +19,16 @@ public class RelExpNode extends Node{
         this.relExpNode = relExpNode;
     }
 
-    // 关系表达式 RelExp → AddExp | AddEx ('<' | '>' | '<=' | '>=') RelExp
+    // 关系表达式 RelExp → AddExp | RelExp ('<' | '>' | '<=' | '>=') AddEx
     @Override
     public void print(){
-        addExpNode.print();
-        printNodeType();    // 紧跟在后输出
-        if(opToken != null){
-            opToken.print();
+        if(opToken == null){
+            addExpNode.print();
+        } else {
             relExpNode.print();
+            opToken.print();
+            addExpNode.print();
         }
+        printNodeType();
     }
 }
