@@ -18,4 +18,9 @@ public class ConstExpNode extends Node{
         addExpNode.print();
         printNodeType();
     }
+
+    @Override
+    public void check() {
+        addExpNode.check();
+    }
 }

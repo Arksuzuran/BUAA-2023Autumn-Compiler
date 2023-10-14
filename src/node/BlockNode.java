@@ -21,7 +21,12 @@ public class BlockNode extends Node{
         this.blockItemNodes = blockItemNodes;
         this.rbraceToken = rbraceToken;
     }
-
+    public ArrayList<BlockItemNode> getBlockItemNodes() {
+        return blockItemNodes;
+    }
+    public Token getRbraceToken() {
+        return rbraceToken;
+    }
     @Override
     public void print() {
         lbraceToken.print();
@@ -33,4 +38,14 @@ public class BlockNode extends Node{
         rbraceToken.print();
         printNodeType();
     }
+
+    // Block → '{' { BlockItem } '}'
+    @Override
+    public void check() {
+        for(BlockItemNode blockItemNode : blockItemNodes){
+            blockItemNode.check();
+        }
+    }
+
+
 }

@@ -32,4 +32,18 @@ public class AddExpNode extends Node{
         }
         printNodeType();    // 紧跟在后输出
     }
+
+    @Override
+    public void check() {
+        if(opToken == null){
+            mulExpNode.check();
+        } else {
+            addExpNode.check();
+            mulExpNode.check();
+        }
+    }
+
+    public int getDim() {
+        return mulExpNode.getDim();
+    }
 }

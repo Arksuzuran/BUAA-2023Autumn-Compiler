@@ -31,4 +31,14 @@ public class LAndExpNode extends Node{
         }
         printNodeType();
     }
+
+    @Override
+    public void check() {
+        if(opToken == null){
+            eqExpNode.check();
+        } else {
+            lAndExpNode.check();
+            eqExpNode.check();
+        }
+    }
 }

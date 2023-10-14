@@ -1,7 +1,9 @@
 package node;
 
+import symbol.NumSymbol;
+import symbol.SymbolTableStack;
 import token.Token;
-import token.TokenType;
+import utils.ErrorCheckTool;
 
 import java.util.ArrayList;
 
@@ -12,6 +14,7 @@ import java.util.ArrayList;
  **/
 public class FuncFParamNode extends Node{
     private BTypeNode bTypeNode;
+
     private Token identToken;
     private ArrayList<Token> lbrackTokens;
     private ArrayList<Token> rbrackTokens;
@@ -25,7 +28,14 @@ public class FuncFParamNode extends Node{
         this.rbrackTokens = rbrackTokens;
         this.constExpNodes = constExpNodes;
     }
-
+    // 获取参数的维数 理应等于左右中括号的组数
+    public int getParamDim(){
+        return lbrackTokens.size();
+    }
+    // 获取标识符的token
+    public Token getIdentToken() {
+        return identToken;
+    }
     @Override
     public void print() {
         bTypeNode.print();
@@ -42,5 +52,15 @@ public class FuncFParamNode extends Node{
             }
         }
         printNodeType();
+    }
+
+    // 函数形参    FuncFParam → BType Ident ['[' ']' { '[' ConstExp ']' }]  //   b k
+    @Override
+    public void check() {
+        // 检测重定义即可
+        if(ErrorCheckTool.judgeAndHandleDuplicateError(identToken)){
+            NumSymbol numSymbol = ErrorCheckTool.transFuncFParam2Symbol(this);
+            SymbolTableStack.addSymbolToPeek(numSymbol);
+        }
     }
 }

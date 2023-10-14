@@ -1,5 +1,7 @@
 package node;
 
+import symbol.SymbolTable;
+import symbol.SymbolTableStack;
 import utils.IO;
 
 import java.util.ArrayList;
@@ -21,6 +23,24 @@ public class CompUnitNode extends Node{
         this.mainFuncDefNode = mainFuncDefNode;
     }
 
+    @Override
+    public void check() {
+        // 要新建根符号表 采取SymbolTable的单例
+        SymbolTable root = SymbolTable.getRootSymbolTable();
+        SymbolTableStack.push(root);
+
+        if(!declNodes.isEmpty()){
+            for(DeclNode declNode : declNodes){
+                declNode.check();
+            }
+        }
+        if(!funcDefNodes.isEmpty()){
+            for (FuncDefNode funcDefNode : funcDefNodes){
+                funcDefNode.check();
+            }
+        }
+        mainFuncDefNode.check();
+    }
 
     @Override
     public void print() {

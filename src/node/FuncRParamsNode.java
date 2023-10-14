@@ -10,6 +10,10 @@ import java.util.ArrayList;
  * @Date 2023/9/20
  **/
 public class FuncRParamsNode extends Node{
+    public ArrayList<ExpNode> getExpNodes() {
+        return expNodes;
+    }
+
     private ArrayList<ExpNode> expNodes;
     private ArrayList<Token> commaTokens;
 
@@ -27,5 +31,12 @@ public class FuncRParamsNode extends Node{
             expNodes.get(i+1).print();
         }
         printNodeType();
+    }
+
+    @Override
+    public void check() {
+        for (ExpNode expNode : expNodes){
+            expNode.check();
+        }
     }
 }

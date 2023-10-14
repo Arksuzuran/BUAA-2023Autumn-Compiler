@@ -18,4 +18,13 @@ public class ExpNode extends Node{
         addExpNode.print();
         printNodeType();
     }
+
+    @Override
+    public void check() {
+        addExpNode.check();
+    }
+
+    public int getDim() {
+        return addExpNode.getDim();
+    }
 }

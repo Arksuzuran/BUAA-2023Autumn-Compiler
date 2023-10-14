@@ -13,16 +13,14 @@ import java.util.ArrayList;
 public class ConstDeclNode extends Node{
     private Token constToken;
     private BTypeNode bTypeNode;
-    private ConstDefNode constDefNode;
     private ArrayList<Token> commaTokens;
     private ArrayList<ConstDefNode> constDefNodes;
     private Token semicnToken;
 
-    public ConstDeclNode(Token constToken, BTypeNode bTypeNode, ConstDefNode constDefNode, ArrayList<Token> commaTokens, ArrayList<ConstDefNode> constDefNodes, Token semicnToken) {
+    public ConstDeclNode(Token constToken, BTypeNode bTypeNode, ArrayList<Token> commaTokens, ArrayList<ConstDefNode> constDefNodes, Token semicnToken) {
         super(NodeType.ConstDecl);
         this.constToken = constToken;
         this.bTypeNode = bTypeNode;
-        this.constDefNode = constDefNode;
         this.commaTokens = commaTokens;
         this.constDefNodes = constDefNodes;
         this.semicnToken = semicnToken;
@@ -32,12 +30,20 @@ public class ConstDeclNode extends Node{
     public void print() {
         constToken.print();
         bTypeNode.print();
-        constDefNode.print();
+        constDefNodes.get(0).print();
         for(int i=0; i<commaTokens.size(); i++){
             commaTokens.get(i).print();
-            constDefNodes.get(i).print();
+            constDefNodes.get(i+1).print();
         }
         semicnToken.print();
         printNodeType();
+    }
+
+    // ConstDecl → 'const' BType ConstDef { ',' ConstDef } ';' // i
+    @Override
+    public void check() {
+        for(ConstDefNode constDefNode : constDefNodes){
+            constDefNode.check();
+        }
     }
 }

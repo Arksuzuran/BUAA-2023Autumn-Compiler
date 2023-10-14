@@ -20,4 +20,8 @@ public class UnaryOpNode extends Node{
         opToken.print();
         printNodeType();
     }
+
+    @Override
+    public void check() {
+    }
 }

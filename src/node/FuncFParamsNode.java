@@ -10,6 +10,7 @@ import java.util.ArrayList;
  * @Date 2023/9/20
  **/
 public class FuncFParamsNode extends Node{
+
     private ArrayList<FuncFParamNode> funcFParamNodes;
     private ArrayList<Token> commaTokens;
 
@@ -18,7 +19,9 @@ public class FuncFParamsNode extends Node{
         this.funcFParamNodes = funcFParamNodes;
         this.commaTokens = commaTokens;
     }
-
+    public ArrayList<FuncFParamNode> getFuncFParamNodes() {
+        return funcFParamNodes;
+    }
     @Override
     public void print() {
         funcFParamNodes.get(0).print();
@@ -29,5 +32,13 @@ public class FuncFParamsNode extends Node{
             }
         }
         printNodeType();
+    }
+
+    // 函数形参表   FuncFParams → FuncFParam { ',' FuncFParam }
+    @Override
+    public void check() {
+        for(FuncFParamNode funcFParamNode : funcFParamNodes){
+            funcFParamNode.check();
+        }
     }
 }

@@ -36,4 +36,12 @@ public class VarDeclNode extends Node{
         semicnToken.print();
         printNodeType();
     }
+
+    // 变量声明    VarDecl → BType VarDef { ',' VarDef } ';' // i
+    @Override
+    public void check() {
+        for(VarDefNode varDefNode : varDefNodes){
+            varDefNode.check();
+        }
+    }
 }

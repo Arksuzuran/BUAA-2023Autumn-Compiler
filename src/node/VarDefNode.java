@@ -1,7 +1,10 @@
 package node;
 
+import symbol.NumSymbol;
+import symbol.SymbolTableStack;
+import symbol.SymbolType;
 import token.Token;
-import token.TokenType;
+import utils.ErrorCheckTool;
 
 import java.util.ArrayList;
 
@@ -43,5 +46,25 @@ public class VarDefNode extends Node{
             initValNode.print();
         }
         printNodeType();
+    }
+
+    // 变量定义    VarDef → Ident { '[' ConstExp ']' } // b
+    //                  | Ident { '[' ConstExp ']' } '=' InitVal // k
+    @Override
+    public void check() {
+        // 检查重名 由于一行内最多只有一个错误 因此如果有重名错误 那么就不必再进行任何其他检查
+        if(ErrorCheckTool.judgeAndHandleDuplicateError(identToken)){
+            // 无重名 加入符号表
+            NumSymbol numSymbol = new NumSymbol(identToken.str, SymbolType.Var, identToken.lineNum, this, constExpNodes.size());
+            SymbolTableStack.addSymbolToPeek(numSymbol);
+            // 继续向下检查
+            for(ConstExpNode constExpNode : constExpNodes){
+                constExpNode.check();
+            }
+            if(initValNode != null){
+                initValNode.check();
+            }
+        }
+
     }
 }

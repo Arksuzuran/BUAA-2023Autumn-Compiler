@@ -45,4 +45,16 @@ public class InitValNode extends Node{
         }
         printNodeType();
     }
+
+    // 变量初值    InitVal → Exp | '{' [ InitVal { ',' InitVal } ] '}'
+    @Override
+    public void check() {
+        if(expNode != null){
+            expNode.check();
+        } else {
+            for(InitValNode initValNode : initValNodes){
+                initValNode.check();
+            }
+        }
+    }
 }

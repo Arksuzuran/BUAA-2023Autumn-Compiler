@@ -47,4 +47,19 @@ public class ConstInitValNode extends Node{
         }
         printNodeType();
     }
+
+    // ConstInitVal → ConstExp | '{' [ ConstInitVal { ',' ConstInitVal } ] '}'
+    @Override
+    public void check() {
+        if(lbraceToken != null){
+            if(!constInitValNodes.isEmpty()){
+                for(ConstInitValNode constInitValNode : constInitValNodes){
+                    constInitValNode.check();
+                }
+            }
+        }
+        else if(constExpNode != null){
+            constExpNode.check();
+        }
+    }
 }

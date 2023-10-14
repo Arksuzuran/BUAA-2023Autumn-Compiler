@@ -17,6 +17,15 @@ public class DeclNode extends Node{
         this.varDeclNode = varDeclNode;
     }
 
+    @Override
+    public void check(){
+        if(constDeclNode!=null){
+            constDeclNode.check();
+        }
+        if(varDeclNode!=null){
+            varDeclNode.check();
+        }
+    }
     // 不必输出本结点
     @Override
     public void print() {

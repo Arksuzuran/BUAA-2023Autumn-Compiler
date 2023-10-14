@@ -21,4 +21,8 @@ public class BTypeNode extends Node{
     public void print() {
         BTypeToken.print();
     }
+
+    @Override
+    public void check() {
+    }
 }

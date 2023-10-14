@@ -20,4 +20,8 @@ public class NumberNode extends Node{
         intConstToken.print();
         printNodeType();
     }
+
+    @Override
+    public void check() {
+    }
 }

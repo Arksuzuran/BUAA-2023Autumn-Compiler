@@ -1,7 +1,10 @@
 package node;
 
+import symbol.NumSymbol;
+import symbol.SymbolTableStack;
+import symbol.SymbolType;
 import token.Token;
-import utils.IO;
+import utils.ErrorCheckTool;
 
 import java.util.ArrayList;
 
@@ -39,5 +42,21 @@ public class ConstDefNode extends Node{
         assignToken.print();
         constInitValNode.print();
         printNodeType();
+    }
+
+    // 常数定义    ConstDef → Ident { '[' ConstExp ']' } '=' ConstInitVal  // b k
+    @Override
+    public void check() {
+        // 先检测是否存在重复定义
+        // 不存在重复定义 那么加入栈顶符号表中
+        if(ErrorCheckTool.judgeAndHandleDuplicateError(identToken)){
+            NumSymbol numSymbol = new NumSymbol(identToken.str, SymbolType.Const, identToken.lineNum, this, constExpNodes.size());
+            SymbolTableStack.addSymbolToPeek(numSymbol);
+            // 继续向下检查
+            for(ConstExpNode constExpNode : constExpNodes){
+                constExpNode.check();
+            }
+            constInitValNode.check();
+        }
     }
 }

@@ -18,4 +18,9 @@ public class CondNode extends Node{
         lOrExpNode.print();
         printNodeType();
     }
+
+    @Override
+    public void check() {
+        lOrExpNode.check();
+    }
 }

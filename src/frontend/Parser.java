@@ -1,11 +1,14 @@
 package frontend;
 
+import error.Error;
 import node.*;
+import error.*;
 import token.Token;
 import token.TokenType;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 
 /**
  * @Description 语法分析器 递归下降子程序实现
@@ -46,8 +49,16 @@ public class Parser {
         parsingResultNode.print();
     }
 
+
+    // matchToken所用到的，缺失token和错误类型的对应关系
+    private final HashMap<TokenType, ErrorType> tokenErrorMap = new HashMap<>(){{
+        put(TokenType.SEMICN, ErrorType.i);
+        put(TokenType.RPARENT, ErrorType.j);
+        put(TokenType.RBRACK, ErrorType.k);
+    }};
     // 所有匹配最终都会归结到对终结符的匹配上，而取下一个终结符的时机就是上一个终结符被读取时，因此将这两个操作合二为一：
     // 将当前token与指定类型的token相匹配，匹配成功则推进匹配进度pos++，否则进行报错
+    // 对于规定的若干错误类型，不予报错，而是记录并进行补全
     private Token matchToken(TokenType tokenType) {
         if (curToken.type == tokenType) {
             Token tmp = curToken;
@@ -57,6 +68,15 @@ public class Parser {
                 curToken = tokens.get(pos);
             }
             return tmp;
+        }
+        // 匹配失败 尝试匹配错误类型 此处curToken不必再向下滑动
+        else if(tokenType == TokenType.SEMICN || tokenType == TokenType.RPARENT || tokenType == TokenType.RBRACK){
+            int lineNum = curToken.lineNum;
+            String str = tokenType.getStr();
+            ErrorType errorType = tokenErrorMap.get(tokenType);
+
+            ErrorHandler.addError(new Error(errorType, lineNum));
+            return new Token(str, lineNum, tokenType);
         }
         return null;
     }
@@ -126,7 +146,7 @@ public class Parser {
         Token identToken = matchToken(TokenType.IDENFR);
         Token lparentToken = matchToken(TokenType.LPARENT);
         FuncFParamsNode funcFParamsNode = null;
-        if (curToken.type != TokenType.RPARENT) {
+        if (curToken.type == TokenType.INTTK) {
             funcFParamsNode = FuncFParams();
         }
         Token rparentToken = matchToken(TokenType.RPARENT);
@@ -149,15 +169,16 @@ public class Parser {
     private ConstDeclNode ConstDecl() {
         Token constToken = matchToken(TokenType.CONSTTK);
         BTypeNode bTypeNode = BType();
-        ConstDefNode constDefNode = ConstDef();
         ArrayList<Token> commaTokens = new ArrayList<>();
         ArrayList<ConstDefNode> constDefNodes = new ArrayList<>();
+
+        constDefNodes.add(ConstDef());
         while (curToken.type == TokenType.COMMA) {
             commaTokens.add(matchToken(TokenType.COMMA));
             constDefNodes.add(ConstDef());
         }
         Token semicnToken = matchToken(TokenType.SEMICN);
-        return new ConstDeclNode(constToken, bTypeNode, constDefNode, commaTokens, constDefNodes, semicnToken);
+        return new ConstDeclNode(constToken, bTypeNode, commaTokens, constDefNodes, semicnToken);
     }
 
     // VarDecl → BType VarDef { ',' VarDef } ';'
@@ -576,6 +597,14 @@ public class Parser {
         return new NumberNode(intConstToken);
     }
 
+    // 不能依据右括号来判断是否进入params的判断，而应该根据Exp的First集来判断，因为右括号可能会缺失
+    // UnaryExp → PrimaryExp | Ident '(' [FuncRParams] ')' | UnaryOp UnaryExp // 存在即可
+    // PrimaryExp → '(' Exp ')' | LVal | Number
+    //  LVal → Ident {'[' Exp ']'}
+    private final ArrayList<TokenType> expFirstSetList = new ArrayList<>(Arrays.asList(TokenType.IDENFR, TokenType.PLUS, TokenType.MINU, TokenType.NOT, TokenType.LPARENT, TokenType.INTCON));
+    private boolean judgeExpFirstSet(){
+        return expFirstSetList.contains(curToken.type);
+    }
     // 一元表达式 UnaryExp → PrimaryExp | Ident '(' [FuncRParams] ')'
     private UnaryExpNode UnaryExp() {
 //        System.out.println("unary" + curToken);
@@ -590,7 +619,7 @@ public class Parser {
         if(curToken.type == TokenType.IDENFR && preMatchToken(1, TokenType.LPARENT)){
             identToken = matchToken(TokenType.IDENFR);
             lparentToken = matchToken(TokenType.LPARENT);
-            if(curToken.type != TokenType.RPARENT){
+            if(judgeExpFirstSet()){
                 funcRParamsNode = FuncRParams();
             }
             rparentToken = matchToken(TokenType.RPARENT);

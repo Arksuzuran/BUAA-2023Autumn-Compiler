@@ -36,4 +36,28 @@ public class PrimaryExpNode extends Node{
         }
         printNodeType();
     }
+    // 基本表达式   PrimaryExp → '(' Exp ')' | LVal | Number
+    @Override
+    public void check() {
+        if(lparentToken!=null){
+            expNode.check();
+        } else if(lValNode != null) {
+            lValNode.check();
+        }
+    }
+
+    public int getDim(){
+        // '(' Exp ')'
+        if(lparentToken!=null){
+            return expNode.getDim();
+        }
+        // LVal
+        else if(lValNode != null) {
+            return lValNode.getDim();
+        }
+        // Number
+        else {
+            return 0;
+        }
+    }
 }

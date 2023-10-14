@@ -31,4 +31,14 @@ public class RelExpNode extends Node{
         }
         printNodeType();
     }
+
+    @Override
+    public void check() {
+        if(opToken == null){
+            addExpNode.check();
+        } else {
+            relExpNode.check();
+            addExpNode.check();
+        }
+    }
 }

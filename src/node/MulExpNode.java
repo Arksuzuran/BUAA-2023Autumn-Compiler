@@ -32,4 +32,17 @@ public class MulExpNode extends Node{
         printNodeType();
     }
 
+    @Override
+    public void check() {
+        if(opToken == null){
+            unaryExpNode.check();
+        } else {
+            mulExpNode.check();
+            unaryExpNode.check();
+        }
+    }
+
+    public int getDim() {
+        return unaryExpNode.getDim();
+    }
 }

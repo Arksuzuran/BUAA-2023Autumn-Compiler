@@ -1,6 +1,7 @@
 package node;
 
 import token.Token;
+import token.TokenType;
 
 /**
  * @Description  FuncType → 'void' | 'int'
@@ -19,5 +20,13 @@ public class FuncTypeNode extends Node{
     public void print() {
         type.print();
         printNodeType();
+    }
+
+    public boolean hasReturnVal(){
+        return type.type == TokenType.INTTK;
+    }
+    @Override
+    public void check() {
+
     }
 }

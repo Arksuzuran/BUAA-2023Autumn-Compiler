@@ -30,4 +30,14 @@ public class LOrExpNode extends Node{
         }
         printNodeType();
     }
+
+    @Override
+    public void check() {
+        if(opToken == null){
+            lAndExpNode.check();
+        } else {
+            lOrExpNode.check();
+            lAndExpNode.check();
+        }
+    }
 }

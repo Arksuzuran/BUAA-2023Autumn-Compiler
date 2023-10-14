@@ -31,4 +31,14 @@ public class EqExpNode extends Node{
         }
         printNodeType();
     }
+
+    @Override
+    public void check() {
+        if(opToken == null){
+            relExpNode.check();
+        } else {
+            eqExpNode.check();
+            relExpNode.check();
+        }
+    }
 }
