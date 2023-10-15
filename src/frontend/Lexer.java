@@ -3,6 +3,7 @@ package frontend;
 import exception.LexerException;
 import token.Token;
 import token.TokenType;
+import utils.IO;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -217,6 +218,16 @@ public class Lexer {
         }
     }
 
-
+    // 输出词法分析结果到文件
+    public void outputLexicalResult(){
+        // 读取词法分析结果
+        StringBuilder stringBuilder = new StringBuilder();
+        for(Token token : lexerResultList){
+            stringBuilder.append(token.type).append(" ").append(token.str).append("\n");
+        }
+        String result = stringBuilder.toString();
+        // 输出词法分析结果至文件
+        IO.write(IO.IOType.LEXER, result, false, false);
+    }
 }
 

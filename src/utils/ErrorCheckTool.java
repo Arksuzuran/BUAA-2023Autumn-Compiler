@@ -44,8 +44,9 @@ public class ErrorCheckTool {
     // false: 出现问题
     // true: 未出现问题
     public static boolean judgeAndHandleUndefinedError(Token token){
+//        System.out.println("尝试检查无定义问题" + token.str);
         // 在栈顶的符号表中检测是否存在定义
-        if(SymbolTableStack.stackHasSymbol(token.str)){
+        if(!SymbolTableStack.stackHasSymbol(token.str)){
             ErrorHandler.addError(new Error(ErrorType.c, token.lineNum));
             return false;
         }

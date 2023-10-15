@@ -57,10 +57,4 @@ public class CompUnitNode extends Node{
         mainFuncDefNode.print();
         printNodeType();
     }
-
-    // 最后输出时不加回车
-    @Override
-    public void printNodeType(){
-        IO.write(type.getOutputString(), true, false);
-    }
 }

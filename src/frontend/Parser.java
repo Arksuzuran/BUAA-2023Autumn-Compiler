@@ -71,7 +71,8 @@ public class Parser {
         }
         // 匹配失败 尝试匹配错误类型 此处curToken不必再向下滑动
         else if(tokenType == TokenType.SEMICN || tokenType == TokenType.RPARENT || tokenType == TokenType.RBRACK){
-            int lineNum = curToken.lineNum;
+            // 此处应该返回前一个非终结符的位置 这里前一个非终结符一定不为空
+            int lineNum = tokens.get(pos-1).lineNum;
             String str = tokenType.getStr();
             ErrorType errorType = tokenErrorMap.get(tokenType);
 

@@ -1,5 +1,6 @@
 package frontend;
 
+import error.ErrorHandler;
 import node.CompUnitNode;
 
 /**
@@ -16,5 +17,8 @@ public class Checker {
 
     public void doCheck(){
         compUnitNode.check();
+    }
+    public void printError(){
+        ErrorHandler.printErrors();
     }
 }

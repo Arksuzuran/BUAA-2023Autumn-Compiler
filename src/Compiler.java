@@ -1,6 +1,8 @@
 import config.Config;
+import frontend.Checker;
 import frontend.Lexer;
 import frontend.Parser;
+import node.CompUnitNode;
 import token.Token;
 import utils.IO;
 
@@ -13,33 +15,22 @@ import java.util.Objects;
  * @Date 2023/9/14
  **/
 public class Compiler {
-    public String inputTextPath;
-    public String outputTextPath;
     public String inputText = "";
 
     private Lexer lexer = null;
     private ArrayList<Token> lexerResultList = null;    // 词法分析结果
     private Parser parser = null;
-    Compiler(){
-        this.inputTextPath = "";
-        this.outputTextPath = "";
-    }
-    Compiler(String inputTextPath, String outputTextPath){
-        this.inputTextPath = inputTextPath;
-        this.outputTextPath = outputTextPath;
-    }
+    private CompUnitNode compUnitNode = null;           // 语法分析结果
+    private Checker checker = null;
+
     // 读取输入文件 如果未指定路径则按照Config配置
     public String readInputFile(){
-        if(!Objects.equals(inputTextPath, "")){
-            inputText = IO.read(inputTextPath);
-        } else {
-            inputText = IO.read();
-        }
+        inputText = IO.read();
         return inputText;
     }
     // 词法分析
     public void doLexicalAnalysis(){
-        System.out.println("开始词法分析!");
+        System.out.println("=====[词法分析]开始=====");
         if(inputText == null){
             System.out.println("文件未读入！");
             return;
@@ -51,37 +42,41 @@ public class Compiler {
 
         // 输出词法分析结果 如果未指定路径则按照Config配置
         if(Config.outputLexicalAnalysis){
-            // 读取词法分析结果
-            StringBuilder stringBuilder = new StringBuilder();
-            for(Token token : lexerResultList){
-                stringBuilder.append(token.type).append(" ").append(token.str).append("\n");
-            }
-            String result = stringBuilder.toString();
-            // 输出词法分析结果至文件
-            if(!Objects.equals(outputTextPath, "")){
-                IO.write(outputTextPath, result);
-            } else {
-                IO.write(result);
-            }
+            lexer.outputLexicalResult();
         }
+        System.out.println("=====[词法分析]完成!=====");
     }
 
     // 语法分析
     public void doParsing(){
-        System.out.println("开始语法分析!");
+        System.out.println("=====[语法分析]开始=====");
         parser = new Parser(lexerResultList);
         parser.doParsing();
         if(Config.outputParsing){
             parser.outputParsingResult();
         }
+        compUnitNode = parser.getParsingResultNode();
+        System.out.println("=====[语法分析]完成!=====");
+    }
+
+    // 符号表生成和错误处理
+    public void doChecking(){
+        System.out.println("=====[错误处理与符号表生成]开始=====");
+        checker = new Checker(compUnitNode);
+        checker.doCheck();
+        if(Config.outputErrors){
+            checker.printError();
+        }
+        System.out.println("=====[错误处理与符号表生成]完成=====");
     }
 
     public static void main(String[] args) {
-        System.out.println("hell, word!");
+        System.out.println("[编译]开始");
         Compiler compiler = new Compiler();
         compiler.readInputFile();
         compiler.doLexicalAnalysis();
         compiler.doParsing();
-        System.out.println("执行完成!");
+        compiler.doChecking();
+        System.out.println("[编译]执行完成!");
     }
 }

@@ -59,8 +59,10 @@ public class FuncDefNode extends Node{
         if(ErrorCheckTool.judgeAndHandleDuplicateError(identToken)){
             // 提取所有参数并创建成symbol
             ArrayList<NumSymbol> params = new ArrayList<>();
-            for(FuncFParamNode funcFParamNode : funcFParamsNode.getFuncFParamNodes()){
-                params.add(ErrorCheckTool.transFuncFParam2Symbol(funcFParamNode));
+            if(funcFParamsNode != null){
+                for(FuncFParamNode funcFParamNode : funcFParamsNode.getFuncFParamNodes()){
+                    params.add(ErrorCheckTool.transFuncFParam2Symbol(funcFParamNode));
+                }
             }
             // 构建该函数的符号
             FuncSymbol funcSymbol = new FuncSymbol(identToken.str, identToken.lineNum, this, returnType, params);
@@ -81,7 +83,9 @@ public class FuncDefNode extends Node{
 
         // 三、拜访函数
         // 对函数参数进行拜访 这些操作都在新的符号表上进行
-        funcFParamsNode.check();
+        if(funcFParamsNode != null){
+            funcFParamsNode.check();
+        }
         // 对函数主体进行拜访
         blockNode.check();
 

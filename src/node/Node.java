@@ -16,6 +16,6 @@ public abstract class Node {
 
     // 将当前node的类型输出至文件
     public void printNodeType(){
-        IO.write(type.getOutputString(), true, true);
+        IO.write(IO.IOType.PARSER, type.getOutputString(), true, true);
     }
 }

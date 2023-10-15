@@ -30,14 +30,16 @@ public class SymbolTableStack {
             peek().addSon(symbolTable);
         }
         instance.stack.push(symbolTable);
+//        System.out.println("符号表入栈 " + symbolTable);
     }
     // 创建新的node对应的符号表并入栈
     public static void push(Node node){
-        instance.stack.push(new SymbolTable(peek(), node));
+        push(new SymbolTable(peek(), node));
     }
     // 将栈顶符号表出栈
     public static void pop(){
         instance.stack.pop();
+//        System.out.println("符号表出栈");
     }
     // 访问栈顶元素 如果栈为空那么返回null
     public static SymbolTable peek(){
@@ -49,6 +51,7 @@ public class SymbolTableStack {
     // 向栈顶符号表中添加元素
     public static void addSymbolToPeek(Symbol symbol){
         peek().addSymbol(symbol);
+//        System.out.println("成功向符号表中添加元素 " + symbol.name);
     }
 
     // ================= 栈查找 =================
@@ -59,6 +62,7 @@ public class SymbolTableStack {
     // 检查整个栈内是否包含指定名称的元素
     public static boolean stackHasSymbol(String name){
         for(SymbolTable symbolTable : instance.stack){
+//            System.out.println("遍历符号表 " + symbolTable + ", 尝试查找 " + name);
             if(symbolTable.hasSymbol(name)){
                 return true;
             }

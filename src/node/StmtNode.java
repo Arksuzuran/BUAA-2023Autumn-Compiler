@@ -202,7 +202,9 @@ public class StmtNode extends Node{
             // 'return' [Exp] ';' // f i
             case RETURN -> {
                 // 检查错误f 无返回值的函数存在带有Exp的return语句
-                ErrorCheckTool.handleVoidFuncReturnInt(tokens.get(0));
+                if(!nodes.isEmpty()){
+                    ErrorCheckTool.handleVoidFuncReturnInt(tokens.get(0));
+                }
             }
             // 'printf''('FormatString{,Exp}')'';'
             case PRINTF -> {
@@ -221,7 +223,7 @@ public class StmtNode extends Node{
         // 如果是要进入循环 那么应当表明
         if(type == StmtType.FOR){ SymbolTableStack.enterLoop(true); }
         // 如果是要进入Block 那么应当入栈新符号表
-        if(type == StmtType.Block){ SymbolTableStack.push(this);}
+        if(type == StmtType.Block){ SymbolTableStack.push(this); }
 
         for(Node node : nodes){
             node.check();
@@ -257,6 +259,7 @@ public class StmtNode extends Node{
     }
     // 检查字符串是否合法
     public boolean checkFormatString(String str) {
+        // 可以不必检查开头结尾的双引号
         for (int i = 1; i < str.length() - 1; i++) {
             char chr = str.charAt(i);
             if (chr == '%') {

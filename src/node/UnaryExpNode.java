@@ -97,18 +97,22 @@ public class UnaryExpNode extends Node{
     }
     // 检验参数类型是否一致
     private boolean checkParamsSame(FuncSymbol symbol){
-        ArrayList<NumSymbol> fParams = symbol.getParams();
-        ArrayList<ExpNode> expNodes = funcRParamsNode.getExpNodes();
-        int fParamDim, rParamDim;
-        for(int i = 0; i < symbol.getParams().size(); i++){
-            fParamDim = fParams.get(i).getDim();    // 形参维数
-            rParamDim = expNodes.get(i).getDim();   // 实参维数
-            // 2代表维数不确定（即实参未定义），此处不处理，留到后面报出错误c
-            if(rParamDim != 2 && fParamDim != rParamDim){
-                return false;
+        if(funcRParamsNode == null){
+            return symbol.getParams().size() == 0;
+        } else {
+            ArrayList<NumSymbol> fParams = symbol.getParams();
+            ArrayList<ExpNode> expNodes = funcRParamsNode.getExpNodes();
+            int fParamDim, rParamDim;
+            for(int i = 0; i < symbol.getParams().size(); i++){
+                fParamDim = fParams.get(i).getDim();    // 形参维数
+                rParamDim = expNodes.get(i).getDim();   // 实参维数
+                // 2代表维数不确定（即实参未定义），此处不处理，留到后面报出错误c
+                if(rParamDim != 2 && fParamDim != rParamDim){
+                    return false;
+                }
             }
+            return true;
         }
-        return true;
     }
 
     // 检测当前式子的维数
