@@ -1,6 +1,9 @@
+void f(int a) {
+    {
+        int a = 1;
+    }
+}
+
 int main() {
-    printf("#:\n");
-    printf("%%");
-    printf("\");
     return 0;
 }

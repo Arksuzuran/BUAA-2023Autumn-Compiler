@@ -100,6 +100,7 @@ public enum TokenType {
     public static final List<Character> singleCharDeliList = Arrays.asList(
             '+', '-', '*', '/', '%', '>', '<', '=', '!', ',', ';', '(', ')', '[', ']', '{', '}');
     // 双字符分界符中 首字符的列表
+    // && || <= >= == !=
     public static final List<Character> doubleCharDeliList = Arrays.asList(
             '&', '|', '<', '>', '=', '!');
 //    @Override
