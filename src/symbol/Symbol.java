@@ -15,6 +15,8 @@ public class Symbol {
 
     public int useLineNum = -1;     // 使用的行号
 
+    public int val;             // 符号的值
+
     // 变量或者常量的构造函数
     public Symbol(String name, SymbolType type, int declLineNum, Node node) {
         this.name = name;

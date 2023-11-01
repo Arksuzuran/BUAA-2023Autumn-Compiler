@@ -1,0 +1,217 @@
+int global_var = 0;
+int t;
+int s = 6, b = 6;
+int cr1[6];
+int cr2[6], cr3[6];
+int cr666[6][6];
+int cr666666[6][6], cr666666666[6][6];
+// hello world，let it go
+const int sb7[2][2] = {1, 1, 1, 1};
+const int sb8[2][2] = {{5, 5}, {5, 5}}, sb9[2][2] = {{5, 5}, {5, 5}};
+const int cr0 = 0;
+const int xw3 = 3, xw4 = 4, xw5 = 5;
+const int sb4[2] = {1, 1};
+const int sb5[2] = {2, 2}, sb6[2] = {3, 3};
+void function1()
+{
+	return;
+}
+
+int function2(int s)
+{
+	return s;
+}
+
+int function3(int s1, int s2)
+{
+	return s1 + s2;
+}
+
+int function4(int s1, int s2, int s3)
+{
+	return s1 + s2 * s3 / 2 - 3;
+}
+
+int function5(int s[])
+{
+	return s[0];
+}
+
+int function6(int s1[], int s2[])
+{
+	return s1[0] + s2[0];
+}
+
+int function7(int s1[], int s2[], int s3[])
+{
+	return s1[0] + s2[0] * s3[0] / 2 - 3;
+}
+
+int function8(int s[][2])
+{
+	return s[0][0];
+}
+
+int function9(int s1[][2], int s2[][2])
+{
+	return s1[0][0] + s2[0][0];
+}
+
+int function10(int s1[][2], int s2[][2], int s3[][2])
+{
+	return s1[0][0] + s2[0][0] * s3[0][0] / 2 - 3;
+}
+
+int function11(int s1[], int s2[][2])
+{
+	return s1[0] + s2[0][0];
+}
+
+int func()
+{
+	global_var = global_var + 1;
+	return 1;
+}
+void funcR(int a[])
+{
+	printf("20375337\n");
+}
+/*
+valorant valorant valorant valorant valorant
+valorant valorant valorant valorant valorant
+valorant valorant valorant valorant valorant
+valorant valorant valorant valorant valorant
+valorant valorant valorant valorant valorant
+valorant valorant valorant valorant valorant
+*/
+int main()
+{
+	int tmp = 1;
+	int m = 3 * 17 + 5 / 3 - 6;
+	int s5, s6, s7, s8, s9, s10;
+	int arr7[2] = {7, 7};
+	int arr27[2][2] = {{7, 7}, {7, 7}};
+	printf("20375337\n");
+	if (0 && func())
+	{
+		;
+	}
+	int arr[2][2] = {{1, 2}, {3, 4}};
+	funcR(arr[1]);
+	printf("%d\n", global_var); // 输出 0
+	if (1 || func())
+	{
+		printf("20375337\n"); // 输出 0
+	}
+	int cr777 = 7;
+	cr777 = getint();
+	int k = 10;
+	int i = 0;
+	int j = 0;
+	for (;;)
+	{
+		break;
+	}
+	for (i = 0;;)
+	{
+		break;
+	}
+	for (; i < 10;)
+	{
+		break;
+	}
+	for (;; i = i + 1)
+	{
+		break;
+	}
+	for (; i < 10; i = i + 1)
+	{
+		break;
+	}
+	for (i = 0; i < 10;)
+	{
+		i = i + 1;
+	}
+	for (i = 0;; i = i + 1)
+	{
+		if (i >= 10)
+			break;
+		int s1, s2, s3;
+		s1 = (1 + 2) * 3 / 3;
+		s2 = s1 % 3;
+		s3 = s1 * s2;
+		int s4;
+		s4 = function3(s2, s3);
+		s4 = function2(s4);
+		tmp = 1;
+		if (0 && func())
+		{
+			;
+		}
+	}
+	for (i = 0; i < 10; i = i + 1)
+	{
+
+		cr777 = cr777 + 1;
+		k = k - 1;
+		continue;
+		if (i > 10)
+		{
+			break;
+		}
+		else
+			continue;
+	}
+	if (!cr777)
+		;
+
+	if (0 && cr777 < 10)
+	{
+		;
+	}
+	else if (0 && cr777 > 20)
+	{
+		m = m + 1;
+	}
+	else
+	{
+		printf("cr nb\n"); // 强的不是我 是18岁
+	}
+	if (cr777 == 7)
+	{
+		printf("%d\n", cr777 + 3);
+	}
+	if (cr777 != 7)
+	{
+		printf("%d\n", cr777 + 4);
+	}
+	if (cr777 <= 0 || cr777 >= 100)
+	{
+		printf("cr777!");
+	}
+	if (cr777 == 6 && cr777 != 6)
+	{
+		printf("cr777!!");
+	}
+	int s1, s2, s3;
+	s1 = (1 + 2) * 3 / 3;
+	s2 = s1 % 3;
+	s3 = s1 * s2;
+	int s4;
+	s4 = function3(s2, s3);
+	s4 = function2(s4);
+	;
+	{
+	}
+	func();
+	s4 = +(+1) - (-2);
+	printf("%d\n", s3);
+
+	s5 = function2(tmp);
+	s6 = function3(arr7[0], arr7[1]);
+	s7 = function4(tmp, tmp + 1, tmp * 3);
+	s8 = function5(arr7);
+	s9 = function9(arr27, arr27);
+	s10 = function6(arr7, arr27[0]);
+	return 0;
+}
