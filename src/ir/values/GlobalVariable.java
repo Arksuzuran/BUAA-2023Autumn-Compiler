@@ -3,6 +3,8 @@ package ir.values;
 import ir.types.ValueType;
 import ir.values.constants.Constant;
 
+import java.util.ArrayList;
+
 /**
  * @Description 全局变量
  * @Author
@@ -16,7 +18,7 @@ public class GlobalVariable extends User{
      * 常量声明一定带有初始化
      * 全局变量以@开头
      */
-    public GlobalVariable(String name, ValueType type, boolean isConst, Value... operands) {
+    public GlobalVariable(String name, ValueType type, boolean isConst, ArrayList<Value> operands) {
         super("@" + name, type, null, operands);
         this.isConst = isConst;
     }

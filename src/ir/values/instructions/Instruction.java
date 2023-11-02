@@ -6,6 +6,7 @@ import ir.values.User;
 import ir.values.Value;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @Description 指令类。本质上来说Instruction其实是各种具体指令的返回值的Value对象,因此只需要记录操作数
@@ -22,6 +23,8 @@ public class Instruction extends User {
      * @param operands  所属操作数列表
      */
     public Instruction(String name, ValueType type, BasicBlock parent, Value... operands) {
-        super(name, type, parent, operands);
+        super(name, type, parent, new ArrayList<>(){{
+            addAll(List.of(operands));
+        }});
     }
 }

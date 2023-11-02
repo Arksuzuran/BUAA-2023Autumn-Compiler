@@ -36,10 +36,10 @@ public class User extends Value{
      * @param name  User的名称
      * @param type  User的类型
      * @param parent
-     * @param operands  User所使用的value
+     * @param operands 傳入的操作數
      */
-    public User(String name, ValueType type, Value parent, Value... operands) {
+    public User(String name, ValueType type, Value parent, ArrayList<Value> operands) {
         super(name, type, parent);
-        this.operands.addAll(Arrays.asList(operands));
+        this.operands.addAll(operands);
     }
 }

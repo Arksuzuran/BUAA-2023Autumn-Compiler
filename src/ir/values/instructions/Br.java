@@ -44,7 +44,7 @@ public class Br extends Instruction{
      */
     public Br(String name, BasicBlock parent, Value condition, BasicBlock trueTarget, BasicBlock falseTarget) {
         super(name, new VoidType(), parent, condition, trueTarget, falseTarget);
-        condition = this;
+        conditional = true;
     }
 
 }

@@ -5,6 +5,8 @@ import ir.types.ValueType;
 import ir.values.BasicBlock;
 import ir.values.Value;
 
+import java.util.ArrayList;
+
 /**
  * @Description 内存申请指令  该指令对应的Value应当是指针类型
  * <result> = alloca <type>
