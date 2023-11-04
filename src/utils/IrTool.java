@@ -4,6 +4,8 @@ import ir.types.ArrayType;
 import ir.types.PointerType;
 import ir.types.ValueType;
 import ir.types.VoidType;
+import ir.values.BasicBlock;
+import ir.values.Function;
 import ir.values.Value;
 
 /**
@@ -41,5 +43,9 @@ public class IrTool {
         }
         System.out.println("尝试获取非数组指针所指向的数组元素类型");
         return new VoidType();
+    }
+
+    public static BasicBlock getHeadBlockOfParentFunction(BasicBlock basicBlock){
+        return basicBlock.getParentFunction().getHeadBlock();
     }
 }

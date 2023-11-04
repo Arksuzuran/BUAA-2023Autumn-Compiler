@@ -1,6 +1,10 @@
 package node;
 
+import ir.IrBuilder;
+import ir.Irc;
+import ir.values.Value;
 import token.Token;
+import token.TokenType;
 
 /**
  * @Description 加减表达式 AddExp → MulExp | AddExp ('+' | '−') MulExp
@@ -40,6 +44,58 @@ public class AddExpNode extends Node{
         } else {
             addExpNode.check();
             mulExpNode.check();
+        }
+    }
+
+    /**
+     * 带有常数优化
+     * 即如果是从constExp进入，那么需要直接计算出结果并通过synValue上传
+     */
+    @Override
+    public void buildIr() {
+        // 需要计算出常数 不过无需传递synValue
+        if(Irc.inConstExp){
+            // 单操作数 MulExp
+            // synInt在下层进一步计算
+            if(opToken == null){
+                mulExpNode.buildIr();
+            }
+            // 双操作数 AddExp ('+' | '−') MulExp
+            else{
+                addExpNode.buildIr();
+                int ans = Irc.synInt;
+                mulExpNode.buildIr();
+                // 减法或者加法
+                if(opToken.type == TokenType.MINU){
+                    ans -= Irc.synInt;
+                }
+                else{
+                    ans += Irc.synInt;
+                }
+                Irc.synInt = ans;
+            }
+        }
+        // 非常数表达式
+        else{
+            // 单操作数 MulExp
+            // synInt在下层进一步计算
+            if(opToken == null){
+                mulExpNode.buildIr();
+            }
+            // 双操作数 AddExp ('+' | '−') MulExp
+            else{
+                addExpNode.buildIr();
+                Value opValue1 = Irc.synValue;
+                mulExpNode.buildIr();
+                Value opValue2 = Irc.synValue;
+                // 减法或者加法
+                if(opToken.type == TokenType.MINU){
+                    Irc.synValue = IrBuilder.buildAddInstruction(opValue1, opValue2, Irc.curBlock);
+                }
+                else{
+                    Irc.synValue = IrBuilder.buildSubInstruction(opValue1, opValue2, Irc.curBlock);
+                }
+            }
         }
     }
 

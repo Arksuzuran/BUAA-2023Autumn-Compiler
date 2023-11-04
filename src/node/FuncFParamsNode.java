@@ -1,5 +1,11 @@
 package node;
 
+import ir.IrBuilder;
+import ir.IrSymbolTableStack;
+import ir.Irc;
+import ir.values.Value;
+import ir.values.instructions.Alloca;
+import ir.values.instructions.Store;
 import token.Token;
 
 import java.util.ArrayList;
@@ -39,6 +45,30 @@ public class FuncFParamsNode extends Node{
     public void check() {
         for(FuncFParamNode funcFParamNode : funcFParamNodes){
             funcFParamNode.check();
+        }
+    }
+
+    @Override
+    public void buildIr() {
+        for(FuncFParamNode funcFParamNode : funcFParamNodes){
+            funcFParamNode.buildIr();
+        }
+        // 之前已经将参数加入了function对象
+        // 使用刚刚解析好的函数参数，来构建SSA形式的参数加载语句
+        /**
+         * 参考：
+         * define dso_local i32 @a2(i32 %0, i32* %1) {
+         *     %3 = alloca i32*
+         *     store i32* %1, i32* * %3
+         * }
+         */
+        ArrayList<Value> args = Irc.curFunction.getArgValues();
+        for(int i=0; i<funcFParamNodes.size(); i++){
+            Value arg = args.get(i);
+            Alloca alloca = IrBuilder.buildAllocaInstruction(arg.getType(), Irc.curBlock);
+            IrBuilder.buildStoreInstruction(arg, alloca, Irc.curBlock);
+            // 在符号表中记录形参，其对应value为alloca，之后调用的时候要load
+            IrSymbolTableStack.addSymbolToPeek(funcFParamNodes.get(i).getIdentToken().str, alloca);
         }
     }
 }

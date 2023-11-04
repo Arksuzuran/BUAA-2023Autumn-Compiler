@@ -1,5 +1,8 @@
 package node;
 
+import ir.Irc;
+import ir.values.constants.ConstInt;
+
 /**
  * @Description 常量表达式 ConstExp → AddExp
  * @Author
@@ -22,5 +25,16 @@ public class ConstExpNode extends Node{
     @Override
     public void check() {
         addExpNode.check();
+    }
+
+    /**
+     * 向上传递综合属性Irc.synInt
+     * 在本条线中，无需传递irc.synValue
+     */
+    @Override
+    public void buildIr() {
+        Irc.inConstExp = true;
+        addExpNode.buildIr();
+        Irc.inConstExp = false;
     }
 }

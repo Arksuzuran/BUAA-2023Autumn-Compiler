@@ -9,22 +9,51 @@ import java.util.Stack;
  * @Date 2023/10/30
  **/
 public class IrSymbolTableStack {
-    private final Stack<IrSymbolTable> stack = new Stack<>();   //
-
     // 单例
     private static IrSymbolTableStack instance = new IrSymbolTableStack();
     public static IrSymbolTableStack getInstance(){
         return instance;
     }
+    /**
+     * 符号表栈
+     */
+    private final Stack<IrSymbolTable> stack = new Stack<>();
+    /**
+     * 全局符号表
+     */
+    public final static IrSymbolTable globalSymbolTable = new IrSymbolTable();
+
+    // 符号表栈默认存有全局符号表
+    static {
+        instance.stack.push(globalSymbolTable);
+    }
 
     // ====================== 栈操作=======================
-    // 创建新的符号表并入栈
+
+    /**
+     * 入栈一个给定的符号表
+     * @param symbolTable   给定的符号表
+     */
     public static void push(IrSymbolTable symbolTable){
         instance.stack.push(symbolTable);
     }
-    // 将栈顶符号表出栈
+    /**
+     * 创建一个新的符号表并入栈
+     */
+    public static IrSymbolTable push(){
+        IrSymbolTable irSymbolTable = new IrSymbolTable();
+        push(irSymbolTable);
+        return irSymbolTable;
+    }
+
+    /**
+     * 将栈顶符号表出栈
+     * 全局根符号表并不会出栈
+     */
     public static void pop(){
-        instance.stack.pop();
+        if(instance.stack.size() > 1){
+            instance.stack.pop();
+        }
     }
     // 访问栈顶元素(符号表) 如果栈为空那么返回null
     public static IrSymbolTable peek(){

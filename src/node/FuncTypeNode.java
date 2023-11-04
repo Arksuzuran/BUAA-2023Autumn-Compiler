@@ -1,5 +1,8 @@
 package node;
 
+import ir.types.IntType;
+import ir.types.ValueType;
+import ir.types.VoidType;
 import token.Token;
 import token.TokenType;
 
@@ -28,5 +31,13 @@ public class FuncTypeNode extends Node{
     @Override
     public void check() {
 
+    }
+
+    /**
+     * 中间代码生成 获取ValueType类型的返回值类型
+     * @return
+     */
+    public ValueType getIrReturnType(){
+        return type.type == TokenType.VOIDTK ? new VoidType() : new IntType(32);
     }
 }

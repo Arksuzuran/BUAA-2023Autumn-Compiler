@@ -21,4 +21,12 @@ public class ConstInt extends Constant{
         super(new IntType(bits), new ArrayList<>());
         this.value = value;
     }
+
+    /**
+     * 立即构建一个32位的0值ConstInt
+     * @return  构建的COnstInt
+     */
+    public static ConstInt ZERO(){
+        return new ConstInt(32, 0);
+    }
 }

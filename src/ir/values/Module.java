@@ -1,5 +1,7 @@
 package ir.values;
 
+import ir.types.VoidType;
+
 import java.util.ArrayList;
 
 /**
@@ -7,13 +9,15 @@ import java.util.ArrayList;
  * @Author
  * @Date 2023/10/30
  **/
-public class Module{
+public class Module extends Value{
     // 单例模式
     private static final Module module = new Module();
     public static Module getInstance(){
         return module;
     }
-    private Module(){}
+    private Module(){
+        super("Module", new VoidType(), null);
+    }
 
     /**
      * 全部函数定义
@@ -28,15 +32,15 @@ public class Module{
      * 添加新的函数定义
      * @param function
      */
-    public void addFunction(Function function){
-        functions.add(function);
+    public static void addFunction(Function function){
+        module.functions.add(function);
     }
     /**
      * 添加新的全局变量定义
      * @param globalVariable
      */
-    public void addGlobalVariable(GlobalVariable globalVariable){
-        globalVariables.add(globalVariable);
+    public static void addGlobalVariable(GlobalVariable globalVariable){
+        module.globalVariables.add(globalVariable);
     }
 
     /**

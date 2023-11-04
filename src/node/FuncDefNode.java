@@ -3,6 +3,16 @@ package node;
 import error.Error;
 import error.ErrorHandler;
 import error.ErrorType;
+import ir.IrBuilder;
+import ir.IrSymbolTableStack;
+import ir.Irc;
+import ir.types.ValueType;
+import ir.types.VoidType;
+import ir.values.Function;
+import ir.values.Value;
+import ir.values.constants.ConstInt;
+import ir.values.instructions.Alloca;
+import ir.values.instructions.Store;
 import symbol.FuncSymbol;
 import symbol.NumSymbol;
 import symbol.SymbolTableStack;
@@ -94,6 +104,49 @@ public class FuncDefNode extends Node{
         SymbolTableStack.setInVoidFunc(false);
         // 2.当前函数生成的符号表要弹栈
         SymbolTableStack.pop();
+    }
+
+    /**
+     * 构建函数定义 和函数参数的alloca
+     * 注意，在此不进行函数参数的解析
+     * 这项工作在FuncFParamNode内进行
+     */
+    @Override
+    public void buildIr() {
+        // 函数返回值类型
+        ValueType returnType = funcTypeNode.getIrReturnType();
+        // 构建函数类型
+        Irc.curFunction = IrBuilder.buildFunction(identToken.str, returnType, new ArrayList<>(), false);
+        // 新建符号表，作为函数符号表
+        Irc.curFunction.setSymbolTable(IrSymbolTableStack.push());
+        // 构建下属第一基本块
+        Irc.curBlock = IrBuilder.buildBasicBlock(Irc.curFunction);
+
+        // 函数带有参数
+        // 构建函数参数Ir
+        // 将函数参数的value加入curFunction的参数表中
+        // 最后构建SSA形式的alloca和store语句
+        if(funcFParamsNode != null){
+            funcFParamsNode.buildIr();
+        }
+
+        // 构建block的ir
+        blockNode.buildIr();
+
+        // 如果函数体最后不是return语句
+        if(!ErrorCheckTool.hasReturnEnd(blockNode)){
+            // 无返回值
+            if(returnType instanceof VoidType){
+                IrBuilder.buildRetInstruction(Irc.curBlock, null);
+            }
+            // 有返回值 未给定return语句的情况下默认返回0
+            else{
+                IrBuilder.buildRetInstruction(Irc.curBlock, ConstInt.ZERO());
+            }
+        }
+
+        // 符号表出栈
+        IrSymbolTableStack.pop();
     }
 
 }

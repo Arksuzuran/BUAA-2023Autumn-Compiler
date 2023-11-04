@@ -3,8 +3,13 @@ package node;
 import error.Error;
 import error.ErrorHandler;
 import error.ErrorType;
+import ir.IrBuilder;
+import ir.Irc;
+import ir.values.constants.ConstInt;
+import ir.values.instructions.Icmp;
 import symbol.*;
 import token.Token;
+import token.TokenType;
 import utils.ErrorCheckTool;
 
 import java.util.ArrayList;
@@ -86,6 +91,57 @@ public class UnaryExpNode extends Node{
         // UnaryOp UnaryExp
         else {
             unaryExpNode.check();
+        }
+    }
+
+    // UnaryExp → PrimaryExp | Ident '(' [FuncRParams] ')' | UnaryOp UnaryExp
+    @Override
+    public void buildIr() {
+        // 只有可能为以下两种情况：PrimaryExp | UnaryOp UnaryExp
+        if(Irc.inConstExp){
+            // PrimaryExp
+            if(primaryExpNode != null){
+                primaryExpNode.buildIr();
+            }
+            // UnaryOp UnaryExp
+            // UnaryOp → '+' | '−' | '!'
+            else if(unaryExpNode != null){
+                unaryExpNode.buildIr();
+                if(unaryOpNode.getOpToken().type == TokenType.MINU){
+                    Irc.synInt = -Irc.synInt;
+                }
+                else if(unaryOpNode.getOpToken().type == TokenType.NOT){
+                    Irc.synInt = Irc.synInt == 0 ? 1 : 0;
+                }
+            }
+        }
+        // 非常量
+        else{
+            // PrimaryExp
+            if(primaryExpNode != null){
+                primaryExpNode.buildIr();
+            }
+            // UnaryOp UnaryExp
+            // UnaryOp → '+' | '−' | '!'
+            else if(unaryExpNode != null){
+                unaryExpNode.buildIr();
+                // 0 - value
+                if(unaryOpNode.getOpToken().type == TokenType.MINU){
+                    Irc.synValue = IrBuilder.buildSubInstruction(ConstInt.ZERO(), Irc.synValue, Irc.curBlock);
+                }
+                // !value <=> value == 0
+                else if(unaryOpNode.getOpToken().type == TokenType.NOT){
+                    // 这里得到的还是i1类型的值，需要转换为i32
+                    Irc.synValue = IrBuilder.buildIcmpInstruction(
+                            ConstInt.ZERO(), Irc.synValue,
+                            Icmp.CondType.EQ, Irc.curBlock);
+                    Irc.synValue = IrBuilder.buildZextInstruction(Irc.synValue, Irc.curBlock);
+                }
+            }
+            // Ident '(' [FuncRParams] ')'
+            else if(identToken != null){
+
+            }
         }
     }
 

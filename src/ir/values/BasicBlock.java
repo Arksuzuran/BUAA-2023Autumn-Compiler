@@ -27,6 +27,13 @@ public class BasicBlock extends Value{
     }
 
     /**
+     * 返回该基本块所属的函数
+     */
+    public Function getParentFunction(){
+        return (Function) super.getParent();
+    }
+
+    /**
      * 在指令序列末尾添加一条指令
      * @param instruction   要添加的指令
      */

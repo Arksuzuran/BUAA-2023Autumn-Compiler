@@ -78,4 +78,15 @@ public class Value {
     private static int applyNewId(){
         return idCnt++;
     }
+    public static void setIdCntZero(){
+        idCnt = 0;
+    }
+
+    /**
+     * 重命名一个value
+     * @param name  新name
+     */
+    public void rename(String name){
+        this.name = name;
+    }
 }

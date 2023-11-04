@@ -19,7 +19,7 @@ public class GlobalVariable extends User{
      * 全局变量以@开头
      */
     public GlobalVariable(String name, ValueType type, boolean isConst, ArrayList<Value> operands) {
-        super("@" + name, type, null, operands);
+        super("@" + name, type, Module.getInstance(), operands);
         this.isConst = isConst;
     }
 }

@@ -8,6 +8,10 @@ import token.Token;
  * @Date 2023/9/20
  **/
 public class UnaryOpNode extends Node{
+    public Token getOpToken() {
+        return opToken;
+    }
+
     private Token opToken;
 
     public UnaryOpNode(Token opToken) {
@@ -23,5 +27,10 @@ public class UnaryOpNode extends Node{
 
     @Override
     public void check() {
+    }
+
+    @Override
+    public void buildIr() {
+
     }
 }
