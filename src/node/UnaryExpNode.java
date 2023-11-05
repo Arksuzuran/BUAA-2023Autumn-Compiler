@@ -4,7 +4,13 @@ import error.Error;
 import error.ErrorHandler;
 import error.ErrorType;
 import ir.IrBuilder;
+import ir.IrSymbolTableStack;
 import ir.Irc;
+import ir.types.IntType;
+import ir.types.PointerType;
+import ir.types.ValueType;
+import ir.values.Function;
+import ir.values.Value;
 import ir.values.constants.ConstInt;
 import ir.values.instructions.Icmp;
 import symbol.*;
@@ -98,7 +104,7 @@ public class UnaryExpNode extends Node{
     @Override
     public void buildIr() {
         // 只有可能为以下两种情况：PrimaryExp | UnaryOp UnaryExp
-        if(Irc.inConstExp){
+        if(Irc.isBuildingConstExp){
             // PrimaryExp
             if(primaryExpNode != null){
                 primaryExpNode.buildIr();
@@ -139,8 +145,30 @@ public class UnaryExpNode extends Node{
                 }
             }
             // Ident '(' [FuncRParams] ')'
+            // 函数调用
             else if(identToken != null){
+                Function function = (Function) IrSymbolTableStack.getSymbol(identToken.str);
+                assert function != null;
+                ArrayList<Value> argRValues = function.getArgValues();  // 实参列表
+                // 带实参
+                if(funcRParamsNode != null){
+                    ArrayList<Value> argFValues = function.getArgValues();  // 形参列表
+                    ArrayList<ExpNode> expNodes = funcRParamsNode.getExpNodes();    // 实参的node形式
+                    // 逐个参数进行解析
+                    for(int i=0; i<expNodes.size(); i++){
+                        ValueType fType = argFValues.get(i).getType();  // 形参要求的类型
 
+                        // 如果形参要求指针类型，那么后续synValue第一次是指针类型时，不进行加载
+                        if(fType instanceof PointerType){
+                            Irc.isBuildingPointerRParam = true;
+                        }
+                        expNodes.get(i).buildIr();
+                        argRValues.add(Irc.synValue);   // 将解析完成的实参加入列表
+                        Irc.isBuildingPointerRParam = false;
+                    }
+                }
+                // 参数解析完成 构建指令
+                Irc.synValue = IrBuilder.buildCallInstruction(function, argRValues, Irc.curBlock);
             }
         }
     }

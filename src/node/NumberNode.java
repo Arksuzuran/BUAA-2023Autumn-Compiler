@@ -1,5 +1,7 @@
 package node;
 
+import ir.Irc;
+import ir.values.constants.ConstInt;
 import token.Token;
 
 /**
@@ -23,5 +25,19 @@ public class NumberNode extends Node{
 
     @Override
     public void check() {
+    }
+
+    /**
+     * 计算常数仅传递synInt
+     * 计算非常数仅传递synValue
+     */
+    @Override
+    public void buildIr() {
+        int num = Integer.parseInt(intConstToken.str);
+        if(Irc.isBuildingConstExp){
+            Irc.synInt = num;
+        } else{
+            Irc.synValue = new ConstInt(32, num);
+        }
     }
 }

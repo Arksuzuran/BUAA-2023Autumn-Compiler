@@ -39,4 +39,9 @@ public class FuncRParamsNode extends Node{
             expNode.check();
         }
     }
+
+    @Override
+    public void buildIr() {
+
+    }
 }

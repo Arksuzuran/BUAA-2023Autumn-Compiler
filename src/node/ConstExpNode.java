@@ -1,7 +1,6 @@
 package node;
 
 import ir.Irc;
-import ir.values.constants.ConstInt;
 
 /**
  * @Description 常量表达式 ConstExp → AddExp
@@ -33,8 +32,8 @@ public class ConstExpNode extends Node{
      */
     @Override
     public void buildIr() {
-        Irc.inConstExp = true;
+        Irc.isBuildingConstExp = true;
         addExpNode.buildIr();
-        Irc.inConstExp = false;
+        Irc.isBuildingConstExp = false;
     }
 }

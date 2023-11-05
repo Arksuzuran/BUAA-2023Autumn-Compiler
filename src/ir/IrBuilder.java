@@ -181,4 +181,50 @@ public class IrBuilder {
         return zext;
     }
 
+    /**
+     * 构建函数调用指令
+     * @param function  被调用的函数
+     * @param rArgs     实参列表
+     */
+    public static Call buildCallInstruction(Function function, ArrayList<Value> rArgs, BasicBlock parent){
+        Call call = new Call(getNameString(), parent, function, rArgs);
+        parent.addInstruction(call);
+        return call;
+    }
+
+    /**
+     * 构建加载指令
+     * @param pointer   要加载的地址，从这个地址处读取操作数
+     * @return          完成加载的Value
+     */
+    public static Load buildLoadInstruction(Value pointer, BasicBlock parent){
+        Load load = new Load(getNameString(), parent, pointer);
+        parent.addInstruction(load);
+        return load;
+    }
+
+    /**
+     * 构建带有二维寻址的gep指令
+     * 返回的指针将会降一级
+     * @param ptrval    基地址
+     * @param index1    本维寻址
+     * @param index2    第一维寻址
+     */
+    public static GetElementPtr buildGetElementPtrInstruction(Value ptrval, Value index1, Value index2, BasicBlock parent){
+        GetElementPtr getElementPtr = new GetElementPtr(getNameString(), parent, ptrval, index1, index2);
+        parent.addInstruction(getElementPtr);
+        return getElementPtr;
+    }
+
+    /**
+     * 构建带有本维寻址的gep指令
+     * 返回的指针是同级的，即向前挪动index
+     * @param ptrval    基地址
+     * @param index    本维寻址
+     */
+    public static GetElementPtr buildGetElementPtrInstruction(Value ptrval, Value index, BasicBlock parent){
+        GetElementPtr getElementPtr = new GetElementPtr(getNameString(), parent, ptrval, index);
+        parent.addInstruction(getElementPtr);
+        return getElementPtr;
+    }
 }

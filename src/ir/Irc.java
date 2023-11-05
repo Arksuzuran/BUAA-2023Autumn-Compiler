@@ -23,12 +23,18 @@ public class Irc {
     public static Function curFunction = null;
     /**
      * 当前是否正在计算 无变量常数表达式
+     * 如果是，那么综合属性只需要传递syvInt，且计算情况有所减少
      */
-    public static boolean inConstExp = false;
+    public static boolean isBuildingConstExp = false;
     /**
      * 当前是否在进行全局变量的初始化
      */
-    public static boolean inGlobalInit = false;
+    public static boolean isBuildingGlobalInit = false;
+    /**
+     *  当前是否正在构建一个int类型的实参
+     *  如果是，但是当前解析到的却是int*类型，那么需要load
+     */
+    public static boolean isBuildingPointerRParam = false;
 
     //=========================== 综合属性 =================================
     /**

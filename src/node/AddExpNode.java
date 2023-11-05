@@ -50,11 +50,20 @@ public class AddExpNode extends Node{
     /**
      * 带有常数优化
      * 即如果是从constExp进入，那么需要直接计算出结果并通过synValue上传
+     *
+     * EXP系列的指令，其语义依赖于子节点的计算结果
+     * 因此对每个Exp，在构建中间代码时，工作可以分为三种类型：
+     * 1.直接进行下一层的build，不做任何其他事
+     *      无需新建指令
+     * 2.进行完下一层的build后，透过syn综合属性组装好下一层传上来的value，并向上传递自己更新的syn
+     *      因为syn只能传递单值，因此可能需要通过循环遍历每个子节点，在循环体内部分步组装
+     *      需要使用IrBuilder的工厂模式方法来新建指令
+     * 3.自己即是syn的原始创造者
      */
     @Override
     public void buildIr() {
         // 需要计算出常数 不过无需传递synValue
-        if(Irc.inConstExp){
+        if(Irc.isBuildingConstExp){
             // 单操作数 MulExp
             // synInt在下层进一步计算
             if(opToken == null){

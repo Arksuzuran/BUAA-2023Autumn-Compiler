@@ -12,6 +12,11 @@ import java.util.ArrayList;
  **/
 public class GlobalVariable extends User{
     private final boolean isConst;
+
+    public Constant getInitValue() {
+        return initValue;
+    }
+
     private Constant initValue = null;
 
     /**

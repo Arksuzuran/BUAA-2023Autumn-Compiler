@@ -53,7 +53,7 @@ public class MulExpNode extends Node{
     @Override
     public void buildIr() {
         // 常量
-        if(Irc.inConstExp){
+        if(Irc.isBuildingConstExp){
             if(opToken == null){
                 unaryExpNode.buildIr();
             }

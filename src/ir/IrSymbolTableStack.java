@@ -1,6 +1,8 @@
 package ir;
 
 import ir.values.Value;
+import symbol.Symbol;
+
 import java.util.Stack;
 
 /**
@@ -81,4 +83,27 @@ public class IrSymbolTableStack {
         }
         return false;
     }
+    /**
+     * 寻找指定name的符号，返回其Value
+     * @param name  名称
+     * @return      对应Value
+     */
+    public static Value getSymbol(String name){
+        for(IrSymbolTable symbolTable : instance.stack){
+            Value value = symbolTable.getSymbol(name);
+            if(value != null){
+                return value;
+            }
+        }
+        return null;
+    }
+    /**
+     * 判断当前是否在构建全局符号表
+     * @return
+     */
+    public static boolean isBuildingGlobalSymbolTable(){
+        return instance.stack.size() == 1;
+    }
+
+
 }

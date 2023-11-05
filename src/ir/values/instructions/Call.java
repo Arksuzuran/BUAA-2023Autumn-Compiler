@@ -21,13 +21,13 @@ public class Call extends Instruction{
      * call指令的ValueType为函数返回值的ValueType
      * @param parent    一定是Block
      * @param function  op1 函数对象
-     * @param args      op2 3 ...函数的形参
+     * @param rArgs      op2 3 ...函数的实参
      */
-    public Call(String name, BasicBlock parent, Function function, Value... args) {
+    public Call(String name, BasicBlock parent, Function function, ArrayList<Value> rArgs) {
         super(name, function.getReturnType(), parent, new ArrayList<Value>()
         {{
             add(function);
-            addAll(List.of(args));
+            addAll(rArgs);
         }}.toArray(new Value[0]));
     }
 }
