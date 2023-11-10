@@ -1,9 +1,9 @@
 package ir.values.instructions;
 
 import ir.types.IntType;
-import ir.types.ValueType;
 import ir.values.BasicBlock;
 import ir.values.Value;
+import utils.IrTool;
 
 /**
  * @Description TODO
@@ -28,32 +28,42 @@ public class Icmp extends Instruction{
         /**
          * == equal
          */
-        EQ,
+        EQL("==", "eq"),
+        /**
+         * != not equal
+         */
+        NEQ("!=", "ne"),
 
         /**
          *  <= less or equal
          */
-        LE,
+        LEQ("<=", "sle"),
 
         /**
          * < less than
          */
-        LT,
+        LSS("<", "slt"),
 
         /**
          * >= greater or equal
          */
-        GE,
+        GEQ(">=", "sge"),
 
         /**
          * > greater than
          */
-        GT,
+        GRE(">", "sgt");
 
-        /**
-         * != not equal
-         */
-        NE;
+        private String string;
+        private String irString;
+        CondType(String string, String irString){
+            this.string = string;
+            this.irString = irString;
+        }
+        @Override
+        public String toString() {
+            return this.irString;
+        }
     }
 
     public CondType getCondType() {
@@ -62,4 +72,15 @@ public class Icmp extends Instruction{
 
     private CondType condType;
 
+    // %5 = icmp ne i32 0, %4
+    @Override
+    public String toString(){
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append(getName()).append(" = icmp ");  // "%5 = icmp "
+        stringBuilder.append(condType).append(" ");          // "ne "
+        stringBuilder.append(IrTool.tnstr(getOperands().get(0))).append(", ");   //"i32 0, "
+        stringBuilder.append(getOperands().get(1).getName());   // "%4"
+
+        return stringBuilder.toString();
+    }
 }

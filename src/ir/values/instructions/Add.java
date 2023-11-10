@@ -13,7 +13,7 @@ import java.util.ArrayList;
  * @Author
  * @Date 2023/10/30
  **/
-public class Add extends Instruction{
+public class Add extends AresInstruction{
     /**
      * @param name     指令Value的名称
      * @param parent   parent一定是BasicBlock
@@ -21,6 +21,11 @@ public class Add extends Instruction{
      * @param op2 所属操作数2
      */
     public Add(String name, BasicBlock parent, Value op1, Value op2) {
-        super(name, new IntType(32), parent, op1, op2);
+        super(name, parent, op1, op2);
+    }
+
+    @Override
+    public String toString(){
+        return getAresIrString("add");
     }
 }

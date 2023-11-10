@@ -47,5 +47,12 @@ public class BlockNode extends Node{
         }
     }
 
+    @Override
+    public void buildIr() {
+        for(BlockItemNode blockItemNode : blockItemNodes){
+            blockItemNode.buildIr();
+        }
+    }
+
 
 }

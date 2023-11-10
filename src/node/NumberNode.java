@@ -39,5 +39,6 @@ public class NumberNode extends Node{
         } else{
             Irc.synValue = new ConstInt(32, num);
         }
+//        System.out.println("NumberNode " + Irc.isBuildingConstExp + " " + num);
     }
 }

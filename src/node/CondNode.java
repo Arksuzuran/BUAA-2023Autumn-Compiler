@@ -1,5 +1,7 @@
 package node;
 
+import ir.values.BasicBlock;
+
 /**
  * @Description 条件表达式 Cond → LOrExp
  * @Author
@@ -7,6 +9,14 @@ package node;
  **/
 public class CondNode extends Node{
     private LOrExpNode lOrExpNode;
+    public void setTrueBranch(BasicBlock trueBranch) {
+        this.trueBranch = trueBranch;
+    }
+    public void setFalseBranch(BasicBlock falseBranch) {
+        this.falseBranch = falseBranch;
+    }
+    private BasicBlock trueBranch;
+    private BasicBlock falseBranch;
 
     public CondNode(LOrExpNode lOrExpNode) {
         super(NodeType.Cond);
@@ -22,5 +32,12 @@ public class CondNode extends Node{
     @Override
     public void check() {
         lOrExpNode.check();
+    }
+
+    @Override
+    public void buildIr() {
+        lOrExpNode.setTrueBranch(trueBranch);
+        lOrExpNode.setFalseBranch(falseBranch);
+        lOrExpNode.buildIr();
     }
 }

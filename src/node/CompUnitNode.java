@@ -50,6 +50,9 @@ public class CompUnitNode extends Node{
 
     @Override
     public void buildIr() {
+        // 初始化全局符号表
+        IrSymbolTableStack.init();
+
         // 在顶部先声明库函数
         Function.getint = IrBuilder.buildFunction("getint", new IntType(32), new ArrayList<>(), true);
         Function.putstr = IrBuilder.buildFunction("putstr", new VoidType(), new ArrayList<>(){{
@@ -61,9 +64,6 @@ public class CompUnitNode extends Node{
         Function.putch = IrBuilder.buildFunction("putch", new VoidType(), new ArrayList<>(){{
             add(new IntType(32));
         }}, true);
-
-        // 设置全局符号表
-        IrSymbolTableStack.push();
 
         // 访问子节点
         if(!declNodes.isEmpty()){

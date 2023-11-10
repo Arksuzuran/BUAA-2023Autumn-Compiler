@@ -5,6 +5,7 @@ import ir.values.Function;
 import ir.values.Value;
 
 import java.util.ArrayList;
+import java.util.Stack;
 
 /**
  * @Description IrContext 为了少打一点字所以写成Irc
@@ -36,6 +37,17 @@ public class Irc {
      */
     public static boolean isBuildingPointerRParam = false;
 
+    /**
+     * 处理多重循环中的continue，
+     * 栈顶的loopEndBlock即是当前层Continue跳转的对象
+     */
+    public static Stack<BasicBlock> loopEndBlockStack = new Stack<>();
+    /**
+     * 处理多次循环中的break
+     * 栈顶的endBlock即是当前层break跳转的对象
+     */
+    public static Stack<BasicBlock> endBlockStack = new Stack<>();
+
     //=========================== 综合属性 =================================
     /**
      * Value类型列表的综合属性 up向上传递
@@ -48,7 +60,7 @@ public class Irc {
     /**
      * int类型的综合属性 up向上传递
      */
-    public static int synInt = -1;
+    public static int synInt = -1190;
     //============================= 继承属性 =================================
     /**
      * Value类型的继承属性 down向下传递
@@ -57,5 +69,5 @@ public class Irc {
     /**
      * int类型的继承属性 down向下传递
      */
-    public static int inInt = -1;
+    public static int inInt = -1190;
 }

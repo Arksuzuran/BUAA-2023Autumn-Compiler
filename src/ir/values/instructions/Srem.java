@@ -11,9 +11,14 @@ import ir.values.Value;
  * @Author
  * @Date 2023/10/30
  **/
-public class Srem extends Instruction{
+public class Srem extends AresInstruction{
 
     public Srem(String name, BasicBlock parent, Value op1, Value op2) {
-        super(name, new IntType(32), parent, op1, op2);
+        super(name, parent, op1, op2);
+    }
+
+    @Override
+    public String toString(){
+        return getAresIrString("srem");
     }
 }

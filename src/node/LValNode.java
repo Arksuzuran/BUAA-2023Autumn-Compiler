@@ -9,10 +9,12 @@ import ir.types.PointerType;
 import ir.types.ValueType;
 import ir.values.GlobalVariable;
 import ir.values.Value;
+import ir.values.constants.ConstArray;
 import ir.values.constants.ConstInt;
+import ir.values.constants.Constant;
+import ir.values.instructions.Alloca;
 import symbol.*;
 import token.Token;
-import token.TokenType;
 import utils.ErrorCheckTool;
 import utils.IrTool;
 
@@ -65,13 +67,18 @@ public class LValNode extends Node{
     }
 
     /**
-     * LVal一般返回指针类型的value，让上层来判断是否进行加载
+     * LVal一般返回指针类型的value，该指针是所求变量的地址。
+     * 让上层PrimaryExp来判断是否进行加载
+     * 如果isBuildingConstExp，那么一定返回synInt
+     * @synInt      返回左值的ConstInt值. 前提：isBuildingConstExp.
+     * @synValue    返回存储左值内容的指针（地址）
      */
     @Override
     public void buildIr() {
-        // 差符号表获得左值对应的value
+        // 查符号表获得左值对应的value
         Value lvalValue = IrSymbolTableStack.getSymbol(identToken.str);
         assert lvalValue != null;
+
         // 左值为Int类型 无需再进行取值
         if(lvalValue.getType() instanceof IntType){
             if(Irc.isBuildingConstExp){
@@ -80,9 +87,12 @@ public class LValNode extends Node{
                 Irc.synValue = lvalValue;
             }
         }
+
         // 左值为Pointer类型 需要进一步取值
         else{
+            // 根据指针指向的类型，进行讨论
             ValueType valueType = IrTool.getPointingTypeOfPointer(lvalValue);
+
             // 指向int类型
             if(valueType instanceof IntType){
                 // 需要直接提取计算出常数 且为全局常量指针 则将计算出的常数使用synInt传递
@@ -90,16 +100,20 @@ public class LValNode extends Node{
                     ConstInt initValue = (ConstInt) (((GlobalVariable) lvalValue).getInitValue());
                     Irc.synInt = initValue.getValue();
                 }
-                // 否则直接向上传递指针
+                // 否则直接向上传递指针，这一般是变量存储的地址
                 else{
                     Irc.synValue = lvalValue;
                 }
             }
             // 指向指针
-            // 该pointer一定是当前左值所处函数的 数组形参
-            // 例如f(int a[], int b[][2])
-            // 指针可能的类型有i32* *，[2 * i32]* *
+            // 该pointer一定是当前左值所处函数的 [数组形参]
+            // 例如f(int a[], int b[][2])中的 a和b
+            // 因此一定不在buildingConstExp
+            // lvalValue可能的类型有：
+            // 一维数组i32* *
+            // 二维数组[2 * i32]* *
             // 因为只有形参在满足SSA的时候 会通过alloca和store 来在本来的指针上多附加一层指针 以存储形参指针的值
+            // 返回指针
             else if(valueType instanceof PointerType){
                 // 取出该指针指向空间的内容
                 // 即复原出形参（包括内容和类型）
@@ -114,14 +128,14 @@ public class LValNode extends Node{
                     expNodes.get(0).buildIr();
                     Value indexValue = Irc.synValue;
                     // 根据index 向前挪动指针的值
-                    Value ptrval = IrBuilder.buildGetElementPtrInstruction(lvalValue, indexValue, Irc.curBlock);
+                    Value ptrval = IrBuilder.buildGetElementPtrInstruction(fParamValue, indexValue, Irc.curBlock);
 
                     // 如果形参指向的是数组，那么说明形参是二维的。例如int a[][2] => [2 * i32]*，则形参指向[2* i32]
                     // 但这里只取了一维，也就是说希望传入a[1]，一定是作为函数的实参
                     // 那么函数实参传入的类型应当是i32*
                     // 所以应当向下降维
                     if(IrTool.getPointingTypeOfPointer(fParamValue) instanceof ArrayType){
-                        ptrval = IrBuilder.buildGetElementPtrInstruction(ptrval, ConstInt.ZERO(), ConstInt.ZERO(), Irc.curBlock);
+                        ptrval = IrBuilder.buildRankDownInstruction(ptrval, Irc.curBlock);
                     }
                     Irc.synValue = ptrval;
                 }
@@ -131,13 +145,51 @@ public class LValNode extends Node{
                     Value indexValue1 = Irc.synValue;
                     expNodes.get(1).buildIr();
                     Value indexValue2 = Irc.synValue;
-                    Irc.synValue = IrBuilder.buildGetElementPtrInstruction(lvalValue, indexValue1, indexValue2, Irc.curBlock);
+                    Irc.synValue = IrBuilder.buildGetElementPtrInstruction(fParamValue, indexValue1, indexValue2, Irc.curBlock);
                 }
             }
             // 指向数组
             // 则应该为正常的局部数组或者全局数组
             else if(valueType instanceof ArrayType){
-                
+                // 常量表达式 最后结果必然是ConstInt
+                // 两种情况：全局常量数组 局部常量数组
+                // 常量数组都已经存储在了对应的对象内，直接调取方法读取即可
+                // 返回synInt
+                if(Irc.isBuildingConstExp){
+                    Constant initVal;
+                    // 全局常量数组 是GlobalVariable形式
+                    if(lvalValue instanceof GlobalVariable){
+                        initVal = ((GlobalVariable) lvalValue).getInitValue();
+                    }
+                    // 局部常量数组 是alloca的形式
+                    else{
+                        initVal = ((Alloca) lvalValue).getInitValue();
+                    }
+                    // 初值数组已经被存储在initVal对象中，根据[]依次获取即可
+                    // 此处仍然在buildingConstExp，因此从expNode中获取的是synInt
+                    for(ExpNode expNode : expNodes){
+                        expNode.buildIr();
+                        initVal = ((ConstArray) initVal).getElements().get(Irc.synInt);
+                    }
+                    Irc.synInt = ((ConstInt) initVal).getValue();
+                }
+                // 非常量表达式
+                // 这里不再有存储好的初值调用，因此应该使用gep指令
+                // 返回指针synValue
+                else {
+                    // 根据[]不断使用gep向下取值
+                    for(ExpNode expNode : expNodes){
+                        expNode.buildIr();
+                        lvalValue = IrBuilder.buildGetElementPtrInstruction(lvalValue, ConstInt.ZERO(), Irc.synValue, Irc.curBlock);
+                    }
+                    // 特别地，需要判断一下int a[2][3] 只调用了 a[0]的情况 : 定是函数实参
+                    // 此时result是指向数组的指针
+                    // 那么需要进行降维传参
+                    if(IrTool.getPointingTypeOfPointer(lvalValue) instanceof ArrayType){
+                        lvalValue = IrBuilder.buildRankDownInstruction(lvalValue, Irc.curBlock);
+                    }
+                    Irc.synValue = lvalValue;
+                }
             }
         }
     }

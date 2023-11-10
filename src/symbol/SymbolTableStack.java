@@ -1,5 +1,6 @@
 package symbol;
 
+import ir.values.Value;
 import node.Node;
 
 import java.util.Objects;
@@ -87,6 +88,12 @@ public class SymbolTableStack {
                 return symbol;
             }
         }
+//        for(int i=instance.stack.size()-1; i>=0; i--){
+//            symbol = instance.stack.get(i).getSymbol(name, symbolType);
+//            if(symbol != null){
+//                return symbol;
+//            }
+//        }
         return null;
     }
 

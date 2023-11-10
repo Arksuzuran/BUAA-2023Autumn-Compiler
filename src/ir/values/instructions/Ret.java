@@ -4,6 +4,7 @@ import ir.types.ValueType;
 import ir.types.VoidType;
 import ir.values.BasicBlock;
 import ir.values.Value;
+import utils.IrTool;
 
 /**
  * @Description TODO
@@ -26,5 +27,20 @@ public class Ret extends Instruction{
      */
     public Ret(BasicBlock parent, Value returnValue){
         super("", returnValue.getType(), parent, returnValue);
+    }
+
+    // ret i32 %24
+    // ret void
+    @Override
+    public String toString(){
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append("ret ");  // "ret "
+        if(getType() instanceof VoidType){
+            stringBuilder.append("void");         // "void"
+        } else {
+            stringBuilder.append(IrTool.tnstr(getOperands().get(0)));          // "i32 %24"
+        }
+
+        return stringBuilder.toString();
     }
 }

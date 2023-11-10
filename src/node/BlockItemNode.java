@@ -39,4 +39,13 @@ public class BlockItemNode extends Node{
             stmtNode.check();
         }
     }
+
+    @Override
+    public void buildIr() {
+        if(declNode != null){
+            declNode.buildIr();
+        } else {
+            stmtNode.buildIr();
+        }
+    }
 }

@@ -6,7 +6,6 @@ import error.ErrorType;
 import ir.IrBuilder;
 import ir.IrSymbolTableStack;
 import ir.Irc;
-import ir.types.IntType;
 import ir.types.PointerType;
 import ir.types.ValueType;
 import ir.values.Function;
@@ -140,7 +139,7 @@ public class UnaryExpNode extends Node{
                     // 这里得到的还是i1类型的值，需要转换为i32
                     Irc.synValue = IrBuilder.buildIcmpInstruction(
                             ConstInt.ZERO(), Irc.synValue,
-                            Icmp.CondType.EQ, Irc.curBlock);
+                            Icmp.CondType.EQL, Irc.curBlock);
                     Irc.synValue = IrBuilder.buildZextInstruction(Irc.synValue, Irc.curBlock);
                 }
             }
@@ -149,7 +148,7 @@ public class UnaryExpNode extends Node{
             else if(identToken != null){
                 Function function = (Function) IrSymbolTableStack.getSymbol(identToken.str);
                 assert function != null;
-                ArrayList<Value> argRValues = function.getArgValues();  // 实参列表
+                ArrayList<Value> argRValues = new ArrayList<>();  // 实参列表
                 // 带实参
                 if(funcRParamsNode != null){
                     ArrayList<Value> argFValues = function.getArgValues();  // 形参列表

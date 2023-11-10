@@ -9,4 +9,7 @@ public class ValueType {
     public int getSize(){
         return 0;
     }
+    public boolean isI1(){
+        return false;
+    }
 }

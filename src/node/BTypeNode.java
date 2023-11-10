@@ -25,4 +25,8 @@ public class BTypeNode extends Node{
     @Override
     public void check() {
     }
+
+    @Override
+    public void buildIr() {
+    }
 }

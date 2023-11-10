@@ -6,4 +6,8 @@ package ir.types;
  * @Date 2023/10/31
  **/
 public class VoidType extends ValueType{
+    @Override
+    public String toString(){
+        return "void";
+    }
 }

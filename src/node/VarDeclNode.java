@@ -44,4 +44,11 @@ public class VarDeclNode extends Node{
             varDefNode.check();
         }
     }
+
+    @Override
+    public void buildIr() {
+        for(VarDefNode varDefNode : varDefNodes){
+            varDefNode.buildIr();
+        }
+    }
 }

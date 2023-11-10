@@ -398,7 +398,7 @@ public class Parser {
         switch (curToken.type) {
             case LBRACE -> { // 语句块 Block → '{' { BlockItem } '}'
                 nodes.add(Block());
-                type = StmtNode.StmtType.Block;
+                type = StmtNode.StmtType.BLOCK;
             }
             case IFTK -> {  //  'if' '(' Cond ')' Stmt [ 'else' Stmt ]
                 tokens.add(matchToken(TokenType.IFTK));

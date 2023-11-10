@@ -19,4 +19,8 @@ public class PointerType extends ValueType {
     public PointerType(ValueType pointingType) {
         this.pointingType = pointingType;
     }
+    @Override
+    public String toString(){
+        return pointingType + "*";
+    }
 }

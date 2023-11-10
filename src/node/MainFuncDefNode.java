@@ -3,6 +3,14 @@ package node;
 import error.Error;
 import error.ErrorHandler;
 import error.ErrorType;
+import ir.IrBuilder;
+import ir.IrSymbolTableStack;
+import ir.Irc;
+import ir.types.IntType;
+import ir.types.VoidType;
+import ir.values.BasicBlock;
+import ir.values.Function;
+import ir.values.constants.ConstInt;
 import symbol.*;
 import token.Token;
 import utils.ErrorCheckTool;
@@ -59,8 +67,29 @@ public class MainFuncDefNode extends Node{
         // 进入函数
         blockNode.check();
 
+        // 如果函数体最后不是return语句
+        // 那么要补上返回0
+        if(!ErrorCheckTool.hasReturnEnd(blockNode)){
+            IrBuilder.buildRetInstruction(Irc.curBlock, ConstInt.ZERO());
+        }
+
         // 离开函数
         // 弹栈
         SymbolTableStack.pop();
+    }
+
+    @Override
+    public void buildIr() {
+        // 创建函数
+        Irc.curFunction = IrBuilder.buildFunction(mainToken.str, new IntType(32), new ArrayList<>(), false);
+        // 创建第一基本块
+        Irc.curBlock = IrBuilder.buildBasicBlock(Irc.curFunction);
+
+        // 新建该函数的符号表，入栈
+        Irc.curFunction.setSymbolTable(IrSymbolTableStack.push());
+        // 解析函数体
+        blockNode.buildIr();
+        // 符号表退栈
+        IrSymbolTableStack.pop();
     }
 }

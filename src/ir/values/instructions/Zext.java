@@ -18,4 +18,13 @@ public class Zext extends Instruction{
     public Zext(String name, BasicBlock parent, Value value) {
         super(name, new IntType(32), parent, value);
     }
+
+    @Override
+    public String toString(){
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append(getName()).append(" = zext i1 ");
+        stringBuilder.append(getOperands().get(0).getName());
+        stringBuilder.append(" to i32");
+        return stringBuilder.toString();
+    }
 }

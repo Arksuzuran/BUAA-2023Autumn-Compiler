@@ -1,9 +1,12 @@
 package ir.values.instructions;
 
+import ir.types.IntType;
 import ir.types.ValueType;
+import ir.types.VoidType;
 import ir.values.BasicBlock;
 import ir.values.Function;
 import ir.values.Value;
+import utils.IrTool;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,5 +32,26 @@ public class Call extends Instruction{
             add(function);
             addAll(rArgs);
         }}.toArray(new Value[0]));
+    }
+
+    //  %7 = call i32 @aaa(i32 %5, i32 %6)
+    //  call void @putint(i32 %7)
+    @Override
+    public String toString(){
+        ArrayList<Value> ops = new ArrayList<>(getOperands());
+        Function function = (Function) ops.get(0);
+        StringBuilder stringBuilder = new StringBuilder();
+        // int返回值
+        if(!(function.getReturnType() instanceof VoidType)){
+            stringBuilder.append(getName() + " = ");
+        }
+        stringBuilder.append("call ").append(function.getReturnType()).append(" ").append(function.getName()).append("(");
+        // 实参列表
+        if(ops.size() >= 1){
+            ops.remove(0);
+            IrTool.appendSBParamList(stringBuilder, ops);
+        }
+        stringBuilder.append(")");
+        return stringBuilder.toString();
     }
 }

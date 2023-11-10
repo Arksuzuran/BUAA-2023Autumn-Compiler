@@ -12,7 +12,7 @@ import java.io.*;
  **/
 public class IO {
     public enum IOType{
-        PARSER, LEXER, CHECKER
+        PARSER, LEXER, CHECKER, IR_BUILDER
     }
     // 从指定路径读取文件 将内容存入字符串中
     public static String read(String filePath){
@@ -35,9 +35,13 @@ public class IO {
         return text;
     }
 
-    // 将字符串追加写入指定路径的文件
-    // appending:   追加写
-    // println:     在末尾附加换行符
+    /**
+     * 将字符串写入指定路径的文件
+     * @param filePath  指定路径
+     * @param content   要写入的字符串
+     * @param appending 是否追加写
+     * @param println   是否在整个字符串末尾添加"\n"
+     */
     public static void write(String filePath, String content, boolean appending, boolean println){
         File file = new File(filePath);
         try {
@@ -66,6 +70,14 @@ public class IO {
     // 根据当前输出类型写入已配置好的路径
     // appending:   追加写
     // println:     在末尾附加换行符
+
+    /**
+     * 将字符串写入指定路径的文件
+     * @param ioType    当前在写的模块类型
+     * @param content   要写入的字符串
+     * @param appending 是否追加写
+     * @param println   是否在整个字符串末尾添加"\n"
+     */
     public static void write(IOType ioType, String content, boolean appending, boolean println){
         String filePath = getPath(true, ioType);
         write(filePath, content, appending, println);
@@ -79,17 +91,23 @@ public class IO {
 
     // 计算路径
     public static String getPath(boolean output, IOType ioType){
+        // 读取输出路径
         if(output){
             switch (ioType){
-                case LEXER, PARSER ->{
-                    return Config.atLocalTest ? Config.localOutputFilePath : Config.outputFilePath;
-                }
                 case CHECKER -> {
                     return Config.atLocalTest ? Config.localOutputErrorFilePath : Config.outputErrorFilePath;
                 }
+                case IR_BUILDER -> {
+                    return Config.atLocalTest ? Config.localOutputIRFilePath : Config.outputIRFilePath;
+                }
+                // LEXER, PARSER
+                default -> {
+                    return Config.atLocalTest ? Config.localOutputFilePath : Config.outputFilePath;
+                }
             }
-            return "";
-        } else {
+        }
+        // 读取输入路径
+        else {
             return Config.atLocalTest ? Config.localInputFilePath : Config.inputFilePath;
         }
     }

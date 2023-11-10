@@ -2,12 +2,12 @@ import config.Config;
 import frontend.Checker;
 import frontend.Lexer;
 import frontend.Parser;
+import ir.IrBuilder;
 import node.CompUnitNode;
 import token.Token;
 import utils.IO;
 
 import java.util.ArrayList;
-import java.util.Objects;
 
 /**
  * @Description entrance
@@ -20,8 +20,9 @@ public class Compiler {
     private Lexer lexer = null;
     private ArrayList<Token> lexerResultList = null;    // 词法分析结果
     private Parser parser = null;
-    private CompUnitNode compUnitNode = null;           // 语法分析结果
+    private CompUnitNode compUnitNode = null;           // 语法分析结果   AST
     private Checker checker = null;
+    private IrBuilder irBuilder = null;
 
     // 读取输入文件 如果未指定路径则按照Config配置
     public String readInputFile(){
@@ -65,9 +66,19 @@ public class Compiler {
         checker = new Checker(compUnitNode);
         checker.doCheck();
         if(Config.outputErrors){
-            checker.printError();
+            checker.outputError();
         }
         System.out.println("=====[错误处理与符号表生成]完成=====");
+    }
+
+    public void doIrBuilding(){
+        System.out.println("=====[LLVM生成]开始=====");
+        irBuilder = new IrBuilder(compUnitNode);
+        irBuilder.doIrBuilding();
+        if(Config.outputIr){
+            irBuilder.outputIr();
+        }
+        System.out.println("=====[LLVM生成]完成=====");
     }
 
     public static void main(String[] args) {
@@ -77,6 +88,7 @@ public class Compiler {
         compiler.doLexicalAnalysis();
         compiler.doParsing();
         compiler.doChecking();
+        compiler.doIrBuilding();
         System.out.println("[编译]执行完成!");
     }
 }

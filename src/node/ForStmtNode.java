@@ -1,5 +1,8 @@
 package node;
 
+import ir.IrBuilder;
+import ir.Irc;
+import ir.values.Value;
 import token.Token;
 import token.TokenType;
 import utils.ErrorCheckTool;
@@ -37,5 +40,14 @@ public class ForStmtNode extends Node{
         // 对其他要素进行检查
         lValNode.check();
         expNode.check();
+    }
+
+    @Override
+    public void buildIr() {
+        lValNode.buildIr();
+        Value lVal = Irc.synValue;
+        expNode.buildIr();
+        Value exp = Irc.synValue;
+        IrBuilder.buildStoreInstruction(exp, lVal, Irc.curBlock);
     }
 }

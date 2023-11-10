@@ -99,10 +99,10 @@ public class AddExpNode extends Node{
                 Value opValue2 = Irc.synValue;
                 // 减法或者加法
                 if(opToken.type == TokenType.MINU){
-                    Irc.synValue = IrBuilder.buildAddInstruction(opValue1, opValue2, Irc.curBlock);
+                    Irc.synValue = IrBuilder.buildSubInstruction(opValue1, opValue2, Irc.curBlock);
                 }
                 else{
-                    Irc.synValue = IrBuilder.buildSubInstruction(opValue1, opValue2, Irc.curBlock);
+                    Irc.synValue = IrBuilder.buildAddInstruction(opValue1, opValue2, Irc.curBlock);
                 }
             }
         }

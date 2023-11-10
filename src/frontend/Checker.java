@@ -18,7 +18,7 @@ public class Checker {
     public void doCheck(){
         compUnitNode.check();
     }
-    public void printError(){
+    public void outputError(){
         ErrorHandler.printErrors();
     }
 }

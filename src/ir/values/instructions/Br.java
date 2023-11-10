@@ -1,9 +1,9 @@
 package ir.values.instructions;
 
-import ir.types.ValueType;
 import ir.types.VoidType;
 import ir.values.BasicBlock;
 import ir.values.Value;
+import utils.IrTool;
 
 /**
  * @Description 跳转指令
@@ -30,8 +30,8 @@ public class Br extends Instruction{
      * @param parent   parent一定是BasicBlock
      * @param target  要跳转到的基本块
      */
-    public Br(String name, BasicBlock parent, BasicBlock target) {
-        super(name, new VoidType(), parent, target);
+    public Br(BasicBlock parent, BasicBlock target) {
+        super("", new VoidType(), parent, target);
         conditional = false;
     }
 
@@ -39,12 +39,23 @@ public class Br extends Instruction{
      * 有条件跳转
      * @param parent        parent一定是BasicBlock
      * @param condition     跳转条件
-     * @param trueTarget    条件成立时跳转到的基本块
-     * @param falseTarget   条件不成立时跳转到的基本块
+     * @param trueBranch    条件成立时跳转到的基本块
+     * @param falseBranch   条件不成立时跳转到的基本块
      */
-    public Br(String name, BasicBlock parent, Value condition, BasicBlock trueTarget, BasicBlock falseTarget) {
-        super(name, new VoidType(), parent, condition, trueTarget, falseTarget);
+    public Br(BasicBlock parent, Value condition, BasicBlock trueBranch, BasicBlock falseBranch) {
+        super("", new VoidType(), parent, condition, trueBranch, falseBranch);
         conditional = true;
     }
 
+    @Override
+    public String toString(){
+        if(conditional){
+            return "br "
+                    + IrTool.tnstr(getOperands().get(0)) + ", "
+                    + IrTool.tnstr(getOperands().get(1)) + ", "
+                    + IrTool.tnstr(getOperands().get(2));
+        } else {
+            return "br " + IrTool.tnstr(getOperands().get(0));
+        }
+    }
 }

@@ -62,11 +62,6 @@ public class PrimaryExpNode extends Node{
             } else {
                 numberNode.buildIr();
             }
-            // 左值lval可能会传递上来非int类型 那么则需要进行加载
-            // 例如局部的const变量
-            if(Irc.synValue.getType() instanceof PointerType){
-                Irc.synValue = IrBuilder.buildLoadInstruction(Irc.synValue, Irc.curBlock);
-            }
         }
         // 非常量
         else{
@@ -81,6 +76,7 @@ public class PrimaryExpNode extends Node{
                 }
                 // 要求int类型的value，此处应该检查load
                 // 如果是指针类型 那么进行加载
+                // 指针类型在通常状态下的加载，即在此实现
                 else{
                     lValNode.buildIr();
                     if(Irc.synValue.getType() instanceof PointerType){

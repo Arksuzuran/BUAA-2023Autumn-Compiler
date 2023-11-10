@@ -29,4 +29,8 @@ public class ConstInt extends Constant{
     public static ConstInt ZERO(){
         return new ConstInt(32, 0);
     }
+    @Override
+    public String toString(){
+        return "" + value;
+    }
 }

@@ -2,6 +2,7 @@ package ir.values;
 
 import ir.IrSymbolTable;
 import ir.types.ValueType;
+import utils.IrTool;
 
 import java.util.ArrayList;
 
@@ -80,7 +81,7 @@ public class Function extends Value{
      * @param valueType 参数的类型
      */
     public void addArgByValueType(ValueType valueType){
-        Value arg = new Value("arg" + argValues.size(), valueType, this);
+        Value arg = new Value("%arg" + argValues.size(), valueType, this);
         argValues.add(arg);
 //        addSymbol(arg);
     }
@@ -103,5 +104,49 @@ public class Function extends Value{
      */
     public BasicBlock getHeadBlock(){
         return basicBlocks.get(0);
+    }
+
+    // define dso_local i32 @a2(i32 %0, i32* %1) {
+    //    %3 = alloca i32*
+    //    ret i32 %9
+    //}
+    // declare void @putint(i32)
+    @Override
+    public String toString(){
+        StringBuilder stringBuilder = new StringBuilder();
+        // 头部
+        if(!isLibFunc){
+            stringBuilder.append("define dso_local ");
+        } else {
+            stringBuilder.append("declare ");
+        }
+        stringBuilder.append(getReturnType())
+                .append(" ")
+                .append(getName());
+
+        // 非库函数：完整的函数参数列表以及函数主体
+        if(!isLibFunc){
+            // 参数列表
+            stringBuilder.append("(");
+            IrTool.appendSBParamList(stringBuilder, argValues);
+            stringBuilder.append(")");
+            // 函数主体
+            stringBuilder.append(" {\n");
+            for (BasicBlock block : basicBlocks){
+                stringBuilder.append(block);
+            }
+            stringBuilder.append("}");
+        }
+        // 库函数：仅有带类型的参数列表
+        else{
+            stringBuilder.append("(");
+            for(Value arg : argValues){
+                stringBuilder.append(arg.getType()).append(", ");
+            }
+            IrTool.cutSBTailComma(stringBuilder);
+            stringBuilder.append(")");
+        }
+        stringBuilder.append("\n");
+        return stringBuilder.toString();
     }
 }

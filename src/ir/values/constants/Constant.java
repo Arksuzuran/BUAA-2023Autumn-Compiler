@@ -29,4 +29,10 @@ public class Constant extends User {
     public Constant(ValueType type, ArrayList<Value> operands) {
         super("", type, null, operands);
     }
+
+    @Override
+    public String getName()
+    {
+        return toString();
+    }
 }

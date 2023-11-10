@@ -23,15 +23,19 @@ public class IrSymbolTableStack {
     /**
      * 全局符号表
      */
-    public final static IrSymbolTable globalSymbolTable = new IrSymbolTable();
-
-    // 符号表栈默认存有全局符号表
-    static {
-        instance.stack.push(globalSymbolTable);
-    }
+    public static IrSymbolTable globalSymbolTable;
 
     // ====================== 栈操作=======================
 
+    /**
+     * 初始化符号表栈
+     * 清空符号表栈，并把全局符号表入栈
+     */
+    public static void init(){
+        instance.stack.clear();
+        globalSymbolTable = new IrSymbolTable();
+        instance.stack.push(globalSymbolTable);
+    }
     /**
      * 入栈一个给定的符号表
      * @param symbolTable   给定的符号表
@@ -68,7 +72,10 @@ public class IrSymbolTableStack {
     public static void addSymbolToPeek(String name, Value value){
         peek().addSymbol(name, value);
     }
-
+    // 向全局符号表中添加元素
+    public static void addSymbolToGlobal(String name, Value value){
+        globalSymbolTable.addSymbol(name, value);
+    }
     // ================= 栈查找 =================
     // 检测栈顶符号表是否包含指定名称的元素
     public static boolean peekHasSymbol(String name){
@@ -89,8 +96,8 @@ public class IrSymbolTableStack {
      * @return      对应Value
      */
     public static Value getSymbol(String name){
-        for(IrSymbolTable symbolTable : instance.stack){
-            Value value = symbolTable.getSymbol(name);
+        for(int i=instance.stack.size()-1; i>=0; i--){
+            Value value = instance.stack.get(i).getSymbol(name);
             if(value != null){
                 return value;
             }
@@ -104,6 +111,4 @@ public class IrSymbolTableStack {
     public static boolean isBuildingGlobalSymbolTable(){
         return instance.stack.size() == 1;
     }
-
-
 }

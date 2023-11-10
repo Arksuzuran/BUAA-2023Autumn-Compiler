@@ -1,5 +1,6 @@
 package node;
 
+import ir.IrSymbolTableStack;
 import token.Token;
 import utils.IO;
 
@@ -44,6 +45,16 @@ public class ConstDeclNode extends Node{
     public void check() {
         for(ConstDefNode constDefNode : constDefNodes){
             constDefNode.check();
+        }
+    }
+
+    /**
+     * 构建常量变量声明
+     */
+    @Override
+    public void buildIr() {
+        for(ConstDefNode constDefNode : constDefNodes){
+            constDefNode.buildIr();
         }
     }
 }

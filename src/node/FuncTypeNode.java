@@ -33,6 +33,11 @@ public class FuncTypeNode extends Node{
 
     }
 
+    @Override
+    public void buildIr() {
+
+    }
+
     /**
      * 中间代码生成 获取ValueType类型的返回值类型
      * @return

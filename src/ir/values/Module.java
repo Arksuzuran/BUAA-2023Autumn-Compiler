@@ -47,10 +47,20 @@ public class Module extends Value{
      * 生成中间代码的字符串
      * @return
      */
-    public String getIrString(){
+    @Override
+    public String toString(){
         StringBuilder stringBuilder = new StringBuilder();
-
-
+        if(!globalVariables.isEmpty()){
+            for (GlobalVariable globalVariable : globalVariables){
+                stringBuilder.append(globalVariable);
+            }
+            stringBuilder.append("\n");
+        }
+        if(!functions.isEmpty()){
+            for (Function function : functions){
+                stringBuilder.append(function);
+            }
+        }
         return stringBuilder.toString();
     }
 }

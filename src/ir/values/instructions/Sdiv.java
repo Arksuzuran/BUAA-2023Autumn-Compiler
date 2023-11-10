@@ -4,6 +4,7 @@ import ir.types.IntType;
 import ir.types.ValueType;
 import ir.values.BasicBlock;
 import ir.values.Value;
+import utils.IrTool;
 
 /**
  * @Description 有符号除法
@@ -11,9 +12,15 @@ import ir.values.Value;
  * @Author
  * @Date 2023/10/30
  **/
-public class Sdiv extends Instruction{
+public class Sdiv extends AresInstruction{
 
     public Sdiv(String name, BasicBlock parent, Value op1, Value op2) {
-        super(name, new IntType(32), parent, op1, op2);
+        super(name, parent, op1, op2);
+    }
+
+    // %6 = div i32 5, %5
+    @Override
+    public String toString(){
+        return getAresIrString("sdiv");
     }
 }

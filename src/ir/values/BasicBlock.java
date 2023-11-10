@@ -23,7 +23,7 @@ public class BasicBlock extends Value{
      * @param parent    所属的Function
      */
     public BasicBlock(String name, Value parent) {
-        super("block" + name, new LabelType(), parent);
+        super("%block" + name, new LabelType(), parent);
     }
 
     /**
@@ -47,5 +47,16 @@ public class BasicBlock extends Value{
      */
     public void addInstructionAtHead(Instruction instruction){
         instructions.addFirst(instruction);
+    }
+
+    @Override
+    public String toString(){
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append(getName().substring(1)).append(":\n");
+        for (Instruction instruction : instructions){
+            stringBuilder.append("\t").append(instruction).append("\n");
+        }
+//        stringBuilder.append("\n");
+        return stringBuilder.toString();
     }
 }

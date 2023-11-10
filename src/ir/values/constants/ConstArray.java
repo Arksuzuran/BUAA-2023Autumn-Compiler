@@ -3,6 +3,7 @@ package ir.values.constants;
 import ir.types.ArrayType;
 import ir.types.ValueType;
 import ir.values.Value;
+import utils.IrTool;
 
 import java.util.ArrayList;
 
@@ -23,17 +24,25 @@ public class ConstArray extends Constant{
         }});
         elements.addAll(arr);
     }
-//    public ArrayList<Constant> getElements(Boolean flatten){
-//        if(!flatten){
-//            return elements;
-//        }
-//        // 一维数组
-//        if(elements.get(0) instanceof ConstInt){
-//            return elements;
-//        }
-//        // 二维数组
-//        else {
-//            return elements;
-//        }
-//    }
+
+    /**
+     * 获取存储的常量数组
+     * @return
+     */
+    public ArrayList<Constant> getElements(){
+        return elements;
+    }
+    // [[3 x i32] [i32 3, i32 8, i32 5], [3 x i32] [i32 1, i32 2, i32 0], [3 x i32] zeroinitializer]
+    @Override
+    public String toString(){
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append("[");
+        for(Constant element : elements){
+            stringBuilder.append(element.getType()).append(" ").append(element).append(", ");
+        }
+        // 删除最后的“, “
+        IrTool.cutSBTailComma(stringBuilder);
+        stringBuilder.append("]");
+        return stringBuilder.toString();
+    }
 }

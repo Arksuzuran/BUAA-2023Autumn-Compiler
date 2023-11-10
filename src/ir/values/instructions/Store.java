@@ -4,6 +4,7 @@ import ir.types.ValueType;
 import ir.types.VoidType;
 import ir.values.BasicBlock;
 import ir.values.Value;
+import utils.IrTool;
 
 /**
  * @Description 写内存
@@ -27,5 +28,14 @@ public class Store extends Instruction{
      */
     public Value getPointer(){
         return getOperands().get(1);
+    }
+
+    @Override
+    public String toString(){
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append("store ");
+        IrTool.appendSBParamList(stringBuilder, getOperands());
+//        System.out.println("store指令：" + getOperands());
+        return stringBuilder.toString();
     }
 }

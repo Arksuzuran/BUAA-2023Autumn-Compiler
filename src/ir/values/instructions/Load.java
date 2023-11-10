@@ -19,4 +19,15 @@ public class Load extends Instruction{
     public Load(String name, BasicBlock parent, Value pointer) {
         super(name, IrTool.getPointingTypeOfPointer(pointer), parent, pointer);
     }
+
+    // %2 = load i32, i32* @c
+    @Override
+    public String toString(){
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append(getName()).append(" = load ");  // "%2 = load "
+        stringBuilder.append(getType()).append(", ");          // "i32, "
+        stringBuilder.append(IrTool.tnstr(getOperands().get(0)));   //"i32* @c"
+
+        return stringBuilder.toString();
+    }
 }

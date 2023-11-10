@@ -1,0 +1,22 @@
+declare i32 @getint()
+declare void @putstr(i8*)
+declare void @putint(i32)
+declare void @putch(i32)
+define dso_local i32 @main() {
+block0:
+	%instr1 = alloca [3 x [2 x i32]]
+	%instr2 = getelementptr [3 x [2 x i32]], [3 x [2 x i32]]* %instr1, i32 0, i32 0
+	%instr3 = getelementptr [2 x i32], [2 x i32]* %instr2, i32 0, i32 0
+	store i32 10, i32* %instr3
+	%instr5 = getelementptr i32, i32* %instr3, i32 1
+	store i32 20, i32* %instr5
+	%instr7 = getelementptr i32, i32* %instr3, i32 2
+	store i32 30, i32* %instr7
+	%instr9 = getelementptr i32, i32* %instr3, i32 3
+	store i32 40, i32* %instr9
+	%instr11 = getelementptr i32, i32* %instr3, i32 4
+	store i32 50, i32* %instr11
+	%instr13 = getelementptr i32, i32* %instr3, i32 5
+	store i32 60, i32* %instr13
+	ret i32 0
+}

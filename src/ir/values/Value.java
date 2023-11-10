@@ -89,4 +89,9 @@ public class Value {
     public void rename(String name){
         this.name = name;
     }
+
+    @Override
+    public String toString(){
+        return type + " " + name;
+    }
 }

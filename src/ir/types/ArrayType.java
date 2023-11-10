@@ -64,4 +64,9 @@ public class ArrayType extends ValueType{
         }
         this.size = this.len * this.elementType.getSize();
     }
+
+    @Override
+    public String toString(){
+        return "[" + len + " x " + elementType + "]";
+    }
 }

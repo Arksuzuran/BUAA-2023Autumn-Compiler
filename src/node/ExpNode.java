@@ -24,6 +24,11 @@ public class ExpNode extends Node{
         addExpNode.check();
     }
 
+    @Override
+    public void buildIr() {
+        addExpNode.buildIr();
+    }
+
     public int getDim() {
         return addExpNode.getDim();
     }

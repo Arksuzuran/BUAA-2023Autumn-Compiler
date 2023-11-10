@@ -18,4 +18,20 @@ public class IntType extends ValueType{
     {
         return bits / 8;
     }
+
+    /**
+     * 判断是否是i1类型
+     */
+    @Override
+    public boolean isI1(){
+        return bits == 1;
+    }
+    public int getBits(){
+        return bits;
+    }
+
+    @Override
+    public String toString(){
+        return "i" + bits;
+    }
 }
