@@ -166,6 +166,8 @@ int main(){
 
 **alloca指令会在指定类型上，套一层指针**，例如此时instr1的类型是**[3 x [2 x i32]]***
 
+**符号表中存储的是<局部变量名, 存储局部变量值的指针(即alloca类型的Value类)>**。
+
 
 
 接下来，我们需要向分配好的地址中存储常数。
@@ -205,25 +207,106 @@ store i32 60, i32* %instr13
 >
 > 
 >
-> 以`int a[2][3]`为例，假设a基地址0，容易计算出二维数组a大小为$4*2*3 = 24$，一维数组a[0]大小为$3*4=12$
+> 以`int a[2][3]`为例（上面代码中的例子是`int a[3][2]`），假设a基地址0，容易计算出二维数组a大小为$4*2*3 = 24$，一维数组a[0]大小为$3*4=12$。现举例如下：
 >
-> getelementptr(a, 0)会返回什么？
+> - getelementptr(a, 0)会返回什么？
 >
-> 会返回0 *24 = 0，即a的地址
+> 会返回0 *24 = 0，即a的地址。
 >
-> getelementptr(a, 1)会返回什么？
+> 其类型是`[2 x [3 x i32]]*`（即与a的类型相同）。
 >
-> 会返回1 * 24 = 1，即飞出去一整个a之后的地址，完全不在a数组之内
+> - getelementptr(a, 1)会返回什么？
 >
-> getelementptr(a, 0, 0)会返回什么？
+> 会返回1 * 24 = 1，即飞出去一整个a之后的地址，完全不在a数组之内。
 >
-> 会返回0*24 + 0 * 12 = 0 ，即a[0]的地址
+> 其类型是`[2 x [3 x i32]]*`（即与a的类型相同）。
 >
-> getelementptr(a, 0, 1)会返回什么？
+> - getelementptr(a, 0, 0)会返回什么？
 >
-> 会返回0*24 + 1 * 12 = 12，即a[1]的地址
+> 会返回0*24 + 0 * 12 = 0 ，即a[0]的地址。其类型是`[3 x i32]*`（<big>即脱掉了最外层的[]，但是地址的值不变。因此该指令经常用来转变一个指针的类型</big>）
 >
-> getelementptr(a, 666, 233)会返回什么？
+> - getelementptr(a, 0, 1)会返回什么？
 >
-> 会返回666*24 + 233 * 12，即直接飞出了666个a，再飞出去233个a[0]那么大
+> 会返回0*24 + 1 * 12 = 12，即a[1]的地址。
+>
+> 其类型是`[3 x i32]*`。
+>
+> - getelementptr(a, 666, 233)会返回什么？
+>
+> 会返回666*24 + 233 * 12，即直接飞出了666个a，再飞出去233个a[0]那么大。
+>
+> 其类型是`[3 x i32]*`。
+
+再回头看我们的代码。
+
+下面这两条指令是在把`[2 x [3 x i32]]*`转变为`i32*`类型，因为我们要向数组元素内存入常数，而数组元素是int类型的。
+
+```
+%instr2 = getelementptr [3 x [2 x i32]], [3 x [2 x i32]]* %instr1, i32 0, i32 0
+%instr3 = getelementptr [2 x i32], [2 x i32]* %instr2, i32 0, i32 0
+```
+
+之后就是不断地移动指针，然后在该地址内存入常数。例如这里是向第6个元素（即`a[2][3]`中存储元素）。可以看到，初始化元素时需要展平数组。
+
+```llvm
+%instr13 = getelementptr i32, i32* %instr3, i32 5
+store i32 60, i32* %instr13
+```
+
+部分Java代码如下：
+
+```java
+// node/VarDefNode.java
+// VarDef → Ident { '[' ConstExp ']' } | Ident { '[' ConstExp ']' } '=' InitVal
+            // 局部数组变量
+            // 解析维数信息
+            ArrayList<Integer> dims = new ArrayList<>();
+            for(ConstExpNode constExpNode : constExpNodes){
+                constExpNode.buildIr();
+                dims.add(Irc.synInt);
+            }
+            ArrayType arrayType = new ArrayType(new IntType(32), dims);
+                // 分配空间
+                Alloca arrayPointer = IrBuilder.buildAllocaInstruction(arrayType, Irc.curBlock);
+                // 加入符号表
+                IrSymbolTableStack.addSymbolToPeek(identToken.str, arrayPointer);
+
+                // 有初始值
+                // 处理类似于局部常量数组
+                // FlattenArray通过syvValueArray传递上来
+                if(initValNode != null){
+                    initValNode.setDims(dims);
+                    // 解析初始化值，通过Irc.synValueArray传上来
+                    initValNode.buildIr();
+                    // 使用store和gep将展平后的内容数组存入数组
+                    IrBuilder.buildStoreWithValuesIntoArray(arrayPointer, dims, Irc.synValueArray, Irc.curBlock);
+                }
+                // 无初始值，不予处理
+```
+
+```java
+/**
+     * 构建GEP和store指令，将指定的flatten value array，存入局部数组
+     * @param arrayPointer  目标数组指针
+     * @param dims          数组维数信息
+     * @param flattenArray  要存的value内容数组（展平）
+     */
+    public static void buildStoreWithValuesIntoArray(Alloca arrayPointer, ArrayList<Integer> dims, ArrayList<Value> flattenArray, BasicBlock parent){
+        // 接下来获取一个指向底层元素的指针，挨个存入元素
+        GetElementPtr basePtr = IrBuilder.buildRankDownInstruction(arrayPointer, parent);
+        for(int i=1; i<dims.size(); i++){
+            basePtr = IrBuilder.buildRankDownInstruction(basePtr, parent);
+        }
+
+        // 遍历展平之后的数组
+        // 依次将数组内的元素使用store进行存储，存储位置为base + i
+        GetElementPtr elementPtr = basePtr;
+        IrBuilder.buildStoreInstruction(flattenArray.get(0), elementPtr, parent);
+        for(int i=1; i < flattenArray.size(); i++){
+            // p = base + i
+            elementPtr = IrBuilder.buildGetElementPtrInstruction(basePtr, new ConstInt(32, i), parent);
+            IrBuilder.buildStoreInstruction(flattenArray.get(i), elementPtr, parent);
+        }
+    }
+```
 
