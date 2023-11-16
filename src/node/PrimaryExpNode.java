@@ -51,6 +51,10 @@ public class PrimaryExpNode extends Node{
     }
 
     // 基本表达式 PrimaryExp → '(' Exp ')' | LVal | Number
+
+    /**
+     * 如果当前不在计算指针实参，则会使用load指令加载指针所指变量的值
+     */
     @Override
     public void buildIr() {
         // 常量

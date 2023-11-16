@@ -70,6 +70,7 @@ public class LValNode extends Node{
      * LVal一般返回指针类型的value，该指针是所求变量的地址。
      * 让上层PrimaryExp来判断是否进行加载
      * 如果isBuildingConstExp，那么一定返回synInt
+     * 对于函数实参，其降维操作在此执行
      * @synInt      返回左值的ConstInt值. 前提：isBuildingConstExp.
      * @synValue    返回存储左值内容的指针（地址）
      */
@@ -131,7 +132,8 @@ public class LValNode extends Node{
                     Value ptrval = IrBuilder.buildGetElementPtrInstruction(fParamValue, indexValue, Irc.curBlock);
 
                     // 如果形参指向的是数组，那么说明形参是二维的。例如int a[][2] => [2 * i32]*，则形参指向[2* i32]
-                    // 但这里只取了一维，也就是说希望传入a[1]，一定是作为函数的实参
+                    // 但这里只取了一维，也就是说希望传入a[1]
+                    // 一定是作为函数的实参！
                     // 那么函数实参传入的类型应当是i32*
                     // 所以应当向下降维
                     if(IrTool.getPointingTypeOfPointer(fParamValue) instanceof ArrayType){

@@ -5,6 +5,7 @@ import ir.values.*;
 import ir.values.Module;
 import ir.values.constants.ConstArray;
 import ir.values.constants.ConstInt;
+import ir.values.constants.ConstString;
 import ir.values.constants.Constant;
 import ir.values.instructions.*;
 import node.CompUnitNode;
@@ -12,6 +13,7 @@ import utils.IO;
 import utils.IrTool;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  * @Description 中间代码生成的控制器类
@@ -53,6 +55,11 @@ public class IrBuilder {
     private static String getFormatStringNameString(){
         return "FORMAT_STRING_" + formatStringNameCnt++;
     }
+
+    /**
+     * 字符串池，存储已有的字符串
+     */
+    private static HashMap<String, GlobalVariable> formatStringBank = new HashMap<>();
 
     //===================工厂模式方法===================
     /**
@@ -292,23 +299,24 @@ public class IrBuilder {
      * @param isConst   是否常量
      * @param initVal   初始值
      */
-    public static void buildGlobalVariable(String name, Boolean isConst, Constant initVal){
+    public static GlobalVariable buildGlobalVariable(String name, Boolean isConst, Constant initVal){
         GlobalVariable globalVariable = new GlobalVariable(name, isConst, initVal);
         Module.addGlobalVariable(globalVariable);
         IrSymbolTableStack.addSymbolToGlobal(name, globalVariable);
+        return globalVariable;
     }
 
-    public static GlobalVariable buildGlobalFormatString(String formatString){
-        ArrayList<Constant> constCharArray = new ArrayList<>();
-        for(int i = 0; i < formatString.length(); i++){
-            constCharArray.add(new ConstInt(8, formatString.charAt(i)));
+    /**
+     * 创建格式化字符串的全局变量
+     * @param formatString  格式化字符串
+     */
+    public static GlobalVariable buildGlobalConstString(String formatString){
+        if(formatStringBank.containsKey(formatString)){
+            return formatStringBank.get(formatString);
         }
-        ConstArray initVal = new ConstArray(constCharArray);
-        String name = getFormatStringNameString();
-        GlobalVariable globalVariable = new GlobalVariable(name, true, initVal);
-        Module.addGlobalVariable(globalVariable);
-        IrSymbolTableStack.addSymbolToGlobal(name, globalVariable);
-        return globalVariable;
+        GlobalVariable stringGlobalVariable = buildGlobalVariable(getFormatStringNameString(), true, new ConstString(formatString));
+        formatStringBank.put(formatString, stringGlobalVariable);
+        return stringGlobalVariable;
     }
 
     /**

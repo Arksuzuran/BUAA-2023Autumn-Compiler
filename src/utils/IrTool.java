@@ -83,28 +83,44 @@ public class IrTool {
             cutSBTailComma(stringBuilder);
         }
     }
-//    public static ArrayList<String> spiltFormatString(String s){
-//        ArrayList<String> strings = new ArrayList<>();
-//        // 将\n替换为\0a
-//        s = s.replace("\\n", "\\0a");
-//        int front = 1, len = s.length() - 1;
-//        for(int i = 1; i < len; i++){
-//            if(i + 1 < len && s.charAt(i) == '%' && s.charAt(i+1) == 'd'){
-//                strings.add(s.substring(front, i));
-//                strings.add(s.substring(i, i + 2));
-//                i++;
-//                front = i + 1;
-//            }
-//        }
-//        if(front < len){
-//            strings.add(s.substring(front, len));
-//        }
-//        return strings;
-//    }
 
-//    public static void main(String[] args) {
-//        String s = "1\\n\\n2";
+    /**
+     * 将字符串拆解为printf需要分开输出的字符串数组
+     * @param s 字符串
+     */
+    public static ArrayList<String> spiltFormatString(String s){
+        ArrayList<String> strings = new ArrayList<>();
+        // 将\n替换为\0a
+        s = s.replace("\\n", "\\0a");
+        int front = 1, len = s.length() - 1;
+        for(int i = 1; i < len; i++){
+            if(i + 1 < len && s.charAt(i) == '%' && s.charAt(i+1) == 'd'){
+                // 如果不是两个%d相连的情形
+                if(front != i){
+                    strings.add(s.substring(front, i));
+                }
+                // %d
+                strings.add(s.substring(i, i + 2));
+                front = i + 2;
+                i++;
+            }
+        }
+        // 如果不以%d结尾
+        if(front < len){
+            strings.add(s.substring(front, len));
+        }
+        return strings;
+    }
+
+    public static int getFormatStringLen(String s){
+        String rs = s.replace("\\0a", "r");
+        return rs.length();
+    }
+
+    public static void main(String[] args) {
+        String s = "5929\\0a";
 //        s.replace("\\n", "666");
-//        System.out.println(s);
-//    }
+        System.out.println(getFormatStringLen(s));
+        System.out.println(s);
+    }
 }

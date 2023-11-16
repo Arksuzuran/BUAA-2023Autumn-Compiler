@@ -17,7 +17,6 @@ import utils.ErrorCheckTool;
 import utils.IrTool;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 
 /**
  * @Description Stmt → LVal '=' Exp ';' // 每种类型的语句都要覆盖
@@ -466,6 +465,7 @@ public class StmtNode extends Node{
     /**
      * 'printf''('FormatString{,Exp}')'';'
      */
+    // putstr形式
     private void buildPrintfIr(){
         ArrayList<Value> params = new ArrayList<>();
         // 先解析Exp们
@@ -475,34 +475,68 @@ public class StmtNode extends Node{
         }
         assert getFormatStringToken() != null;
         String s = getFormatStringToken().str;
-        // 遍历formatString
-        int len = s.length() - 1;
-        int paramIndex = 0;
-        for (int i = 1; i < len; i++) {
-            // \n 替换为 10
-            if (i + 1 < len && s.charAt(i) == '\\' && s.charAt(i+1) == 'n') {
-                IrBuilder.buildCallInstruction(Function.putch, new ArrayList<>(){{
-                    add(new ConstInt(32, 10));
-                }}, Irc.curBlock);
-                i++;
-            }
-            // %d 替换为需要输出的exp
-            else if (i + 1 < len && s.charAt(i) == '%' && s.charAt(i+1) == 'd') {
-                Value exp = params.get(paramIndex++);
+        ArrayList<String> spiltStrings = IrTool.spiltFormatString(s);
+
+        int expIndex = 0;
+        for(String spiltString : spiltStrings){
+            // %d, 改为输出对应的exp
+            if(spiltString.equals("%d")){
+                Value param = params.get(expIndex);
                 IrBuilder.buildCallInstruction(Function.putint, new ArrayList<>(){{
-                    add(exp);
+                    add(param);
                 }}, Irc.curBlock);
-                i++;
+                expIndex++;
             }
-            // 普通字符
+            // 常量字符串，改为构造全局变量，并输出之
             else {
-                int c = s.charAt(i);
-                IrBuilder.buildCallInstruction(Function.putch, new ArrayList<>(){{
-                    add(new ConstInt(32, c));
+                // 全局变量[n x i8]*
+                Value stringGlobalVariable = IrBuilder.buildGlobalConstString(spiltString);
+                // 作为函数参数应当是i8*, 进行降维
+                Value param = IrBuilder.buildRankDownInstruction(stringGlobalVariable, Irc.curBlock);
+                IrBuilder.buildCallInstruction(Function.putstr, new ArrayList<>(){{
+                    add(param);
                 }}, Irc.curBlock);
             }
         }
     }
+    // putch形式
+//    private void buildPrintfIr(){
+//        ArrayList<Value> params = new ArrayList<>();
+//        // 先解析Exp们
+//        for(Node expNode : nodes){
+//            expNode.buildIr();
+//            params.add(Irc.synValue);
+//        }
+//        assert getFormatStringToken() != null;
+//        String s = getFormatStringToken().str;
+//        // 遍历formatString
+//        int len = s.length() - 1;
+//        int paramIndex = 0;
+//        for (int i = 1; i < len; i++) {
+//            // \n 替换为 10
+//            if (i + 1 < len && s.charAt(i) == '\\' && s.charAt(i+1) == 'n') {
+//                IrBuilder.buildCallInstruction(Function.putch, new ArrayList<>(){{
+//                    add(new ConstInt(32, 10));
+//                }}, Irc.curBlock);
+//                i++;
+//            }
+//            // %d 替换为需要输出的exp
+//            else if (i + 1 < len && s.charAt(i) == '%' && s.charAt(i+1) == 'd') {
+//                Value exp = params.get(paramIndex++);
+//                IrBuilder.buildCallInstruction(Function.putint, new ArrayList<>(){{
+//                    add(exp);
+//                }}, Irc.curBlock);
+//                i++;
+//            }
+//            // 普通字符
+//            else {
+//                int c = s.charAt(i);
+//                IrBuilder.buildCallInstruction(Function.putch, new ArrayList<>(){{
+//                    add(new ConstInt(32, c));
+//                }}, Irc.curBlock);
+//            }
+//        }
+//    }
 
     private LValNode getLValNode(){
         if(type == StmtType.LVALASSIGN || type == StmtType.LVALGETINT){
