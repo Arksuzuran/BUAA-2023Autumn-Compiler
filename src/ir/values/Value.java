@@ -94,4 +94,6 @@ public class Value {
     public String toString(){
         return type + " " + name;
     }
+
+//    public abstract void buildMips();
 }

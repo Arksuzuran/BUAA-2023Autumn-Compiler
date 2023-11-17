@@ -42,4 +42,16 @@ public class User extends Value{
         super(name, type, parent);
         this.operands.addAll(operands);
     }
+
+    /**
+     * 获取第index个操作数
+     * @param index 索引
+     * @return  操作数
+     */
+    public Value getOp(int index){
+        if(operands.size() >= index + 1){
+            return operands.get(index);
+        }
+        return null;
+    }
 }

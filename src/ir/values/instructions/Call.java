@@ -43,7 +43,7 @@ public class Call extends Instruction{
         StringBuilder stringBuilder = new StringBuilder();
         // int返回值
         if(!(function.getReturnType() instanceof VoidType)){
-            stringBuilder.append(getName() + " = ");
+            stringBuilder.append(getName()).append(" = ");
         }
         stringBuilder.append("call ").append(function.getReturnType()).append(" ").append(function.getName()).append("(");
         // 实参列表

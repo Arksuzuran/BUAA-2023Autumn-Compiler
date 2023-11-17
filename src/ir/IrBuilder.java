@@ -27,8 +27,9 @@ public class IrBuilder {
     public IrBuilder(CompUnitNode compUnitNode){
         this.compUnitNode = compUnitNode;
     }
-    public void doIrBuilding(){
+    public Module doIrBuilding(){
         compUnitNode.buildIr();
+        return Module.getInstance();
     }
     public void outputIr(){
         IO.write(IO.IOType.IR_BUILDER, Module.getInstance().toString(), false, false);

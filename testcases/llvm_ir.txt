@@ -1,4 +1,4 @@
-@FORMAT_STRING_0 = dso_local constant [9 x i8]  c"123456789\00"
+@FORMAT_STRING_0 = dso_local constant [10 x i8]  c"123456789\00"
 
 declare i32 @getint()
 declare void @putstr(i8*)
@@ -6,7 +6,7 @@ declare void @putint(i32)
 declare void @putch(i32)
 define dso_local i32 @main() {
 block0:
-	%instr1 = getelementptr [9 x i8], [9 x i8]* @FORMAT_STRING_0, i32 0, i32 0
+	%instr1 = getelementptr [10 x i8], [10 x i8]* @FORMAT_STRING_0, i32 0, i32 0
 	call void @putstr(i8* %instr1)
 	ret i32 0
 }

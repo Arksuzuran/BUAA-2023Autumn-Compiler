@@ -1,8 +1,10 @@
+import backend.MipsBuilder;
 import config.Config;
 import frontend.Checker;
 import frontend.Lexer;
 import frontend.Parser;
 import ir.IrBuilder;
+import ir.values.Module;
 import node.CompUnitNode;
 import token.Token;
 import utils.IO;
@@ -23,6 +25,7 @@ public class Compiler {
     private CompUnitNode compUnitNode = null;           // 语法分析结果   AST
     private Checker checker = null;
     private IrBuilder irBuilder = null;
+    private Module irModule = null;                     // 中间代码生成结果 AST
 
     // 读取输入文件 如果未指定路径则按照Config配置
     public String readInputFile(){
@@ -74,11 +77,18 @@ public class Compiler {
     public void doIrBuilding(){
         System.out.println("=====[LLVM生成]开始=====");
         irBuilder = new IrBuilder(compUnitNode);
-        irBuilder.doIrBuilding();
+        irModule = irBuilder.doIrBuilding();
         if(Config.outputIr){
             irBuilder.outputIr();
         }
         System.out.println("=====[LLVM生成]完成=====");
+    }
+
+    public void doMipsBuilding(){
+        System.out.println("=====[MIPS生成]开始=====");
+        MipsBuilder mipsBuilder = new MipsBuilder(irModule);
+
+        System.out.println("=====[MIPS生成]完成=====");
     }
 
     public static void main(String[] args) {
