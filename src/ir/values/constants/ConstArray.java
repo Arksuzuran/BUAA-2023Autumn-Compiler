@@ -1,6 +1,7 @@
 package ir.values.constants;
 
 import ir.types.ArrayType;
+import ir.types.IntType;
 import ir.types.ValueType;
 import ir.values.Value;
 import utils.IrTool;
@@ -33,6 +34,25 @@ public class ConstArray extends Constant{
         return elements;
     }
     // [[3 x i32] [i32 3, i32 8, i32 5], [3 x i32] [i32 1, i32 2, i32 0], [3 x i32] zeroinitializer]
+
+    /**
+     * 获取存储的常量数组的展平形式，即拆开所有数组
+     */
+    public ArrayList<Constant> getFlattenElements(){
+        ArrayList<Constant> constants = new ArrayList<>();
+        // 一维
+        if(elements.get(0).getType() instanceof IntType){
+            constants.addAll(elements);
+        }
+        // 多维
+        else {
+            for (Constant element : elements){
+                constants.addAll(((ConstArray) element).getFlattenElements());
+            }
+        }
+        return constants;
+    }
+
     @Override
     public String toString(){
         StringBuilder stringBuilder = new StringBuilder();

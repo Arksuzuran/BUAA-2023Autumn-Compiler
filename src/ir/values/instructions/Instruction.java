@@ -23,7 +23,7 @@ public class Instruction extends User {
      * @param operands  所属操作数列表
      */
     public Instruction(String name, ValueType type, BasicBlock parent, Value... operands) {
-        super("%instr" + name, type, parent, new ArrayList<>(){{
+        super("%i" + name, type, parent, new ArrayList<>(){{
             addAll(List.of(operands));
         }});
     }

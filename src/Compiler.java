@@ -84,7 +84,7 @@ public class Compiler {
         System.out.println("=====[LLVM生成]完成=====");
     }
 
-    public void doMipsBuilding(){
+    public void doMipsBuilding() {
         System.out.println("=====[MIPS生成]开始=====");
         MipsBuilder mipsBuilder = new MipsBuilder(irModule);
 

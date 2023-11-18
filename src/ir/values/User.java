@@ -54,4 +54,14 @@ public class User extends Value{
         }
         return null;
     }
+
+    /**
+     * 清除所有op对自己的引用，用于删除自身之前
+     */
+    public void dropAllOperands() {
+        for (Value operand : operands)
+        {
+            operand.removeUser(this);
+        }
+    }
 }

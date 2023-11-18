@@ -13,6 +13,10 @@ import utils.IrTool;
  * @Date 2023/11/16
  **/
 public class ConstString extends Constant{
+    public String getContent() {
+        return content;
+    }
+
     private String content;
     public ConstString(String content) {
         super(new ArrayType(new IntType(8), IrTool.getFormatStringLen(content) + 1));

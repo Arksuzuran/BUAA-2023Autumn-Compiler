@@ -1,6 +1,7 @@
 package ir.values;
 
 import ir.IrSymbolTable;
+import ir.analyze.Loop;
 import ir.types.ValueType;
 import utils.IrTool;
 
@@ -19,7 +20,13 @@ public class Function extends Value{
     public ArrayList<BasicBlock> getBasicBlocks() {
         return basicBlocks;
     }
-
+    public void setBasicBlocks(ArrayList<BasicBlock> newBlocks) {
+        basicBlocks.clear();
+        basicBlocks.addAll(newBlocks);
+    }
+    public BasicBlock getEntryBlock(){
+        return basicBlocks.get(0);
+    }
     public ValueType getReturnType() {
         return returnType;
     }
@@ -36,6 +43,11 @@ public class Function extends Value{
     public static Function putint = null;   // declare void @putint(i32)
     public static Function putch = null;   // declare void @putch(i32)
     public static Function getint = null;   // declare i32 @getint()
+
+    public boolean isLibFunc() {
+        return isLibFunc;
+    }
+
     /**
      * 是否是链接来的库函数
      */
@@ -148,5 +160,43 @@ public class Function extends Value{
         }
         stringBuilder.append("\n");
         return stringBuilder.toString();
+    }
+
+
+
+    // ========== 循环分析 ==========
+    /**
+     * 函数内的所有Loop
+     */
+    private ArrayList<Loop> loops;
+    /**
+     * 函数内深度为1的loop
+     */
+    private ArrayList<Loop> loopsAtTop;
+    public ArrayList<Loop> getLoops() {
+        return loops;
+    }
+
+    public void setLoops(ArrayList<Loop> loops) {
+        this.loops = loops;
+    }
+
+    public ArrayList<Loop> getLoopsAtTop() {
+        return loopsAtTop;
+    }
+
+    public void setLoopsAtTop(ArrayList<Loop> loopsAtTop) {
+        this.loopsAtTop = loopsAtTop;
+    }
+
+    // ========== 中间代码生成 ==========
+    @Override
+    public void buildMips(){
+        // 非内建函数
+        if(!isLibFunc){
+            for(BasicBlock basicBlock : basicBlocks){
+                basicBlock.buildMips();
+            }
+        }
     }
 }

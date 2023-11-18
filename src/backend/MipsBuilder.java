@@ -1,5 +1,7 @@
 package backend;
 
+import backend.parts.MipsGlobalVariable;
+import backend.parts.MipsModule;
 import ir.values.Module;
 
 /**
@@ -15,6 +17,10 @@ public class MipsBuilder {
     }
 
     public void doMipsBuilding(){
-//        irModule.buildMips();
+        irModule.buildMips();
+    }
+
+    public static void buildGlobalVariable(MipsGlobalVariable globalVariable){
+        MipsModule.addGlobalVariable(globalVariable);
     }
 }

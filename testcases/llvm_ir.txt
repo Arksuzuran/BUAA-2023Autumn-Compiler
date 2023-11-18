@@ -5,8 +5,8 @@ declare void @putstr(i8*)
 declare void @putint(i32)
 declare void @putch(i32)
 define dso_local i32 @main() {
-block0:
-	%instr1 = getelementptr [10 x i8], [10 x i8]* @FORMAT_STRING_0, i32 0, i32 0
-	call void @putstr(i8* %instr1)
+b0:
+	%i1 = getelementptr [10 x i8], [10 x i8]* @FORMAT_STRING_0, i32 0, i32 0
+	call void @putstr(i8* %i1)
 	ret i32 0
 }

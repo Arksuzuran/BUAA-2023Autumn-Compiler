@@ -1,5 +1,8 @@
 package ir;
 
+import ir.analyze.ControlFlowGraphAnalyzer;
+import ir.analyze.DomainTreeAnalyzer;
+import ir.analyze.LoopAnalyzer;
 import ir.types.ValueType;
 import ir.values.*;
 import ir.values.Module;
@@ -27,10 +30,22 @@ public class IrBuilder {
     public IrBuilder(CompUnitNode compUnitNode){
         this.compUnitNode = compUnitNode;
     }
+
+    /**
+     * 开启中间代码生成
+     * @return  中间代码语法树根节点Module
+     */
     public Module doIrBuilding(){
-        compUnitNode.buildIr();
+        // ============ 生成中间代码 ============
+        compUnitNode.buildIr();             // 生成中间代码
+        // ===== 中间代码分析 与 目标代码预处理 =====
+        ControlFlowGraphAnalyzer.analyze(); // 控制流图构建
+        DomainTreeAnalyzer.analyze();       // domain树生成
+        LoopAnalyzer.analyze();             // 循环分析
+
         return Module.getInstance();
     }
+
     public void outputIr(){
         IO.write(IO.IOType.IR_BUILDER, Module.getInstance().toString(), false, false);
     }

@@ -1,5 +1,9 @@
 package ir.values;
 
+import backend.Mc;
+import backend.parts.MipsBlock;
+import backend.parts.MipsFunction;
+import backend.parts.MipsModule;
 import ir.types.VoidType;
 
 import java.util.ArrayList;
@@ -17,6 +21,10 @@ public class Module extends Value{
     }
     private Module(){
         super("Module", new VoidType(), null);
+    }
+
+    public static ArrayList<Function> getFunctions() {
+        return module.functions;
     }
 
     /**
@@ -62,5 +70,33 @@ public class Module extends Value{
             }
         }
         return stringBuilder.toString();
+    }
+
+    @Override
+    public void buildMips(){
+        for(GlobalVariable globalVariable : globalVariables){
+            globalVariable.buildMips();
+        }
+        mapFunctionBlockIrToMips();
+        for (Function function : functions){
+            function.buildMips();
+        }
+    }
+
+    /**
+     * 将中间代码的函数和基本块对象:
+     * 1.映射到mips里的相应对象
+     * 2.加入Module
+     */
+    private void mapFunctionBlockIrToMips(){
+        for (Function function : functions){
+            MipsFunction mipsFunction = new MipsFunction(function.getName(), function.isLibFunc());
+            Mc.addFunctionMapping(function, mipsFunction);
+            MipsModule.addFunction(mipsFunction);
+
+            for (BasicBlock block : function.getBasicBlocks()){
+//                MipsBlock mipsBlock = new MipsBlock(block.getName(), );
+            }
+        }
     }
 }

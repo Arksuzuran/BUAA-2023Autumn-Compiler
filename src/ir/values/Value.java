@@ -69,7 +69,9 @@ public class Value {
     public void adduser(User user){
         this.users.add(user);
     }
-
+    public void removeUser(User user) {
+        users.remove(user);
+    }
     private static int idCnt = 0;
     /**
      * 申请新的独特id
@@ -95,5 +97,7 @@ public class Value {
         return type + " " + name;
     }
 
-//    public abstract void buildMips();
+    public void buildMips(){
+        System.out.println("Value类: buildMips");
+    }
 }

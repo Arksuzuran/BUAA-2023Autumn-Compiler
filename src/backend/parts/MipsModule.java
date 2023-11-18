@@ -10,19 +10,24 @@ import java.util.ArrayList;
  * @Date 2023/11/17
  **/
 public class MipsModule {
-
+    private MipsModule(){
+    }
+    public static MipsModule instance = new MipsModule();
+    public static MipsModule getInstance(){
+        return instance;
+    }
     private final ArrayList<MipsFunction> functions = new ArrayList<>();
-    private final ArrayList<GlobalVariable> globalVariables = new ArrayList<>();
+    private final ArrayList<MipsGlobalVariable> globalVariables = new ArrayList<>();
 
-    public void addGlobalVariable(GlobalVariable globalVariable){
-        globalVariables.add(globalVariable);
+    public static void addGlobalVariable(MipsGlobalVariable globalVariable){
+        instance.globalVariables.add(globalVariable);
     }
 
-    public void addFunction(MipsFunction mipsFunction){
-        functions.add(mipsFunction);
+    public static void addFunction(MipsFunction mipsFunction){
+        instance.functions.add(mipsFunction);
     }
 
-    public MipsFunction getMainFunction(){
-        return functions.get(functions.size() - 1);
+    public static MipsFunction getMainFunction(){
+        return instance.functions.get(instance.functions.size() - 1);
     }
 }
