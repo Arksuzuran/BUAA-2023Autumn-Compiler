@@ -11,8 +11,8 @@ public class Config {
 
     // ============== 输出配置开关 ================、
     // 当前是否正在本地测试（false提交时用，true本地测试用）
-//    public static boolean atLocalTest = true;
-    public static boolean atLocalTest = false;
+    public static boolean atLocalTest = true;
+//    public static boolean atLocalTest = false;
     // 是否输出词法分析结果
     public static boolean outputLexicalAnalysis = false;
     // 是否输出语法分析结果

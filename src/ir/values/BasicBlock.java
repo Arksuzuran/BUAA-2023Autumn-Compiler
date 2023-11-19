@@ -72,13 +72,6 @@ public class BasicBlock extends Value{
         return stringBuilder.toString();
     }
 
-    @Override
-    public void buildMips(){
-        for(Instruction instruction : instructions){
-            instruction.buildMips();
-        }
-    }
-
     // =========== IR analyze ===============
     /**
      * 前驱与后继块
@@ -182,4 +175,14 @@ public class BasicBlock extends Value{
     public Loop getLoop() {
         return loop;
     }
+
+
+    // ============ Mips generate ==============
+    @Override
+    public void buildMips(){
+        for(Instruction instruction : instructions){
+            instruction.buildMips();
+        }
+    }
+    
 }

@@ -85,18 +85,32 @@ public class Module extends Value{
 
     /**
      * 将中间代码的函数和基本块对象:
-     * 1.映射到mips里的相应对象
+     * 1.构建mips里的相应对象
      * 2.加入Module
+     * 3.信息存储到mips对象里
      */
     private void mapFunctionBlockIrToMips(){
-        for (Function function : functions){
-            MipsFunction mipsFunction = new MipsFunction(function.getName(), function.isLibFunc());
-            Mc.addFunctionMapping(function, mipsFunction);
+        // 遍历所有函数
+        for (Function irFunction : functions){
+            // 构建函数对象
+            MipsFunction mipsFunction = new MipsFunction(irFunction.getName(), irFunction.isLibFunc());
+            Mc.addFunctionMapping(irFunction, mipsFunction);
             MipsModule.addFunction(mipsFunction);
 
-            for (BasicBlock block : function.getBasicBlocks()){
-//                MipsBlock mipsBlock = new MipsBlock(block.getName(), );
+            // 构建基本块对象
+            ArrayList<BasicBlock> blocks = irFunction.getBasicBlocks();
+            for (BasicBlock irBlock : blocks){
+                MipsBlock mipsBlock = new MipsBlock(irBlock.getName(), irBlock.getLoopDepth());
+                Mc.addBlockMapping(irBlock, mipsBlock);
+            }
+            // 记录mipsBlock的前驱块信息, 前驱块当然也是mipsBlock
+            for (BasicBlock irBlock : blocks){
+                MipsBlock mipsBlock = Mc.b(irBlock);
+                for(BasicBlock irPreBlock : irBlock.getPreBlocks()){
+                    mipsBlock.addPreBlock(Mc.b(irPreBlock));
+                }
             }
         }
     }
+
 }

@@ -1,5 +1,7 @@
 package ir.values.instructions;
 
+import backend.Mc;
+import backend.parts.MipsBlock;
 import ir.types.IntType;
 import ir.types.ValueType;
 import ir.values.BasicBlock;
@@ -27,5 +29,13 @@ public class Add extends AresInstruction{
     @Override
     public String toString(){
         return getAresIrString("add");
+    }
+
+    /**
+     * addu addiu
+     */
+    @Override
+    public void buildMips(){
+        MipsBlock block = Mc.b(getParent());
     }
 }

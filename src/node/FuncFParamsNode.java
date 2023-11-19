@@ -50,8 +50,9 @@ public class FuncFParamsNode extends Node{
 
     @Override
     public void buildIr() {
-        for(FuncFParamNode funcFParamNode : funcFParamNodes){
-            funcFParamNode.buildIr();
+        for(int i=0; i<funcFParamNodes.size(); i++){
+            Irc.inInt = i;
+            funcFParamNodes.get(i).buildIr();
         }
         // 之前已经将参数加入了function对象
         // 使用刚刚解析好的函数参数，来构建SSA形式的参数加载语句

@@ -2,6 +2,7 @@ package ir.values;
 
 import backend.MipsBuilder;
 import backend.parts.MipsGlobalVariable;
+import backend.parts.MipsModule;
 import ir.types.PointerType;
 import ir.values.constants.*;
 
@@ -85,6 +86,6 @@ public class GlobalVariable extends User{
             }
             mipsGlobalVariable = new MipsGlobalVariable(getName(), ints);
         }
-        MipsBuilder.buildGlobalVariable(mipsGlobalVariable);
+        MipsModule.addGlobalVariable(mipsGlobalVariable);
     }
 }

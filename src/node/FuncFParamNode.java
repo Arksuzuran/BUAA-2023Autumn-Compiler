@@ -92,6 +92,6 @@ public class FuncFParamNode extends Node{
             type = new PointerType(type);
         }
         // 将解析完成的参数类型传给curFunction，在curFunction内部构建参数的value
-        Irc.curFunction.addArgByValueType(type);
+        Irc.curFunction.addArgByValueType(type, Irc.inInt);
     }
 }

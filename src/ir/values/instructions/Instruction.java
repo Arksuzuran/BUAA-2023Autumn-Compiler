@@ -27,4 +27,8 @@ public class Instruction extends User {
             addAll(List.of(operands));
         }});
     }
+    @Override
+    public BasicBlock getParent(){
+        return ((BasicBlock) getParent());
+    }
 }

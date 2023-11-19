@@ -19,6 +19,10 @@ public class Value {
         return name;
     }
 
+    public String getNameCnt(){
+        return name.substring(1);
+    }
+
     public ValueType getType() {
         return type;
     }
@@ -29,6 +33,12 @@ public class Value {
 
     public ArrayList<User> getUsers() {
         return users;
+    }
+    public boolean isArg() {
+        return isArg;
+    }
+    public int getArgNumber() {
+        return argNumber;
     }
 
     /**
@@ -54,12 +64,24 @@ public class Value {
      * 使用当前Value的User
      */
     private final ArrayList<User> users = new ArrayList<>();
-
+    /**
+     * 当前value是否作为函数参数
+     */
+    private boolean isArg = false;  // 是否是函数参数
+    private int argNumber = 0;      // 第几个参数, 从0开始
     public Value(String name, ValueType type, Value parent) {
         this.id = applyNewId();
         this.name = name;
         this.type = type;
         this.parent = parent;
+    }
+    public Value(String name, ValueType type, Value parent, int argNumber) {
+        this.id = applyNewId();
+        this.name = name;
+        this.type = type;
+        this.parent = parent;
+        this.isArg = true;
+        this.argNumber = argNumber;
     }
 
     /**

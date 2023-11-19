@@ -1,5 +1,6 @@
 package ir.values;
 
+import backend.Mc;
 import ir.IrSymbolTable;
 import ir.analyze.Loop;
 import ir.types.ValueType;
@@ -83,7 +84,7 @@ public class Function extends Value{
         this.returnType = returnType;
         this.isLibFunc = isLibFunc;
         for(int i = 0; i < argTypes.size(); i++){
-            addArgByValueType(argTypes.get(i));
+            addArgByValueType(argTypes.get(i), i);
         }
     }
 
@@ -92,8 +93,8 @@ public class Function extends Value{
      * 会将新参数加入符号表 构建对应Value并加入参数表
      * @param valueType 参数的类型
      */
-    public void addArgByValueType(ValueType valueType){
-        Value arg = new Value("%arg" + argValues.size(), valueType, this);
+    public void addArgByValueType(ValueType valueType, int argNumber){
+        Value arg = new Value("%arg" + argValues.size(), valueType, this, argNumber);
         argValues.add(arg);
 //        addSymbol(arg);
     }
@@ -192,11 +193,14 @@ public class Function extends Value{
     // ========== 中间代码生成 ==========
     @Override
     public void buildMips(){
-        // 非内建函数
+        // 非内建函数才需要解析
         if(!isLibFunc){
+            Mc.curIrFunction = this;
             for(BasicBlock basicBlock : basicBlocks){
                 basicBlock.buildMips();
             }
+//            parsePhis(irFunction);
+//            fMap.get(irFunction).blockSerial(bMap.get(irFunction.getBasicBlocks().getHead().getVal()), phiCopysLists);
         }
     }
 }
