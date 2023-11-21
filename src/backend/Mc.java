@@ -8,6 +8,7 @@ import ir.values.Function;
 import ir.values.GlobalVariable;
 import ir.values.Value;
 import utils.Pair;
+import utils.Triple;
 
 import java.util.HashMap;
 
@@ -25,7 +26,11 @@ public class Mc {
     private static HashMap<Function, MipsFunction> functionMap = new HashMap<>();
     private static HashMap<BasicBlock, MipsBlock> blockMap = new HashMap<>();
     private static HashMap<Value, MipsOperand> opMap = new HashMap<>();
-//    private static HashMap<Pair<GlobalVariable, BasicBlock>, MipsOperand> globalVariableMap = new HashMap<>();
+
+    /**
+     * 记录在块block内， op1 / op2的结果op3
+     */
+    private static final HashMap<Triple<MipsBlock, MipsOperand, MipsOperand>, MipsOperand> divMap = new HashMap<>();
     /**
      * 添加映射：irFunction - mipsFunction
      */
@@ -46,9 +51,9 @@ public class Mc {
     public static void addOperandMapping(Value irValue, MipsOperand mipsOperand){
         opMap.put(irValue, mipsOperand);
     }
-//    public static void addGlobalVariableMapping(GlobalVariable globalVariable, BasicBlock block, MipsOperand mipsOperand){
-//        globalVariableMap.put(new Pair<>(globalVariable, block), mipsOperand);
-//    }
+    public static void addDivMapping(MipsBlock mipsBlock, MipsOperand op1, MipsOperand op2, MipsOperand result){
+        divMap.put(new Triple<>(mipsBlock, op1, op2), result);
+    }
     /**
      * 获取ir函数对象 对应的 mips函数对象
      * @param irFunction    ir函数对象
@@ -74,7 +79,12 @@ public class Mc {
     public static MipsOperand op(Value irValue){
         return opMap.get(irValue);
     }
-//    public static MipsOperand gv(GlobalVariable globalVariable, BasicBlock block){
-//        return opMap.get(new Pair<>(globalVariable, block));
-//    }
+
+    /**
+     * 查询在mipsBlock内，op1/op2 是否已有计算结果、
+     * @return          计算结果的mipsOperand对象
+     */
+    public static MipsOperand div(MipsBlock mipsBlock, MipsOperand op1, MipsOperand op2){
+        return divMap.get(new Triple<>(mipsBlock, op1, op2));
+    }
 }

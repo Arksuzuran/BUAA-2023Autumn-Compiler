@@ -28,9 +28,13 @@ public class MipsFunction {
      */
     private final HashSet<MipsVirtualReg> usedVirtualRegs = new HashSet<>();
     /**
+     * 函数在栈上已经分配出的空间
      * 包括 2 个部分，alloca 和 spill
      */
     private int allocaSize = 0;
+    /**
+     * 函数在栈上应当分配的总空间
+     */
     private int totalStackSize;
     private final ArrayList<MipsBlock> blocks = new ArrayList<>();
     /**
@@ -67,10 +71,17 @@ public class MipsFunction {
         return usedVirtualRegs;
     }
 
+    /**
+     * 在函数栈上分配出指定空间
+     * @param size  要分配的空间
+     */
     public void addAllocaSize(int size) {
         allocaSize += size;
     }
 
+    /**
+     * 获得当前函数已经在栈上分配出的空间
+     */
     public int getAllocaSize() {
         return allocaSize;
     }

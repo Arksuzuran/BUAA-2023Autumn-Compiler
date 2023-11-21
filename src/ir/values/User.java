@@ -44,13 +44,13 @@ public class User extends Value{
     }
 
     /**
-     * 获取第index个操作数
+     * 获取第index个操作数, ！！从1开始！！
      * @param index 索引
      * @return  操作数
      */
     public Value getOp(int index){
-        if(operands.size() >= index + 1){
-            return operands.get(index);
+        if(operands.size() >= index){
+            return operands.get(index - 1);
         }
         return null;
     }

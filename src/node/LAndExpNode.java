@@ -103,5 +103,7 @@ public class LAndExpNode extends Node{
             condition = IrBuilder.buildIcmpInstruction(condition, new ConstInt(valueType.getBits(), 0), Icmp.CondType.NEQ, Irc.curBlock);
         }
         IrBuilder.buildBrInstruction(condition, trueBranch, falseBranch, Irc.curBlock);
+        // 而我们从来没有new过ConstInt(1, value)，这意味着一切ConstInt在此处都被转化为了Icmp
+        // 这意味着在生产目标代码时，带条件Br语句的condition永远是Icmp类型
     }
 }

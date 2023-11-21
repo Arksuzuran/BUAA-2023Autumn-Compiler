@@ -140,7 +140,7 @@ public class UnaryExpNode extends Node{
                     Irc.synValue = IrBuilder.buildIcmpInstruction(
                             ConstInt.ZERO(), Irc.synValue,
                             Icmp.CondType.EQL, Irc.curBlock);
-                    Irc.synValue = IrBuilder.buildZextInstruction(Irc.synValue, Irc.curBlock);
+                    Irc.synValue = IrBuilder.buildZextInstruction(Irc.synValue, Irc.curBlock);  //TODO
                 }
             }
             // Ident '(' [FuncRParams] ')'

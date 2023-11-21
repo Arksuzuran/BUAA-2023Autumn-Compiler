@@ -1,10 +1,19 @@
 package ir.values.instructions;
 
+import backend.Mc;
+import backend.MipsBuilder;
+import backend.instructions.MipsBinary;
+import backend.operands.MipsOperand;
+import backend.operands.MipsRealReg;
+import backend.operands.RegType;
+import backend.parts.MipsBlock;
+import backend.parts.MipsFunction;
 import ir.types.PointerType;
 import ir.types.ValueType;
 import ir.values.BasicBlock;
 import ir.values.Value;
 import ir.values.constants.ConstArray;
+import utils.IrTool;
 
 import java.util.ArrayList;
 
@@ -51,5 +60,21 @@ public class Alloca extends Instruction{
     @Override
     public String toString(){
         return getName() + " = alloca " + allocaedType;
+    }
+
+    @Override
+    public void buildMips() {
+        MipsFunction curFunction = Mc.f(Mc.curIrFunction);
+        // 在栈上已经分配出的空间
+        int allocaedSize = curFunction.getAllocaSize();
+        MipsOperand allocaedSizeOperand = MipsBuilder.buildImmOperand(allocaedSize, true, Mc.curIrFunction, getParent());
+        // 记录 分配出指向类型那么多的空间
+        int newSize = allocaedType.getSize();
+        curFunction.addAllocaSize(newSize);
+
+        // 向当前Alloca指令对应的Mips对象内，存入分配好的空间的首地址，即一开始的allocaedSize
+        // 栈在一开始就已经分配好了空间，这里只需要向上生长即可
+        MipsOperand dst = MipsBuilder.buildOperand(this, true, Mc.curIrFunction, getParent());
+        MipsBuilder.buildBinary(MipsBinary.BinaryType.ADDU, dst, MipsRealReg.SP, allocaedSizeOperand, getParent());
     }
 }

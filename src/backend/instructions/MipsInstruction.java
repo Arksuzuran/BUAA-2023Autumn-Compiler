@@ -20,12 +20,59 @@ public class MipsInstruction {
      */
     private final ArrayList<MipsRealReg> useRegs = new ArrayList<>();
 
-    // 需要限制reg必须为寄存器
+    protected MipsOperand dst = null;     //
+    protected MipsOperand src1 = null;    //
+    protected MipsOperand src2 = null;    //
 
+    /**
+     * 三操作数指令构造函数
+     */
+    public MipsInstruction(MipsOperand dst, MipsOperand src1, MipsOperand src2) {
+        setDst(dst);
+        setSrc1(src1);
+        setSrc2(src2);
+    }
+    /**
+     * 双操作数指令构造函数
+     * @param src1  src
+     */
+    public MipsInstruction(MipsOperand dst, MipsOperand src1) {
+        setDst(dst);
+        setSrc1(src1);
+    }
+    public MipsInstruction() {}
+
+    public void setDst(MipsOperand dst) {
+        if(dst != null){
+            addDefReg(this.dst, dst);
+        }
+        this.dst = dst;
+    }
+    public void setSrc1(MipsOperand src1) {
+        if(src1 != null){
+            addUseReg(this.src1, src1);
+        }
+        this.src1 = src1;
+    }
+    public void setSrc2(MipsOperand src2) {
+        if(src2 != null){
+            addUseReg(this.src2, src2);
+        }
+        this.src2 = src2;
+    }
+    public MipsOperand getDst() {
+        return dst;
+    }
+    public MipsOperand getSrc1() {
+        return src1;
+    }
+    public MipsOperand getSrc2() {
+        return src2;
+    }
     /**
      * 登记先使用寄存器
      */
-    private void addUseReg(MipsOperand reg) {
+    public void addUseReg(MipsOperand reg) {
         if (reg instanceof MipsRealReg) {
             useRegs.add((MipsRealReg) reg);
         }
@@ -33,7 +80,7 @@ public class MipsInstruction {
     /**
      * 登记先定义寄存器
      */
-    private void addDefReg(MipsOperand reg) {
+    public void addDefReg(MipsOperand reg) {
         if (reg instanceof MipsRealReg) {
             defRegs.add((MipsRealReg) reg);
         }
@@ -56,6 +103,25 @@ public class MipsInstruction {
             useRegs.remove((MipsRealReg) oldReg);
         }
         addUseReg(newReg);
+    }
+    public void replaceReg(MipsOperand oldReg, MipsOperand newReg) {
+        if (dst != null && dst.equals(oldReg)) {
+            setDst(newReg);
+        }
+        if (src1 != null && src1.equals(oldReg)) {
+            setSrc1(newReg);
+        }
+        if (src2 != null && src2.equals(oldReg)) {
+            setSrc2(newReg);
+        }
+    }
+    public void replaceUseReg(MipsOperand oldReg, MipsOperand newReg) {
+        if (src1 != null && src1.equals(oldReg)) {
+            setSrc1(newReg);
+        }
+        if (src2 != null && src2.equals(oldReg)) {
+            setSrc2(newReg);
+        }
     }
 
     /**
@@ -83,12 +149,6 @@ public class MipsInstruction {
 
         return readRegs;
     }
-
-    public void replaceReg(MipsOperand oldReg, MipsOperand newReg)
-    {}
-
-    public void replaceUseReg(MipsOperand oldReg, MipsOperand newReg)
-    {}
 
     public ArrayList<MipsRealReg> getDefRegs() {
         return defRegs;

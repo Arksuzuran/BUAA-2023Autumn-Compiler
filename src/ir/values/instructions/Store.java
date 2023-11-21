@@ -1,5 +1,8 @@
 package ir.values.instructions;
 
+import backend.Mc;
+import backend.MipsBuilder;
+import backend.operands.MipsOperand;
 import ir.types.ValueType;
 import ir.types.VoidType;
 import ir.values.BasicBlock;
@@ -37,5 +40,13 @@ public class Store extends Instruction{
         IrTool.appendSBParamList(stringBuilder, getOperands());
 //        System.out.println("store指令：" + getOperands());
         return stringBuilder.toString();
+    }
+
+    @Override
+    public void buildMips() {
+        MipsOperand src = MipsBuilder.buildOperand(this, false, Mc.curIrFunction, getParent());
+        MipsOperand base = MipsBuilder.buildOperand(getPointer(), false, Mc.curIrFunction, getParent());
+        MipsOperand offset = MipsBuilder.buildImmOperand(0, true, Mc.curIrFunction, getParent());
+        MipsBuilder.buildStore(src, base, offset, getParent());
     }
 }

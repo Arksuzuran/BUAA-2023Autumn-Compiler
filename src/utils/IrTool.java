@@ -6,6 +6,7 @@ import ir.types.ValueType;
 import ir.types.VoidType;
 import ir.values.BasicBlock;
 import ir.values.Value;
+import ir.values.constants.ConstInt;
 
 import java.util.ArrayList;
 
@@ -52,6 +53,10 @@ public class IrTool {
      */
     public static BasicBlock getHeadBlockOfParentFunction(BasicBlock basicBlock){
         return basicBlock.getParentFunction().getHeadBlock();
+    }
+
+    public static int getValueOfConstInt(Value value){
+        return ((ConstInt) value).getValue();
     }
 
     /**

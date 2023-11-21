@@ -60,14 +60,14 @@ public class ControlFlowGraphAnalyzer {
         {
             if (br.isConditional()) {
                 // true
-                sucBlock = (BasicBlock) br.getOp(1);
+                sucBlock = (BasicBlock) br.getOp(2);
                 addEdgeAndVisit(curBlock, sucBlock);
                 // false
-                sucBlock = (BasicBlock) br.getOp(2);
+                sucBlock = (BasicBlock) br.getOp(3);
                 addEdgeAndVisit(curBlock, sucBlock);
             }
             else {
-                sucBlock = (BasicBlock) br.getOp(0);
+                sucBlock = (BasicBlock) br.getOp(1);
                 addEdgeAndVisit(curBlock, sucBlock);
             }
         }

@@ -4,7 +4,7 @@ package backend.operands;
 import java.util.Objects;
 
 /**
- * @Description TODO
+ * @Description 标签类型
  * @Author
  * @Date 2023/11/19
  **/

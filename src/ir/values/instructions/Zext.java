@@ -1,5 +1,6 @@
 package ir.values.instructions;
 
+import backend.Mc;
 import ir.types.IntType;
 import ir.types.ValueType;
 import ir.values.BasicBlock;
@@ -26,5 +27,21 @@ public class Zext extends Instruction{
         stringBuilder.append(getOperands().get(0).getName());
         stringBuilder.append(" to i32");
         return stringBuilder.toString();
+    }
+
+    /**
+     * 由于要转换的i1 Value只可能是icmp产生的
+     * 因此调用icmp的解析方法即可将其解析，并把解析结果与Zext结果进行对应
+     */
+    @Override
+    public void buildMips() {
+        Value i1 = getOp(1);
+        if(i1 instanceof Icmp){
+            ((Icmp) i1).buildMips();
+            // 将Zext结果与i1的解析结果页进行绑定
+            Mc.addOperandMapping(this, Mc.op(i1));
+        } else {
+            System.out.println("[Zext]操作数i1不为Icmp类型");
+        }
     }
 }

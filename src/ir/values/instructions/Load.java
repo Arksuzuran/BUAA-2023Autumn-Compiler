@@ -1,5 +1,8 @@
 package ir.values.instructions;
 
+import backend.Mc;
+import backend.MipsBuilder;
+import backend.operands.MipsOperand;
 import ir.values.BasicBlock;
 import ir.values.Value;
 import utils.IrTool;
@@ -29,5 +32,13 @@ public class Load extends Instruction{
         stringBuilder.append(IrTool.tnstr(getOperands().get(0)));   //"i32* @c"
 
         return stringBuilder.toString();
+    }
+
+    @Override
+    public void buildMips() {
+        MipsOperand dst = MipsBuilder.buildOperand(this, false, Mc.curIrFunction, getParent());
+        MipsOperand base = MipsBuilder.buildOperand(getOp(1), false, Mc.curIrFunction, getParent());
+        MipsOperand offset = MipsBuilder.buildImmOperand(0, true, Mc.curIrFunction, getParent());
+        MipsBuilder.buildLoad(dst, base, offset, getParent());
     }
 }

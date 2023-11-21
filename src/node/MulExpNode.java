@@ -93,7 +93,7 @@ public class MulExpNode extends Node{
                 // x % y = x - ( x / y ) * y
                 else if(opToken.type == TokenType.MOD){
                     // y为正的常数（因为负常数会在UnaryExp中联合符号而被解析为Sub指令的Value） 那么可以进一步优化
-                    //  y是1，应该直接取模运算
+                    // y是1，应该直接取模运算, 交由后端优化
                     if(opValue2 instanceof ConstInt && ((ConstInt) opValue2).getValue() == 1){
                         Irc.synValue = IrBuilder.buildSremInstruction(opValue1, opValue2, Irc.curBlock);
                     }

@@ -1,5 +1,9 @@
 package ir.values.instructions;
 
+import backend.Mc;
+import backend.MipsBuilder;
+import backend.operands.MipsOperand;
+import backend.operands.MipsRealReg;
 import ir.types.ValueType;
 import ir.types.VoidType;
 import ir.values.BasicBlock;
@@ -42,5 +46,17 @@ public class Ret extends Instruction{
         }
 
         return stringBuilder.toString();
+    }
+
+    @Override
+    public void buildMips() {
+        Value returnValue = getOp(1);
+        // 带返回值，则存入v0
+        if(returnValue != null){
+            MipsOperand returnOperand = MipsBuilder.buildOperand(returnValue, true, Mc.curIrFunction, getParent());
+            MipsBuilder.buildMove(MipsRealReg.V0, returnOperand, getParent());
+        }
+        // 之后进行弹栈以及返回操作，该操作位于MipsRet的toString()
+        MipsBuilder.buildRet(Mc.curIrFunction, getParent());
     }
 }
