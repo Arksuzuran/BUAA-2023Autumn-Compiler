@@ -18,4 +18,10 @@ public class MipsCall extends MipsInstruction{
         super();
         this.function = function;
     }
+
+    @Override
+    public String toString()
+    {
+        return "jal\t" + function.getName() + "\n";
+    }
 }

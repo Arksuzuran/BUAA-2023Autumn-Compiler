@@ -44,4 +44,8 @@ public class MipsStore extends MipsInstruction {
             setSrc2(newReg);
         }
     }
+    @Override
+    public String toString() {
+        return "sw\t" + getSrc() + ",\t" + getOffset() + "(" + getBase() + ")\n";
+    }
 }

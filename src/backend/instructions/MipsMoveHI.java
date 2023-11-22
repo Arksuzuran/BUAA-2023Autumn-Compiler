@@ -7,8 +7,8 @@ import backend.operands.MipsOperand;
  * @Author
  * @Date 2023/11/19
  **/
-public class MipsMoveHI extends MipsInstruction{
-    public enum MoveHIType{
+public class MipsMoveHI extends MipsInstruction {
+    public enum MoveHIType {
         /**
          * Move to HI
          * 将一个通用寄存器的值移动到HI寄存器中
@@ -20,6 +20,7 @@ public class MipsMoveHI extends MipsInstruction{
          */
         MFHI;
     }
+
     private MoveHIType type;
 
     /**
@@ -32,4 +33,13 @@ public class MipsMoveHI extends MipsInstruction{
         this.type = type;
     }
 
+    @Override
+    public String toString() {
+        if (type == MoveHIType.MTHI) {
+            return "mthi\t" + getSrc1() + "\n";
+        }
+        else {
+            return "mfhi\t" + getDst() + "\n";
+        }
+    }
 }

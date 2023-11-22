@@ -29,6 +29,6 @@ public class Instruction extends User {
     }
     @Override
     public BasicBlock getParent(){
-        return ((BasicBlock) getParent());
+        return ((BasicBlock) super.getParent());
     }
 }

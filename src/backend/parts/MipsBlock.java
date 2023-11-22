@@ -27,7 +27,8 @@ public class MipsBlock {
     private final ArrayList<MipsBlock> preBlocks = new ArrayList<>();
 
     public MipsBlock(String name, int loopDepth) {
-        this.name = name + "_" + getNameCnt();
+        // 需要去除开头的b
+        this.name = name.substring(1) + "_" + getNameCnt();
         this.loopDepth = loopDepth;
     }
     public static int getNameCnt(){
@@ -77,5 +78,18 @@ public class MipsBlock {
     }
     public MipsInstruction getTailInstruction() {
         return instructions.getLast();
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        // 块标签
+        sb.append(name).append(":\n");
+
+        for(MipsInstruction instruction : instructions){
+            sb.append("\t").append(instruction);
+        }
+
+        return sb.toString();
     }
 }

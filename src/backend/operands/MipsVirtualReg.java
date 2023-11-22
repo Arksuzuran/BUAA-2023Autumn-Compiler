@@ -14,4 +14,18 @@ public class MipsVirtualReg extends MipsOperand{
     public MipsVirtualReg() {
         this.name = "v" + getNameCnt();
     }
+
+    /**
+     * 虚拟寄存器都需要着色
+     */
+    @Override
+    public boolean needsColor()
+    {
+        return true;
+    }
+    @Override
+    public String toString()
+    {
+        return name;
+    }
 }

@@ -14,11 +14,12 @@ public class MipsInstruction {
     /**
      * 用于活跃变量分析，记录该指令处的左值寄存器（定义）
      */
-    private final ArrayList<MipsRealReg> defRegs = new ArrayList<>();
+    private final ArrayList<MipsOperand> defRegs = new ArrayList<>();
     /**
      * 用于活跃变量分析，记录该指令处的右值寄存器（使用）
      */
-    private final ArrayList<MipsRealReg> useRegs = new ArrayList<>();
+
+    private final ArrayList<MipsOperand> useRegs = new ArrayList<>();
 
     protected MipsOperand dst = null;     //
     protected MipsOperand src1 = null;    //
@@ -69,38 +70,40 @@ public class MipsInstruction {
     public MipsOperand getSrc2() {
         return src2;
     }
+
+    // 对于使用、定义寄存器，都是对物理寄存器而言的
     /**
-     * 登记先使用寄存器
+     * 登记先使用物理寄存器
      */
     public void addUseReg(MipsOperand reg) {
         if (reg instanceof MipsRealReg) {
-            useRegs.add((MipsRealReg) reg);
+            useRegs.add(reg);
         }
     }
     /**
-     * 登记先定义寄存器
+     * 登记先定义物理寄存器
      */
     public void addDefReg(MipsOperand reg) {
         if (reg instanceof MipsRealReg) {
-            defRegs.add((MipsRealReg) reg);
+            defRegs.add(reg);
         }
     }
 
     /**
-     * 带替换的登记先定义寄存器
+     * 带替换的登记先定义物理寄存器
      */
     public void addDefReg(MipsOperand oldReg, MipsOperand newReg) {
         if (oldReg instanceof MipsRealReg) {
-            defRegs.remove((MipsRealReg) oldReg);
+            defRegs.remove(oldReg);
         }
         addDefReg(newReg);
     }
     /**
-     * 带替换的登记先使用寄存器
+     * 带替换的登记先使用物理寄存器
      */
     public void addUseReg(MipsOperand oldReg, MipsOperand newReg) {
         if (oldReg instanceof MipsRealReg) {
-            useRegs.remove((MipsRealReg) oldReg);
+            useRegs.remove(oldReg);
         }
         addUseReg(newReg);
     }
@@ -136,12 +139,12 @@ public class MipsInstruction {
      * 表示因此改变的寄存器
      * 可能要比 define 多一些，这是因为寄存器分配只是分析变量
      */
-    public ArrayList<MipsRealReg> getWriteRegs() {
+    public ArrayList<MipsOperand> getWriteRegs() {
         return new ArrayList<>(defRegs);
     }
 
-    public ArrayList<MipsRealReg> getReadRegs() {
-        ArrayList<MipsRealReg> readRegs = useRegs;
+    public ArrayList<MipsOperand> getReadRegs() {
+        ArrayList<MipsOperand> readRegs = useRegs;
 
         if (this instanceof MipsCall) {
             readRegs.add(MipsRealReg.SP);
@@ -150,11 +153,10 @@ public class MipsInstruction {
         return readRegs;
     }
 
-    public ArrayList<MipsRealReg> getDefRegs() {
+    public ArrayList<MipsOperand> getDefRegs() {
         return defRegs;
     }
-
-    public ArrayList<MipsRealReg> getUseRegs() {
+    public ArrayList<MipsOperand> getUseRegs() {
         return useRegs;
     }
 }

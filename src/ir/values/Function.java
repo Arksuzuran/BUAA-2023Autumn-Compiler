@@ -1,6 +1,8 @@
 package ir.values;
 
 import backend.Mc;
+import backend.parts.MipsBlock;
+import backend.parts.MipsFunction;
 import ir.IrSymbolTable;
 import ir.analyze.Loop;
 import ir.types.ValueType;
@@ -196,11 +198,14 @@ public class Function extends Value{
         // 非内建函数才需要解析
         if(!isLibFunc){
             Mc.curIrFunction = this;
+            // 解析块
             for(BasicBlock basicBlock : basicBlocks){
                 basicBlock.buildMips();
             }
-//            parsePhis(irFunction);
-//            fMap.get(irFunction).blockSerial(bMap.get(irFunction.getBasicBlocks().getHead().getVal()), phiCopysLists);
+            // 将块加入函数，并完善跳转关系
+            MipsFunction mipsFunction = Mc.f(this);
+            MipsBlock firstMipsBlock = Mc.b(getHeadBlock());
+            mipsFunction.blockSerialize(firstMipsBlock);
         }
     }
 }

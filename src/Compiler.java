@@ -1,4 +1,5 @@
 import backend.MipsBuilder;
+import backend.parts.MipsModule;
 import config.Config;
 import frontend.Checker;
 import frontend.Lexer;
@@ -20,12 +21,15 @@ public class Compiler {
     public String inputText = "";
 
     private Lexer lexer = null;
-    private ArrayList<Token> lexerResultList = null;    // 词法分析结果
     private Parser parser = null;
-    private CompUnitNode compUnitNode = null;           // 语法分析结果   AST
     private Checker checker = null;
     private IrBuilder irBuilder = null;
+    private MipsBuilder mipsBuilder = null;
+    private ArrayList<Token> lexerResultList = null;    // 词法分析结果
+
+    private CompUnitNode compUnitNode = null;           // 语法分析结果   AST
     private Module irModule = null;                     // 中间代码生成结果 AST
+    private MipsModule mipsModule = null;               // 目标代码生成结果 AST
 
     // 读取输入文件 如果未指定路径则按照Config配置
     public String readInputFile(){
@@ -86,19 +90,27 @@ public class Compiler {
 
     public void doMipsBuilding() {
         System.out.println("=====[MIPS生成]开始=====");
-        MipsBuilder mipsBuilder = new MipsBuilder(irModule);
-
+        mipsBuilder = new MipsBuilder(irModule);
+        mipsBuilder.doMipsBuilding();
+        if(Config.outputMIPS){
+            mipsBuilder.outputMIPS();
+        }
         System.out.println("=====[MIPS生成]完成=====");
     }
 
-    public static void main(String[] args) {
+    public void doCompiling() {
         System.out.println("[编译]开始");
-        Compiler compiler = new Compiler();
-        compiler.readInputFile();
-        compiler.doLexicalAnalysis();
-        compiler.doParsing();
-        compiler.doChecking();
-        compiler.doIrBuilding();
+        readInputFile();
+        doLexicalAnalysis();
+        doParsing();
+        doChecking();
+        doIrBuilding();
+        doMipsBuilding();
         System.out.println("[编译]执行完成!");
+    }
+
+    public static void main(String[] args) {
+        Compiler compiler = new Compiler();
+        compiler.doCompiling();
     }
 }

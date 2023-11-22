@@ -1,0 +1,40 @@
+# HIKARI 2023/11/22 
+.macro putstr
+	li	$v0,	4
+	syscall
+.end_macro
+
+.macro putint
+	li	$v0,	1
+	syscall
+.end_macro
+
+.macro getint
+	li	$v0,	5
+	syscall
+.end_macro
+
+.data
+.text
+main:
+b0_1:
+	li	$a0,	1
+	jal	f
+	li	$v0,	0
+	li	$v0,	10
+	syscall
+
+f:
+b0_0:
+	move	v2,	$a0
+	addiu	v0,	$sp,	0
+	addiu	v1,	$sp,	120
+	sw	v2,	0(v1)
+	addiu	v3,	v0,	0
+	addiu	v3,	v3,	24
+	addiu	v4,	v3,	0
+	addiu	v4,	v4,	8
+	li	v5,	1
+	sw	v5,	0(v4)
+	jr	$ra
+

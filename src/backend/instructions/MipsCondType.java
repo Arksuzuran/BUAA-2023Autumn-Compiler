@@ -5,8 +5,8 @@ import ir.values.instructions.Icmp;
 import java.util.HashMap;
 
 /**
- * @Description TODO
- * @Author
+ * @Description 比较运算的类型，用于Compare和Branch类
+ * @Author  HIKARI
  * @Date 2023/11/19
  **/
 public enum MipsCondType{
@@ -40,11 +40,11 @@ public enum MipsCondType{
     GT(">", "gt");
 
     private String meaning;
-    private String mipsName;
+    private String name;
 
     MipsCondType(String meaning, String name){
         this.meaning = meaning;
-        this.mipsName = name;
+        this.name = name;
     }
 
     private static final HashMap<Icmp.CondType, MipsCondType> ir2mips = new HashMap<>(){{
@@ -77,5 +77,10 @@ public enum MipsCondType{
             case LT -> result = src1 < src2;
         }
         return result ? 1 : 0;
+    }
+
+    @Override
+    public String toString(){
+        return name;
     }
 }

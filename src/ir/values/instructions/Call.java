@@ -75,11 +75,11 @@ public class Call extends Instruction {
         MipsInstruction call;
         // 内建函数，需要宏调用
         if (function.isLibFunc()) {
-            call = new MipsMacro(function.getName());
+            call = new MipsMacro(mipsFunction.getName());
             // 系统调用必然改变 v0, v0加入def
             call.addDefReg(MipsRealReg.V0); // TODO: addDefReg 双参数修改为单参数
         }
-        // 非内建函数，直接构建
+        // 非内建函数，直接构建jal指令即可
         else {
             call = new MipsCall(mipsFunction);
         }

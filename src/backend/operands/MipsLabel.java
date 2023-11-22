@@ -14,12 +14,6 @@ public class MipsLabel extends MipsOperand{
     public MipsLabel(String name) {
         this.name = name;
     }
-
-    @Override
-    public String toString() {
-        return name;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -27,4 +21,9 @@ public class MipsLabel extends MipsOperand{
         MipsLabel objLabel = (MipsLabel) o;
         return Objects.equals(name, objLabel.name);
     }
+    @Override
+    public String toString() {
+        return name;
+    }
+
 }

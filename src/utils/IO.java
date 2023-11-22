@@ -12,7 +12,7 @@ import java.io.*;
  **/
 public class IO {
     public enum IOType{
-        PARSER, LEXER, CHECKER, IR_BUILDER
+        PARSER, LEXER, CHECKER, IR_BUILDER, MIPS_BUILDER
     }
     // 从指定路径读取文件 将内容存入字符串中
     public static String read(String filePath){
@@ -67,12 +67,9 @@ public class IO {
             System.out.println("文件输出失败" + e);
         }
     }
-    // 根据当前输出类型写入已配置好的路径
-    // appending:   追加写
-    // println:     在末尾附加换行符
 
     /**
-     * 将字符串写入指定路径的文件
+     * 根据当前输出类型写入已配置好的路径
      * @param ioType    当前在写的模块类型
      * @param content   要写入的字符串
      * @param appending 是否追加写
@@ -99,6 +96,9 @@ public class IO {
                 }
                 case IR_BUILDER -> {
                     return Config.atLocalTest ? Config.localOutputIRFilePath : Config.outputIRFilePath;
+                }
+                case MIPS_BUILDER -> {
+                    return Config.atLocalTest ? Config.localOutputMIPSFilePath : Config.outputMIPSFilePath;
                 }
                 // LEXER, PARSER
                 default -> {

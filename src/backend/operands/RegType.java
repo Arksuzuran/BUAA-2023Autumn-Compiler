@@ -1,6 +1,7 @@
 package backend.operands;
 
 import java.util.HashMap;
+import java.util.HashSet;
 
 public enum RegType {
     ZERO(0, "zero"),
@@ -54,20 +55,44 @@ public enum RegType {
     RA(31, "ra");
     public final int index;
     public final String name;
+
+    /**
+     * 寄存器名（小写0）转寄存器
+     */
     public static final HashMap<String, RegType> name2TypeMap = new HashMap<>();
+    /**
+     * 进行函数调用时，调用者需要保存的寄存器（现场）, 即 zero, at, v0, a0 ~ a3, sp 以外的寄存器
+     */
+    public final static HashSet<RegType> regsNeedSaving = new HashSet<>();
+    /**
+     * 进行寄存器分配时，能够分配出去的寄存器, 即 zero, at, sp 以外的寄存器
+     */
+    public final static HashSet<RegType> regsCanAlloca = new HashSet<>();
     static {
         for(RegType type : RegType.values()){
             name2TypeMap.put(type.name, type);
+            regsNeedSaving.add(type);
+            regsCanAlloca.add(type);
         }
+        // zero, at, v0, a0 ~ a3, sp 以外
+        regsNeedSaving.remove(ZERO);
+        regsNeedSaving.remove(AT);
+        regsNeedSaving.remove(A0);
+        regsNeedSaving.remove(A1);
+        regsNeedSaving.remove(A2);
+        regsNeedSaving.remove(A3);
+        regsNeedSaving.remove(SP);
+        regsNeedSaving.remove(V0);
+        // zero, at, sp 以外
+        regsCanAlloca.remove(ZERO);
+        regsCanAlloca.remove(AT);
+        regsCanAlloca.remove(SP);
     }
     RegType(int index, String name){
         this.index = index;
         this.name = name;
     }
-    @Override
-    public String toString(){
-        return name;
-    }
+
     public static RegType getRegType(int index){
         if(index >= 0 && index <= 31){
             return RegType.values()[index];
@@ -79,5 +104,16 @@ public enum RegType {
             return name2TypeMap.get(name);
         }
         return RegType.values()[0];
+    }
+    public int getIndex(){
+        return index;
+    }
+    public String getName(){
+        return name;
+    }
+    // 这里与RealREg的toString方法一样
+    @Override
+    public String toString(){
+        return '$' + name;
     }
 }

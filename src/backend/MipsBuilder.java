@@ -4,9 +4,12 @@ import backend.instructions.*;
 import backend.operands.*;
 import backend.parts.MipsBlock;
 import backend.parts.MipsFunction;
+import backend.parts.MipsModule;
+import backend.reg.RegBuilder;
 import ir.values.*;
 import ir.values.Module;
 import ir.values.constants.ConstInt;
+import utils.IO;
 import utils.MipsMath;
 import utils.Pair;
 
@@ -24,8 +27,17 @@ public class MipsBuilder {
         this.irModule = irModule;
     }
 
-    public void doMipsBuilding(){
+    public MipsModule doMipsBuilding(){
+        // 生成带有虚拟寄存器的目标代码
         irModule.buildMips();
+        // 寄存器分配
+        RegBuilder regBuilder = new RegBuilder();
+        regBuilder.process();
+        return MipsModule.getInstance();
+    }
+
+    public void outputMIPS(){
+        IO.write(IO.IOType.MIPS_BUILDER, MipsModule.getInstance().toString(), false, false);
     }
 
     // ================= 指令的简单构造方法 ===================
@@ -92,6 +104,14 @@ public class MipsBuilder {
     public static MipsBranch buildBranch(MipsBlock target, BasicBlock irBlock){
         MipsBranch branch = new MipsBranch(target);
         Mc.b(irBlock).addInstruction(branch);
+        return branch;
+    }
+    /**
+     * 构建无条件跳转的分支指令
+     */
+    public static MipsBranch buildBranch(MipsBlock target, MipsBlock mipsBlock){
+        MipsBranch branch = new MipsBranch(target);
+        mipsBlock.addInstruction(branch);
         return branch;
     }
 
@@ -213,9 +233,11 @@ public class MipsBuilder {
         }
         // 存入栈上
         else {
-            // 记录栈偏移量，这并不是真实的偏移值，后续会在function内进行修改
+            // 记录栈偏移量
+            // 该偏移量是相对于参数区的偏移量，后续会在function内进行修改
             int stackPos = argNumber - 4;
             MipsImm offset = new MipsImm(stackPos * 4);
+            // 记录进入mipsFunction
             mipsFunction.addArgOffset(offset);
             // 创建加载指令
             MipsLoad load = new MipsLoad(vr, MipsRealReg.SP, offset);
@@ -226,11 +248,9 @@ public class MipsBuilder {
     }
 
     public static MipsOperand buildGlobalOperand(GlobalVariable irValue, Function irFunction, BasicBlock irBlock){
-        MipsBlock objBlock = Mc.b(irBlock);
         MipsVirtualReg dst = allocVirtualReg(irFunction);
         // move指令
-        MipsMove move = new MipsMove(dst, new MipsLabel(irValue.getNameCnt()));
-        objBlock.addInstructionHead(move);
+        buildMove(dst, new MipsLabel(irValue.getNameCnt()), irBlock);
         return dst;
     }
 
@@ -240,6 +260,7 @@ public class MipsBuilder {
      * @param isImm         是否要创建Mips的立即数对象
      */
     public static MipsOperand buildImmOperand(int imm, boolean isImm, Function irFunction, BasicBlock irBlock){
+//        System.out.println("buildImmOperand " + imm);
         MipsImm mipsImm = new MipsImm(imm);
         // 允许返回立即数，则返回立即数对象
         if(isImm && MipsMath.is16BitImm(imm, true)){
@@ -255,6 +276,7 @@ public class MipsBuilder {
             else{
                 MipsVirtualReg vr = allocVirtualReg(irFunction);
                 buildMove(vr, mipsImm, irBlock);
+//                System.out.println("build move " + vr + " ");
                 return vr;
             }
         }

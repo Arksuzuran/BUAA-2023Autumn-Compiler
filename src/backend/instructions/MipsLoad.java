@@ -28,6 +28,6 @@ public class MipsLoad extends MipsInstruction {
 
     @Override
     public String toString() {
-        return "lw " + getDst() + ",\t" + getOffset() + "(" + getBase() + ")\n";
+        return "lw\t" + getDst() + ",\t" + getOffset() + "(" + getBase() + ")\n";
     }
 }

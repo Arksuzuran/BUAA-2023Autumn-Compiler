@@ -21,16 +21,20 @@ public class Config {
     public static boolean outputErrors = true;
     // 是否输出中间代码
     public static boolean outputIr = true;
+    // 是否输出目标代码
+    public static boolean outputMIPS = true;
 
     // ============== 本地测试路径 ================
     // 输入文件路径
-    public static String localInputFilePath = rootPath + "/testcases/testfile3.txt";
+    public static String localInputFilePath = rootPath + "/testcases/testfile1.txt";
     // 默认输出文件路径
     public static String localOutputFilePath = rootPath + "/testcases/output.txt";
     // 错误处理输出文件路径
     public static String localOutputErrorFilePath = rootPath + "/testcases/error.txt";
-    // 中间代码生成输出文件路径
+    // LLVM生成输出文件路径
     public static String localOutputIRFilePath = rootPath + "/testcases/llvm_ir.txt";
+    // MIPS生成输出文件路径
+    public static String localOutputMIPSFilePath = rootPath + "/testcases/mips.txt";
 
     // ============== 提交评测路径 ================
     // 输入文件路径
@@ -41,4 +45,6 @@ public class Config {
     public static String outputErrorFilePath = "error.txt";
     // LLVM输出文件路径
     public static String outputIRFilePath = "llvm_ir.txt";
+    // MIPS输出文件路径
+    public static String outputMIPSFilePath = "mips.txt";
 }

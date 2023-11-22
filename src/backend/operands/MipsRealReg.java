@@ -1,5 +1,7 @@
 package backend.operands;
 
+import java.util.HashSet;
+
 /**
  * @Description TODO
  * @Author
@@ -8,6 +10,7 @@ package backend.operands;
 public class MipsRealReg extends MipsOperand{
     private RegType type;
     private boolean isAllocated;
+
 
     public final static MipsRealReg ZERO = new MipsRealReg(0);
     public final static MipsRealReg AT = new MipsRealReg("at");
@@ -26,5 +29,47 @@ public class MipsRealReg extends MipsOperand{
     public MipsRealReg(int index, boolean isAllocated) {
         this.type = RegType.getRegType(index);
         this.isAllocated = isAllocated;
+    }
+
+    /**
+     * 获取物理寄存器编号
+     */
+    public int getIndex(){
+        return type.getIndex();
+    }
+    public RegType getType(){
+        return type;
+    }
+
+    /**
+     * 如果一个寄存器是物理寄存器,而且还没有被分配,那么就是需要预着色的
+     * 所谓的预着色，可能指的是在图着色中没分配，就已经是物理寄存器的情况
+     * 可能这个的意思就是，对于物理寄存器，只有两种状态，没分配的叫预着色，分配的叫 allocated
+     * @return true 就是预着色
+     */
+    @Override
+    public boolean isPrecolored()
+    {
+        return !isAllocated;
+    }
+
+    @Override
+    public boolean isAllocated()
+    {
+        return isAllocated;
+    }
+
+    /**
+     * 对于一个物理寄存器，只要他还没有被分配，那么就是需要着色的
+     */
+    @Override
+    public boolean needsColor()
+    {
+        return !isAllocated;
+    }
+
+    @Override
+    public String toString() {
+        return "$" + type.getName();
     }
 }

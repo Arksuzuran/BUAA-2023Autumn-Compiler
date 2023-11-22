@@ -27,12 +27,12 @@ public class MipsShift extends MipsInstruction {
 
     @Override
     public String toString() {
-        if (type.equals(ShiftType.SRA)) {
-            return "sra " + getDst() + ",\t" + getSrc1() + ",\t" + shift + "\n";
-        } else if (type.equals(ShiftType.SRL)) {
-            return "srl " + getDst() + ",\t" + getSrc1() + ",\t" + shift + "\n";
-        } else {
-            return "sll " + getDst() + ",\t" + getSrc1() + ",\t" + shift + "\n";
+        String instr = "sll";
+        if(type.equals(ShiftType.SRA)){
+            instr = "sra";
+        } else if(type.equals(ShiftType.SRL)){
+            instr = "sr";
         }
+        return instr + "\t" + getDst() + ",\t" + getSrc1() + ",\t" + shift + "\n";
     }
 }

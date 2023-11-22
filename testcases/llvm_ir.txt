@@ -1,12 +1,19 @@
-@FORMAT_STRING_0 = dso_local constant [10 x i8]  c"123456789\00"
-
 declare i32 @getint()
 declare void @putstr(i8*)
 declare void @putint(i32)
 declare void @putch(i32)
+define dso_local void @f(i32 %arg0) {
+b0:
+	%i3 = alloca [5 x [6 x i32]]
+	%i1 = alloca i32
+	store i32 %arg0, i32* %i1
+	%i4 = getelementptr [5 x [6 x i32]], [5 x [6 x i32]]* %i3, i32 0, i32 1
+	%i5 = getelementptr [6 x i32], [6 x i32]* %i4, i32 0, i32 2
+	store i32 1, i32* %i5
+	ret void
+}
 define dso_local i32 @main() {
 b0:
-	%i1 = getelementptr [10 x i8], [10 x i8]* @FORMAT_STRING_0, i32 0, i32 0
-	call void @putstr(i8* %i1)
+	call void @f(i32 1)
 	ret i32 0
 }

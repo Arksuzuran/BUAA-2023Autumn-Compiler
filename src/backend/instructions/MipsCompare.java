@@ -17,4 +17,9 @@ public class MipsCompare extends MipsInstruction{
         super(dst, src1, src2);
         this.type = type;
     }
+
+    @Override
+    public String toString() {
+        return "s" + type + "\t" + dst + ",\t" + src1 + ",\t" + src2 + "\n";
+    }
 }

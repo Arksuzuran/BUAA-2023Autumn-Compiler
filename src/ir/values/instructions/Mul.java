@@ -46,7 +46,7 @@ public class Mul extends AresInstruction {
         MipsOperand dst = MipsBuilder.buildOperand(this, false, Mc.curIrFunction, getParent());
         Value op1 = getOp(1);
         Value op2 = getOp(2);
-        MipsBuilder.buildOptMul(dst, op1, op2, getParent(), Mc.curIrFunction);
+        MipsBuilder.buildOptMul(dst, op1, op2, Mc.curIrFunction, getParent());
     }
 //    /**
 //     * 将乘常数分解成多个 (+-shift) 的项

@@ -44,7 +44,7 @@ public class Store extends Instruction{
 
     @Override
     public void buildMips() {
-        MipsOperand src = MipsBuilder.buildOperand(this, false, Mc.curIrFunction, getParent());
+        MipsOperand src = MipsBuilder.buildOperand(getOp(1), false, Mc.curIrFunction, getParent());
         MipsOperand base = MipsBuilder.buildOperand(getPointer(), false, Mc.curIrFunction, getParent());
         MipsOperand offset = MipsBuilder.buildImmOperand(0, true, Mc.curIrFunction, getParent());
         MipsBuilder.buildStore(src, base, offset, getParent());
