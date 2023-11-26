@@ -28,6 +28,7 @@ public class Compiler {
     private ArrayList<Token> lexerResultList = null;    // 词法分析结果
 
     private CompUnitNode compUnitNode = null;           // 语法分析结果   AST
+    private boolean hasError = false;                   // 错误处理 是否有错误
     private Module irModule = null;                     // 中间代码生成结果 AST
     private MipsModule mipsModule = null;               // 目标代码生成结果 AST
 
@@ -71,7 +72,7 @@ public class Compiler {
     public void doChecking(){
         System.out.println("=====[错误处理与符号表生成]开始=====");
         checker = new Checker(compUnitNode);
-        checker.doCheck();
+        hasError = checker.doCheck();
         if(Config.outputErrors){
             checker.outputError();
         }
@@ -104,8 +105,10 @@ public class Compiler {
         doLexicalAnalysis();
         doParsing();
         doChecking();
-        doIrBuilding();
-        doMipsBuilding();
+        if(!hasError){
+            doIrBuilding();
+            doMipsBuilding();
+        }
         System.out.println("[编译]执行完成!");
     }
 

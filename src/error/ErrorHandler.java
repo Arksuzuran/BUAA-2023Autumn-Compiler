@@ -31,7 +31,9 @@ public class ErrorHandler {
             instance.errors.add(error);
         }
     }
-
+    public static boolean hasError(){
+        return !instance.errors.isEmpty();
+    }
     // 获取输出到文件的字符串
     public static String getOutputString(){
         instance.errors.sort(new Comparator<Error>() {

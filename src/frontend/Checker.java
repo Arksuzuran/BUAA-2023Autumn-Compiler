@@ -15,8 +15,9 @@ public class Checker {
         this.compUnitNode = compUnitNode;
     }
 
-    public void doCheck(){
+    public boolean doCheck(){
         compUnitNode.check();
+        return ErrorHandler.hasError();
     }
     public void outputError(){
         ErrorHandler.printErrors();

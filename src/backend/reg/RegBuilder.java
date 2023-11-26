@@ -703,16 +703,14 @@ public class RegBuilder {
                             lastDefLoad = instruction;
                         }
                     }
-                    cntInstr++;
                     if (cntInstr > 30) {
-                        // firstUse会在本条指令前方插入
                         if(firstUseStore != null){
                             i++;
                         }
                         checkPoint(func);
                     }
+                    cntInstr++;
                 }
-                // 一轮只处理一个
                 checkPoint(func);
             }
             // 为这个临时变量在栈上分配空间
