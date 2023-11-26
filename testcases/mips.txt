@@ -17,24 +17,28 @@
 .data
 .text
 main:
-b0_1:
-	li	$a0,	1
-	jal	f
+	add	$sp,	$sp,	-24
+b0_0:
+	addiu	$t5,	$sp,	0
+	addiu	$s1,	$sp,	4
+	addiu	$v0,	$sp,	8
+	li	$gp,	1
+	sw	$gp,	0($v0)
+	li	$gp,	2
+	sw	$gp,	0($s1)
+	li	$gp,	3
+	sw	$gp,	0($t5)
+	lw	$a0,	0($v0)
+	lw	$gp,	0($s1)
+	lw	$a0,	0($t5)
+	move	$a0,	$a0
+	putint
+	move	$a0,	$gp
+	putint
+	move	$a0,	$a0
+	putint
 	li	$v0,	0
+	add	$sp, 	$sp,	24
 	li	$v0,	10
 	syscall
-
-f:
-b0_0:
-	move	v2,	$a0
-	addiu	v0,	$sp,	0
-	addiu	v1,	$sp,	120
-	sw	v2,	0(v1)
-	addiu	v3,	v0,	0
-	addiu	v3,	v3,	24
-	addiu	v4,	v3,	0
-	addiu	v4,	v4,	8
-	li	v5,	1
-	sw	v5,	0(v4)
-	jr	$ra
 

@@ -10,4 +10,9 @@ public class VoidType extends ValueType{
     public String toString(){
         return "void";
     }
+    @Override
+    public int getSize() {
+        System.out.println("[VoidTypeSize] 非法获取Void类型的Size！");
+        return 0;
+    }
 }

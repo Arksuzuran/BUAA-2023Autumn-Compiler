@@ -71,6 +71,7 @@ public class Alloca extends Instruction{
         // 记录 分配出指向类型那么多的空间
         int newSize = allocaedType.getSize();
         curFunction.addAllocaSize(newSize);
+//        System.out.println("在函数分配空间" + curFunction.getName() + ", newSize:" + newSize+ ", name:" + this);
 
         // 向当前Alloca指令对应的Mips对象内，存入分配好的空间的首地址，即一开始的allocaedSize
         // 栈在一开始就已经分配好了空间，这里只需要向上生长即可

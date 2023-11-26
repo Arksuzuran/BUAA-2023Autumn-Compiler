@@ -45,11 +45,11 @@ public class MipsBranch extends MipsInstruction {
 
     @Override
     public String toString() {
-        if (src1 == null) {
+        if (getSrc(1) == null) {
             return "j\t" + target.getName() + "\n";
         }
         else {
-            return "b" + condType + "\t" + src1 + ",\t" + src2 + ",\t" + target.getName() + "\n";
+            return "b" + condType + "\t" + getSrc(1) + ",\t" + getSrc(2) + ",\t" + target.getName() + "\n";
         }
     }
 }

@@ -11,8 +11,8 @@ public class Config {
 
     // ============== 输出配置开关 ================、
     // 当前是否正在本地测试（false提交时用，true本地测试用）
-    public static boolean atLocalTest = true;
-//    public static boolean atLocalTest = false;
+//    public static boolean atLocalTest = true;
+    public static boolean atLocalTest = false;
     // 是否输出词法分析结果
     public static boolean outputLexicalAnalysis = false;
     // 是否输出语法分析结果
@@ -23,10 +23,12 @@ public class Config {
     public static boolean outputIr = true;
     // 是否输出目标代码
     public static boolean outputMIPS = true;
+    // 是否开启控制台的debug输出
+    public static boolean debugging = false;
 
     // ============== 本地测试路径 ================
     // 输入文件路径
-    public static String localInputFilePath = rootPath + "/testcases/testfile1.txt";
+    public static String localInputFilePath = rootPath + "/testcases/testfile3.txt";
     // 默认输出文件路径
     public static String localOutputFilePath = rootPath + "/testcases/output.txt";
     // 错误处理输出文件路径

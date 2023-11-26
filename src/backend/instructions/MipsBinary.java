@@ -99,7 +99,7 @@ public class MipsBinary extends MipsInstruction {
     public String toString() {
         // 根据第二操作数是否为立即数，指令也不同
         // 立即数，选取相应带立即数i的指令
-        if (src2 instanceof MipsImm) {
+        if (getSrc(2) instanceof MipsImm) {
             String instr;
             switch (type) {
                 case ADDU -> instr = "addiu";
@@ -107,30 +107,30 @@ public class MipsBinary extends MipsInstruction {
                 case SLTU -> instr = "sltiu";
                 default -> instr = type + "i";
             }
-            return instr + "\t" + dst + ",\t" + src1 + ",\t" + src2 + "\n";
+            return instr + "\t" + dst + ",\t" + getSrc(1) + ",\t" + getSrc(2) + "\n";
         }
         // 非立即数
         switch (type) {
             case SMMUL -> {
                 // 	(HI, LO) ← src1 × src2
                 //  dst ← HI
-                return "mult\t" + src1 + ",\t" + src2 + "\n\t" +
+                return "mult\t" + getSrc(1) + ",\t" + getSrc(2) + "\n\t" +
                         "mfhi\t" + dst + "\n";
             }
             case DIV -> {
                 //  (HI, LO) ← rs / rt
                 //   rd ← LO
-                return "div\t" + src1 + ",\t" + src2 + "\n\t" +
+                return "div\t" + getSrc(1) + ",\t" + getSrc(2) + "\n\t" +
                         "mflo\t" + dst + "\n";
             }
             case SMMADD -> {
                 // {HI, LO}<-{HI, LO}+ rs x rt
                 // dst ← HI
-                return "madd\t" + src1 + ",\t" + src2 + "\n\t" +
+                return "madd\t" + getSrc(1) + ",\t" + getSrc(2) + "\n\t" +
                         "mfhi\t" + dst + "\n";
             }
             default -> {
-                return type + "\t" + dst + ",\t" + src1 + ",\t" + src2 + "\n";
+                return type + "\t" + dst + ",\t" + getSrc(1) + ",\t" + getSrc(2) + "\n";
             }
         }
     }

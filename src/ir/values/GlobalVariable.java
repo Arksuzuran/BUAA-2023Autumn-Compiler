@@ -62,7 +62,7 @@ public class GlobalVariable extends User{
         MipsGlobalVariable mipsGlobalVariable = null;
         // 无初始值错误
         if(initValue == null){
-            System.out.println("GlobalVariable：initValue == null");
+            System.out.println("[buildMips] GlobalVariable：initValue == null");
         }
         // 未初始化的int数组
         else if(initValue instanceof ZeroInitializer){

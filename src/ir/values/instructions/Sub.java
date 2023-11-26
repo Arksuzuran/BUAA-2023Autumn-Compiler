@@ -51,9 +51,9 @@ public class Sub extends AresInstruction{
         // op2 是常数，op1不是常数
         // 借用addiu 代替：op1 + (-op2)
         // 需要手动调用buildOperand内的一个分支，将-imm2送进去，以构造-op2
-        else if (op1 instanceof ConstInt) {
+        else if (op2 instanceof ConstInt) {
             int imm2 = IrTool.getValueOfConstInt(op2);
-            src1 = MipsBuilder.buildOperand(op2, false, Mc.curIrFunction, getParent());
+            src1 = MipsBuilder.buildOperand(op1, false, Mc.curIrFunction, getParent());
             src2 = MipsBuilder.buildImmOperand(-imm2, true, Mc.curIrFunction, getParent());
             MipsBuilder.buildBinary(MipsBinary.BinaryType.ADDU, dst, src1, src2, getParent());
         }

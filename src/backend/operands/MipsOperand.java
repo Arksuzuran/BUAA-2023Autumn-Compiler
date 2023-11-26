@@ -22,8 +22,7 @@ public abstract class MipsOperand {
      * @return 当这个寄存器是物理寄存器，而且是没有被分配的（就是没有被着色的），着色只会发生在着色环节
      * 这么看上去，似乎这个东西是区分物理寄存器和其他东西的一个方法
      */
-    public boolean needsColor()
-    {
+    public boolean needsColor() {
         return false;
     }
 

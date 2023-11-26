@@ -20,6 +20,6 @@ public class MipsCompare extends MipsInstruction{
 
     @Override
     public String toString() {
-        return "s" + type + "\t" + dst + ",\t" + src1 + ",\t" + src2 + "\n";
+        return "s" + type + "\t" + dst + ",\t" + getSrc(1) + ",\t" + getSrc(2) + "\n";
     }
 }

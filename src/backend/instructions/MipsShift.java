@@ -31,8 +31,8 @@ public class MipsShift extends MipsInstruction {
         if(type.equals(ShiftType.SRA)){
             instr = "sra";
         } else if(type.equals(ShiftType.SRL)){
-            instr = "sr";
+            instr = "srl";
         }
-        return instr + "\t" + getDst() + ",\t" + getSrc1() + ",\t" + shift + "\n";
+        return instr + "\t" + getDst() + ",\t" + getSrc(1) + ",\t" + shift + "\n";
     }
 }

@@ -1,6 +1,7 @@
 package backend.operands;
 
 import java.util.HashSet;
+import java.util.Objects;
 
 /**
  * @Description TODO
@@ -28,6 +29,10 @@ public class MipsRealReg extends MipsOperand{
     }
     public MipsRealReg(int index, boolean isAllocated) {
         this.type = RegType.getRegType(index);
+        this.isAllocated = isAllocated;
+    }
+    public MipsRealReg(RegType type, boolean isAllocated) {
+        this.type = type;
         this.isAllocated = isAllocated;
     }
 
@@ -59,6 +64,10 @@ public class MipsRealReg extends MipsOperand{
         return isAllocated;
     }
 
+    public void setAllocated(boolean allocated)
+    {
+        isAllocated = allocated;
+    }
     /**
      * 对于一个物理寄存器，只要他还没有被分配，那么就是需要着色的
      */
@@ -71,5 +80,17 @@ public class MipsRealReg extends MipsOperand{
     @Override
     public String toString() {
         return "$" + type.getName();
+    }
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        MipsRealReg reg = (MipsRealReg) o;
+        return type == reg.type && isAllocated == reg.isAllocated;
+    }
+    @Override
+    public int hashCode()
+    {
+        return Objects.hash(type.index, isAllocated);
     }
 }

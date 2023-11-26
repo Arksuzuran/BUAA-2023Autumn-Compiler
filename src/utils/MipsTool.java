@@ -1,17 +1,44 @@
 package utils;
 
+import backend.instructions.MipsInstruction;
+import backend.operands.MipsOperand;
+import backend.operands.MipsRealReg;
+import backend.operands.MipsVirtualReg;
+
+import java.util.LinkedList;
+import java.util.ListIterator;
+
 /**
  * @Description TODO
  * @Author
  * @Date 2023/11/19
  **/
 public class MipsTool {
-    public static boolean is16BitImm(int imm, boolean signExtend) {
-        if (signExtend) {
-            return Short.MIN_VALUE <= imm && imm <= Short.MAX_VALUE;
+    public static boolean isReg(MipsOperand op){
+        return op instanceof MipsRealReg || op instanceof MipsVirtualReg;
+    }
+
+    // 在指定元素后插入新元素的方法
+    public static void insertAfter(LinkedList<MipsInstruction> list, MipsInstruction target, MipsInstruction newElement) {
+        ListIterator<MipsInstruction> iterator = list.listIterator();
+        while (iterator.hasNext()) {
+            if (iterator.next().equals(target)) {
+                iterator.add(newElement);
+                System.out.println("进入替换函数a");
+                break;
+            }
         }
-        else {
-            return 0 <= imm && imm <= (Short.MAX_VALUE - Short.MIN_VALUE);
+    }
+    // 在指定元素前插入新元素的方法
+    public static void insertBefore(LinkedList<MipsInstruction> list, MipsInstruction target, MipsInstruction newElement) {
+        ListIterator<MipsInstruction> iterator = list.listIterator();
+        while (iterator.hasNext()) {
+            if (iterator.next().equals(target)) {
+                iterator.previous(); // 回到目标元素的前一个位置
+                iterator.add(newElement);
+                System.out.println("进入替换函数b");
+                break;
+            }
         }
     }
 }

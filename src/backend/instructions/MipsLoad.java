@@ -20,12 +20,14 @@ public class MipsLoad extends MipsInstruction {
     }
 
     public MipsOperand getBase() {
-        return getSrc1();
+        return getSrc(1);
     }
     public MipsOperand getOffset() {
-        return getSrc2();
+        return getSrc(2);
     }
-
+    public void setOffset(MipsOperand offset) {
+        setSrc(2, offset);
+    }
     @Override
     public String toString() {
         return "lw\t" + getDst() + ",\t" + getOffset() + "(" + getBase() + ")\n";

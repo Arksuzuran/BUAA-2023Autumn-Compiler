@@ -93,7 +93,7 @@ public class Call extends Instruction {
             if (i < 4) {
                 src = MipsBuilder.buildOperand(irArg, true, Mc.curIrFunction, getParent());
                 MipsMove move = MipsBuilder.buildMove(new MipsRealReg("a" + i), src, getParent());
-                // 加入use，保护这些寄存器不被消除
+                // 加入use，保护寄存器分配时不消除move
                 call.addUseReg(move.getDst());
             }
             // 后面的参数先存进寄存器里，再store进内存

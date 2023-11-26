@@ -10,4 +10,10 @@ public class LabelType extends ValueType{
     public String toString(){
         return "label";
     }
+
+    @Override
+    public int getSize() {
+        System.out.println("[LabelTypeSize] 非法获取Label类型的Size！");
+        return 0;
+    }
 }

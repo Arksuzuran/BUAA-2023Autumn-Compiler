@@ -23,4 +23,14 @@ public class PointerType extends ValueType {
     public String toString(){
         return pointingType + "*";
     }
+
+    /**
+     * 指针的大小为4
+     * BUG HERE!!
+     */
+    @Override
+    public int getSize()
+    {
+        return 4;
+    }
 }

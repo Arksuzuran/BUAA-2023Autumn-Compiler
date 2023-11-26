@@ -1,5 +1,6 @@
 package utils;
 
+import backend.operands.MipsOperand;
 import ir.types.ArrayType;
 import ir.types.PointerType;
 import ir.types.ValueType;
@@ -123,9 +124,11 @@ public class IrTool {
     }
 
     public static void main(String[] args) {
-        String s = "5929\\0a";
-//        s.replace("\\n", "666");
-        System.out.println(getFormatStringLen(s));
-        System.out.println(s);
+        ArrayList<Integer> src = new ArrayList<>(){{
+            add(1);
+            add(2);
+            add(3);
+        }};
+        ArrayList<Integer> dst = new ArrayList<>();
     }
 }

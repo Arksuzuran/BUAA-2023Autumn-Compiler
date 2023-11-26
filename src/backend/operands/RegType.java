@@ -2,6 +2,7 @@ package backend.operands;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Objects;
 
 public enum RegType {
     ZERO(0, "zero"),
@@ -87,6 +88,7 @@ public enum RegType {
         regsCanAlloca.remove(ZERO);
         regsCanAlloca.remove(AT);
         regsCanAlloca.remove(SP);
+        regsCanAlloca.remove(A0);
     }
     RegType(int index, String name){
         this.index = index;

@@ -37,12 +37,14 @@ public class Sdiv extends AresInstruction {
     public void buildMips() {
         MipsOperand src1 = MipsBuilder.buildOperand(getOp(1), false, Mc.curIrFunction, getParent());
         MipsBlock mipsBlock = Mc.b(getParent());
-        Value op1 = getOp(1);
+
+        MipsOperand dst = MipsBuilder.buildOperand(this, false, Mc.curIrFunction, getParent());
         Value op2 = getOp(2);
+
         // 除数是常数，可以进行常数优化
-        if (op1 instanceof ConstInt) {
+        if (op2 instanceof ConstInt) {
             // 获得除数常量
-            int imm = IrTool.getValueOfConstInt(op1);
+            int imm = IrTool.getValueOfConstInt(op2);
             // 除数为 1 ，无需生成中间代码，,将 ir 映射成被除数，直接记录即可
             if (imm == 1) {
                 Mc.addOperandMapping(this, src1);
@@ -56,15 +58,13 @@ public class Sdiv extends AresInstruction {
                 }
                 // 先前没有计算结果，需要手动进行计算
                 else {
-                    MipsOperand dst = MipsBuilder.buildOperand(this, false, Mc.curIrFunction, getParent());
                     doDivConstOpt(dst, src1, imm);
                 }
             }
         }
         // 无法常数优化, 直接进行除法
         else {
-            MipsOperand dst = MipsBuilder.buildOperand(this, false, Mc.curIrFunction, getParent());
-            MipsOperand src2 = MipsBuilder.buildOperand(getOp(2), false, Mc.curIrFunction, getParent());
+            MipsOperand src2 = MipsBuilder.buildOperand(op2, false, Mc.curIrFunction, getParent());
             MipsBuilder.buildBinary(MipsBinary.BinaryType.DIV, dst, src1, src2, getParent());
         }
     }
@@ -73,6 +73,7 @@ public class Sdiv extends AresInstruction {
      * 常数优化乘法： dst = src / imm
      */
     private void doDivConstOpt(MipsOperand dst, MipsOperand src, int imm) {
+//        System.out.println("imm: " + imm);
         // 这里之所以取 abs，是在之后如果是负数，那么会有一个取相反数的操作
         int abs = Math.abs(imm);
         // 除数为-1，取相反数dst = 0 - src, 生成结束

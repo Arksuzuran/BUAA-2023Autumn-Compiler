@@ -115,12 +115,12 @@ public class GetElementPtr extends Instruction {
      */
     private void handleDim(MipsOperand dst, MipsOperand mid, MipsOperand base, Value irOffset, ValueType elementType, boolean dim1Opt){
         int elementSize = elementType.getSize();
-        int offsetIndex = IrTool.getValueOfConstInt(irOffset);
-        // 低一维偏移的具体值
-        int totalOffset = elementSize * offsetIndex;
 
         // 为常数
         if (irOffset instanceof ConstInt) {
+            int offsetIndex = IrTool.getValueOfConstInt(irOffset);
+            // 低一维偏移的具体值
+            int totalOffset = elementSize * offsetIndex;
             // 不存在偏移，直接将this映射到base的op即可
             if (dim1Opt && totalOffset == 0){
                 Mc.addOperandMapping(this, base);
@@ -136,8 +136,8 @@ public class GetElementPtr extends Instruction {
             // 利用mid寄存器周转
             // mid = offset = elementSize * offset
             MipsBuilder.buildOptMul(mid, irOffset, new ConstInt(32, elementSize), Mc.curIrFunction, getParent());
-            // dst = dst + mid
-            MipsBuilder.buildBinary(MipsBinary.BinaryType.ADDU, dst, dst, mid, getParent());
+            // dst = base + mid
+            MipsBuilder.buildBinary(MipsBinary.BinaryType.ADDU, dst, base, mid, getParent());
         }
     }
 

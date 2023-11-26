@@ -130,6 +130,7 @@ public class MipsFunction {
             int newOffset = argOffset.getValue() + totalStackSize;
             argOffset.setValue(newOffset);
         }
+//        System.out.println("重建函数栈" + getName() + ", stackRegSize:" + stackRegSize + ", allocaSize:" + allocaSize);
     }
 
     // 已被遍历过的block
@@ -173,10 +174,10 @@ public class MipsFunction {
                 MipsBuilder.buildBranch(falseSucBlock, curBlock);
             }
             // 对两个后继块进行序列化
-            if (!serializedBlocks.contains(curBlock.getFalseSucBlock())) {
+            if (!serializedBlocks.contains(falseSucBlock)) {
                 blockSerialize(falseSucBlock);
             }
-            if (!serializedBlocks.contains(curBlock.getTrueSucBlock())) {
+            if (!serializedBlocks.contains(trueSucBlock)) {
                 blockSerialize(trueSucBlock);
             }
         }

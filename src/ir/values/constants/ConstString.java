@@ -13,8 +13,12 @@ import utils.IrTool;
  * @Date 2023/11/16
  **/
 public class ConstString extends Constant{
+    /**
+     * 构建Mips代码时调用
+     * 将llvm中的\0a转换为\n
+     */
     public String getContent() {
-        return content;
+        return content.replace("\\0a", "\\n");
     }
 
     private String content;

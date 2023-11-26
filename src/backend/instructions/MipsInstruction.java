@@ -2,6 +2,8 @@ package backend.instructions;
 
 import backend.operands.MipsOperand;
 import backend.operands.MipsRealReg;
+import backend.operands.MipsVirtualReg;
+import utils.MipsTool;
 
 import java.util.ArrayList;
 
@@ -22,16 +24,27 @@ public class MipsInstruction {
     private final ArrayList<MipsOperand> useRegs = new ArrayList<>();
 
     protected MipsOperand dst = null;     //
-    protected MipsOperand src1 = null;    //
-    protected MipsOperand src2 = null;    //
+    protected ArrayList<MipsOperand> src = new ArrayList<>(){{
+        add(null);
+        add(null);
+        add(null);
+    }};
 
+    /**
+     * 不含dst的三操作数指令构造函数
+     */
+    public MipsInstruction(MipsOperand src1, MipsOperand src2, MipsOperand src3, Boolean noDst) {
+        setSrc(1, src1);
+        setSrc(2, src2);
+        setSrc(3, src3);
+    }
     /**
      * 三操作数指令构造函数
      */
     public MipsInstruction(MipsOperand dst, MipsOperand src1, MipsOperand src2) {
         setDst(dst);
-        setSrc1(src1);
-        setSrc2(src2);
+        setSrc(1, src1);
+        setSrc(2, src2);
     }
     /**
      * 双操作数指令构造函数
@@ -39,7 +52,7 @@ public class MipsInstruction {
      */
     public MipsInstruction(MipsOperand dst, MipsOperand src1) {
         setDst(dst);
-        setSrc1(src1);
+        setSrc(1, src1);
     }
     public MipsInstruction() {}
 
@@ -49,51 +62,38 @@ public class MipsInstruction {
         }
         this.dst = dst;
     }
-    public void setSrc1(MipsOperand src1) {
-        if(src1 != null){
-            addUseReg(this.src1, src1);
-        }
-        this.src1 = src1;
-    }
-    public void setSrc2(MipsOperand src2) {
-        if(src2 != null){
-            addUseReg(this.src2, src2);
-        }
-        this.src2 = src2;
-    }
-    public MipsOperand getDst() {
-        return dst;
-    }
-    public MipsOperand getSrc1() {
-        return src1;
-    }
-    public MipsOperand getSrc2() {
-        return src2;
-    }
 
+    /**
+     * 编号从1开始
+     */
+    public void setSrc(int index, MipsOperand src) {
+        if(src != null){
+            addUseReg(this.src.get(index - 1), src);
+        }
+        this.src.set(index - 1, src);
+    }
     // 对于使用、定义寄存器，都是对物理寄存器而言的
     /**
-     * 登记先使用物理寄存器
+     * 不带替换的登记先使用寄存器
      */
     public void addUseReg(MipsOperand reg) {
-        if (reg instanceof MipsRealReg) {
+        if (MipsTool.isReg(reg)) {
             useRegs.add(reg);
         }
     }
     /**
-     * 登记先定义物理寄存器
+     * 不带替换的登记先定义寄存器
      */
     public void addDefReg(MipsOperand reg) {
-        if (reg instanceof MipsRealReg) {
+        if (MipsTool.isReg(reg)) {
             defRegs.add(reg);
         }
     }
-
     /**
      * 带替换的登记先定义物理寄存器
      */
     public void addDefReg(MipsOperand oldReg, MipsOperand newReg) {
-        if (oldReg instanceof MipsRealReg) {
+        if (MipsTool.isReg(oldReg)) {
             defRegs.remove(oldReg);
         }
         addDefReg(newReg);
@@ -102,7 +102,7 @@ public class MipsInstruction {
      * 带替换的登记先使用物理寄存器
      */
     public void addUseReg(MipsOperand oldReg, MipsOperand newReg) {
-        if (oldReg instanceof MipsRealReg) {
+        if (MipsTool.isReg(oldReg)) {
             useRegs.remove(oldReg);
         }
         addUseReg(newReg);
@@ -111,20 +111,24 @@ public class MipsInstruction {
         if (dst != null && dst.equals(oldReg)) {
             setDst(newReg);
         }
-        if (src1 != null && src1.equals(oldReg)) {
-            setSrc1(newReg);
-        }
-        if (src2 != null && src2.equals(oldReg)) {
-            setSrc2(newReg);
-        }
+        replaceUseReg(oldReg, newReg);
     }
     public void replaceUseReg(MipsOperand oldReg, MipsOperand newReg) {
-        if (src1 != null && src1.equals(oldReg)) {
-            setSrc1(newReg);
+        for(int i=0; i<src.size(); i++){
+            MipsOperand reg = src.get(i);
+            if(reg != null && reg.equals(oldReg)){
+                setSrc(i + 1, newReg);
+            }
         }
-        if (src2 != null && src2.equals(oldReg)) {
-            setSrc2(newReg);
-        }
+    }
+    public MipsOperand getDst() {
+        return dst;
+    }
+    /**
+     * 编号从1开始！
+     */
+    public MipsOperand getSrc(int index) {
+        return src.get(index - 1);
     }
 
     /**
@@ -134,7 +138,6 @@ public class MipsInstruction {
     public boolean hasNoCond() {
         return true;
     }
-
     /**
      * 表示因此改变的寄存器
      * 可能要比 define 多一些，这是因为寄存器分配只是分析变量
@@ -152,7 +155,6 @@ public class MipsInstruction {
 
         return readRegs;
     }
-
     public ArrayList<MipsOperand> getDefRegs() {
         return defRegs;
     }

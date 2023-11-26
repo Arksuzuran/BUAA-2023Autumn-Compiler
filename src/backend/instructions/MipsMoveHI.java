@@ -36,7 +36,7 @@ public class MipsMoveHI extends MipsInstruction {
     @Override
     public String toString() {
         if (type == MoveHIType.MTHI) {
-            return "mthi\t" + getSrc1() + "\n";
+            return "mthi\t" + getSrc(1) + "\n";
         }
         else {
             return "mfhi\t" + getDst() + "\n";

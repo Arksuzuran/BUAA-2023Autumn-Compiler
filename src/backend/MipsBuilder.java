@@ -32,7 +32,7 @@ public class MipsBuilder {
         irModule.buildMips();
         // 寄存器分配
         RegBuilder regBuilder = new RegBuilder();
-        regBuilder.process();
+        regBuilder.buildRegs();
         return MipsModule.getInstance();
     }
 
@@ -157,6 +157,14 @@ public class MipsBuilder {
 //        ret.addUseReg(null, MipsRealReg.V0);
         Mc.b(irBlock).addInstruction(ret);
         return ret;
+    }
+
+    /**
+     * 创建注释
+     */
+    public static void buildAnno(String content, BasicBlock irBlock){
+        MipsAnnotation anno = new MipsAnnotation(content);
+        Mc.b(irBlock).addInstruction(anno);
     }
 
 

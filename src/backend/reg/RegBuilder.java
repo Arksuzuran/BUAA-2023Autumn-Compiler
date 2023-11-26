@@ -1,15 +1,14 @@
 package backend.reg;
 
 import backend.instructions.MipsInstruction;
-import backend.instructions.MipsInstructionuction;
+import backend.instructions.MipsLoad;
 import backend.instructions.MipsMove;
-import backend.operands.MipsOperand;
-import backend.operands.MipsRealReg;
-import backend.operands.MipsVirtualReg;
-import backend.operands.RegType;
+import backend.instructions.MipsStore;
+import backend.operands.*;
 import backend.parts.MipsBlock;
 import backend.parts.MipsFunction;
 import backend.parts.MipsModule;
+import utils.MipsTool;
 import utils.Pair;
 
 import java.util.*;
@@ -21,14 +20,14 @@ import java.util.stream.Collectors;
  * @Date 2023/11/22
  **/
 public class RegBuilder {
-    
+
     private final MipsModule mipsModule = MipsModule.getInstance();
 
     private MipsFunction curFunction;
     /**
      * 在保存现场时需要保存的寄存器数量
      */
-    private final int K = RegType.regsNeedSaving.size();
+    private final int K = RegType.regsCanAlloca.size();
     /**
      * 每个基本块对应的活跃变量分析信息
      */
@@ -81,7 +80,7 @@ public class RegBuilder {
     /**
      * 已经合并的传送指令集合
      */
-    private HashSet<MipsInstructionuction> coalescedMoves;
+    private HashSet<MipsInstruction> coalescedMoves;
     /**
      * 源操作数和目标操作数冲突的传送指令集合
      */
@@ -99,17 +98,9 @@ public class RegBuilder {
      */
     private MipsVirtualReg vReg = null;
     /**
-     * 第一次使用新的寄存器的 store 指令，因为替换是一个先 store，后 load 的过程
-     */
-    private ArrayList<MipsInstructionuction> firstUseNode = null;
-    /**
-     * 最后一次使用 load 的指令
-     */
-    private ArrayList<MipsInstructionuction> lastDefNode = null;
-    /**
      * 存储操作数和所在的基本块对应的循环深度
      */
-    private HashMap<MipsOperand, Integer> loopDepths = new HashMap<>();
+    private final HashMap<MipsOperand, Integer> loopDepths = new HashMap<>();
 
     /**
      * 初始化记录状态的数据结构
@@ -135,7 +126,7 @@ public class RegBuilder {
         constrainedMoves = new HashSet<>();
 
         degree = new HashMap<>();
-        // 对于物理寄存器，需要度无限大
+        // 物理寄存器需要度无限大
         for (int i = 0; i < 32; i++) {
             degree.put(new MipsRealReg(i), Integer.MAX_VALUE);
         }
@@ -150,10 +141,10 @@ public class RegBuilder {
     private void addEdge(MipsOperand u, MipsOperand v) {
         // 如果没有这条边而且这个边不是自环
         // 从上面就可以看出，adjSet 是个边的集合，边是用 pair 模拟的
-        if (!adjSet.contains(new MyPair<>(u, v)) && !u.equals(v)) {
+        if (!adjSet.contains(new Pair<>(u, v)) && !u.equals(v)) {
             // 无向边的加法
-            adjSet.add(new MyPair<>(u, v));
-            adjSet.add(new MyPair<>(v, u));
+            adjSet.add(new Pair<>(u, v));
+            adjSet.add(new Pair<>(v, u));
 
             // 操作条件都是没有被预着色
             if (!u.isPrecolored()) {
@@ -179,7 +170,7 @@ public class RegBuilder {
     private void build() {
         // 倒序遍历 block
         ArrayList<MipsBlock> blocks = curFunction.getMipsBlocks();
-        for(int i = blocks.size() - 1; i >= 0; i--){
+        for (int i = blocks.size() - 1; i >= 0; i--) {
             MipsBlock block = blocks.get(i);
             // 假设出口活跃
             // live 是一个很有意思的东西，他看似一个 block 只有一个，但是因为每条指令都更新它，所以它本质是一个指令颗粒度的东西
@@ -188,14 +179,14 @@ public class RegBuilder {
 
             // 倒序遍历 Instruction
             LinkedList<MipsInstruction> instructions = block.getInstructions();
-            for(int j = instructions.size() - 1; j >= 0; j--){
+            for (int j = instructions.size() - 1; j >= 0; j--) {
                 MipsInstruction instruction = instructions.get(j);
                 ArrayList<MipsOperand> regDef = instruction.getDefRegs();
                 ArrayList<MipsOperand> regUse = instruction.getUseRegs();
 
                 // 对于 mov 指令，需要特殊处理
                 if (instruction instanceof MipsMove move) {
-                    MipsOperand src = move.getSrc1();
+                    MipsOperand src = move.getSrc(1);
                     MipsOperand dst = move.getDst();
 
                     if (src.needsColor() && dst.needsColor()) {
@@ -208,6 +199,7 @@ public class RegBuilder {
                         moveList.get(dst).add(move);
                         // 此时是有可能被合并的
                         worklistMoves.add(move);
+//                        System.out.println("特殊处理move指令：" + move + " " + dst);
                     }
                 }
 
@@ -218,11 +210,11 @@ public class RegBuilder {
                 regDef.stream().filter(MipsOperand::needsColor).forEach(d -> live.forEach(l -> addEdge(l, d)));
 
                 // 启发式算法的依据，用于后面挑选出溢出节点
-                for (MipsOperand objReg : regDef) {
-                    loopDepths.put(objReg, block.getLoopDepth() + 1);
+                for (MipsOperand reg : regDef) {
+                    loopDepths.put(reg, block.getLoopDepth() + 1);
                 }
-                for (MipsOperand objReg : regUse) {
-                    loopDepths.put(objReg, block.getLoopDepth() + 1);
+                for (MipsOperand reg : regUse) {
+                    loopDepths.put(reg, block.getLoopDepth() + 1);
                 }
 
                 // 这里的删除是为了给前一个指令一个交代（倒序遍历），说明这个指令不再存活了（因为在这个指令被遍历了）
@@ -236,13 +228,11 @@ public class RegBuilder {
     /**
      * 遍历所有的节点（错，只是非预着色点）, 把这些节点分配加入不同的 workList
      * 但是预着色点依然在这里面存在
-     *
-     * @param function 待分析的函数
      */
     private void makeWorklist() {
-        // 这里似乎是在把一个函数中用到的所有虚拟寄存器都提出来，注意这里面并不包括物理寄存器（也就是预着色的点）
-        for (MipsVirReg virReg : curFunction.getUsedVirRegs()) {
-            // 如果度是大于 K 的，那么就要加入 spillWorklist 了，他们是可能发生实际溢出的
+        // 把一个函数中用到的所有虚拟寄存器都提出来
+        for (MipsVirtualReg virReg : curFunction.getUsedVirtualRegs()) {
+            // 度大于等于 K，加入 spillWorklist
             if (degree.getOrDefault(virReg, 0) >= K) {
                 spillWorklist.add(virReg);
             }
@@ -258,28 +248,33 @@ public class RegBuilder {
     }
 
     /**
-     * 这个函数从 adjList 中取出对应的点，但是有一些条件，比如 selectStack 和 coalesceNode 里的不取
-     * 因为是没有删除边的操作的, 所以对于一些节点, 比如已经删掉或者合并的, 就需要从这里去掉
-     *
-     * @param u 一个节点
-     * @return 与这个节点相连的节点组
+     * 判断一个寄存器是否为move的操作数
      */
-    private Set<MipsOperand> getAdjacent(MipsOperand u) {
-        return adjList.getOrDefault(u, new HashSet<>()).stream()
-                .filter(v -> !(selectStack.contains(v) || coalescedNodes.contains(v)))
-                .collect(Collectors.toSet());
+    private boolean moveRelated(MipsOperand u) {
+        return !nodeMoves(u).isEmpty();
     }
 
     /**
-     * 这个会根据节点取出一些 Move 指令，必须在 activeMoves 和 workListMoves 中有
-     * 至于为啥要在这个里面有, 可能是因为这两个是需要考虑的
+     * 取出 activeMoves 和 workListMoves 中的，带有u寄存器的所有move指令
      *
      * @param u 待检测的节点
      * @return mov 的集合
      */
     private Set<MipsMove> nodeMoves(MipsOperand u) {
         return moveList.getOrDefault(u, new HashSet<>()).stream()
-                .filter(objMove -> activeMoves.contains(objMove) || worklistMoves.contains(objMove))
+                .filter(move -> activeMoves.contains(move) || worklistMoves.contains(move))
+                .collect(Collectors.toSet());
+    }
+
+    /**
+     * 从 adjList 中取出与u相连的，不在 selectStack 和 coalesceNode 里的结点
+     * 因为是没有删除边的操作的, 所以对于一些节点, 比如已经删掉或者合并的, 就需要从这里去掉
+     *
+     * @return 与这个节点相连的节点组
+     */
+    private Set<MipsOperand> getAdjacent(MipsOperand u) {
+        return adjList.getOrDefault(u, new HashSet<>()).stream()
+                .filter(v -> !(selectStack.contains(v) || coalescedNodes.contains(v)))
                 .collect(Collectors.toSet());
     }
 
@@ -308,25 +303,15 @@ public class RegBuilder {
                 }));
     }
 
-
     /**
-     * 这个方法用来一个寄存器是不是 mov 指令的操作数
-     *
-     * @param u 节点
-     * @return 如果是, 那么是 true
-     */
-    private boolean moveRelated(MipsOperand u) {
-        return !nodeMoves(u).isEmpty();
-    }
-
-    /**
-     * 这里描述的是, 当简化一个节点的时候, 与其相连的节点都需要进行一定的改动
+     * 当简化一个节点的时候, 与其相连的节点都需要进行一定的改动
      * 最简单的就是降低度,
      * 此外, 随着度的降低, 有些节点会从某个 list 移动到另一个 list
      *
      * @param u 相连的节点
      */
     private void decreaseDegree(MipsOperand u) {
+//        System.out.println("decreaseDegree " + u + " get:" + degree.get(u));
         int d = degree.get(u);
         degree.put(u, d - 1);
 
@@ -343,6 +328,7 @@ public class RegBuilder {
     }
 
     /**
+     * 选择能够进行着色的点
      * 这个函数会从 simplifyWorklist 中节点，然后加入到 selectStack 中
      * 与此同时，需要修改与这个节点相关的节点的度
      */
@@ -350,14 +336,15 @@ public class RegBuilder {
         MipsOperand n = simplifyWorklist.iterator().next();
         // 从可以简化的列表中取出一个节点
         simplifyWorklist.remove(n);
-        // 从这里可以看出，selectStack 就是图着色时用的栈
+        // selectStack 就是图着色时用的栈
         selectStack.push(n);
+//        System.out.println("选择结点 " + n);
         // 把与这个删掉的点有关的点的度都降低
         getAdjacent(n).forEach(this::decreaseDegree);
     }
 
     /**
-     * alias 是别名的意思，这个说的是，对于一个合并的节点，他可以有两个名字，所以可以检索它的另一个名字
+     * 对于一个合并的节点，他可以有两个名字，所以可以检索它的另一个名字
      *
      * @param u 被合并节点
      * @return 被合并的另一个节点
@@ -395,7 +382,7 @@ public class RegBuilder {
     }
 
     /**
-     * 具教材说，这是一个合并一个预着色寄存器的时候用到的启发式函数
+     * 合并预着色寄存器的时候用到的启发式函数
      * 其中 t 是待合并的虚拟寄存器的邻接点，r 是待合并的预着色寄存器
      * 这三个条件满足一个就可以合并
      *
@@ -404,7 +391,7 @@ public class RegBuilder {
      * @return 可以合并就是 true
      */
     private boolean ok(MipsOperand t, MipsOperand r) {
-        return degree.get(t) < K || t.isPrecolored() || adjSet.contains(new MyPair<>(t, r));
+        return degree.get(t) < K || t.isPrecolored() || adjSet.contains(new Pair<>(t, r));
     }
 
     /**
@@ -429,6 +416,7 @@ public class RegBuilder {
      * @param u 待合并的节点 1
      * @param v 待合并的节点 2
      */
+    // TODO bug here
     private void combine(MipsOperand u, MipsOperand v) {
         // 这里做的是把他们从原有的 worklist 中移出
         if (freezeWorklist.contains(v)) {
@@ -436,7 +424,7 @@ public class RegBuilder {
         } else {
             spillWorklist.remove(v);
         }
-
+//        System.out.println("合并结点" + u + ", " + v);
         coalescedNodes.add(v);
         // 这里没有问题，相当于 alias 的 key 是虚拟寄存器，而 value 是物理寄存器
         alias.put(v, u);
@@ -460,7 +448,7 @@ public class RegBuilder {
     private void coalesce() {
         MipsMove objMove = worklistMoves.iterator().next();
         MipsOperand u = getAlias(objMove.getDst());
-        MipsOperand v = getAlias(objMove.getSrc());
+        MipsOperand v = getAlias(objMove.getSrc(1));
 
         // 如果 v 是物理寄存器，那么就需要交换一下，最后的结果就是如果有物理寄存器的话，那么一定是 u
         // 之所以这么操作，是因为合并也是一种着色，我们需要让合并后剩下的那个节点，是预着色点
@@ -468,6 +456,7 @@ public class RegBuilder {
             MipsOperand tmp = u;
             u = v;
             v = tmp;
+//            System.out.println("coalesce合并且交换" + objMove);
         }
 
         worklistMoves.remove(objMove);
@@ -476,21 +465,25 @@ public class RegBuilder {
         if (u.equals(v)) {
             coalescedMoves.add(objMove);
             addWorklist(u);
+//            System.out.println("执行coalesce合并1：" + objMove);
         }
         // 对应源操作数和目的操作数冲突的情况，此时的 mov 就是受到抑制的，也就是
-        else if (v.isPrecolored() || adjSet.contains(new MyPair<>(u, v))) {
+        else if (v.isPrecolored() || adjSet.contains(new Pair<>(u, v))) {
             constrainedMoves.add(objMove);
             addWorklist(u);
             addWorklist(v);
+//            System.out.println("执行coalesce合并2：" + objMove);
         }
-        //
+        // TODO HERE
         else if ((u.isPrecolored() && adjOk(v, u)) ||
                 (!u.isPrecolored() && conservative(u, v))) {
             coalescedMoves.add(objMove);
             combine(u, v);
             addWorklist(u);
+//            System.out.println("执行coalesce合并3：" + objMove + (u.isPrecolored() && adjOk(v, u)) + " " + (!u.isPrecolored() && conservative(u, v)));
         } else {
             activeMoves.add(objMove);
+//            System.out.println("执行coalesce合并4：" + objMove);
         }
     }
 
@@ -501,15 +494,15 @@ public class RegBuilder {
      * @param u 待冻结的节点
      */
     private void freezeMoves(MipsOperand u) {
-        for (MipsMove objMove : nodeMoves(u)) {
-            if (activeMoves.contains(objMove)) {
-                activeMoves.remove(objMove);
+        for (MipsMove move : nodeMoves(u)) {
+            if (activeMoves.contains(move)) {
+                activeMoves.remove(move);
             } else {
-                worklistMoves.remove(objMove);
+                worklistMoves.remove(move);
             }
 
-            frozenMoves.add(objMove);
-            MipsOperand v = getAlias(objMove.getDst()).equals(getAlias(u)) ? getAlias(objMove.getSrc()) : getAlias(objMove.getDst());
+            frozenMoves.add(move);
+            MipsOperand v = getAlias(move.getDst()).equals(getAlias(u)) ? getAlias(move.getSrc(1)) : getAlias(move.getDst());
 
             if (!moveRelated(v) && degree.getOrDefault(v, 0) < K) {
                 freezeWorklist.remove(v);
@@ -536,7 +529,6 @@ public class RegBuilder {
      */
     private void selectSpill() {
         double magicNum = 1.414;
-        // TODO 这里太慢了，要不然直接挑第一个吧，似乎可以维护一个堆
         MipsOperand m = spillWorklist.stream().max((l, r) ->
         {
             double value1 = degree.getOrDefault(l, 0).doubleValue() / Math.pow(magicNum, loopDepths.getOrDefault(l, 0));
@@ -557,30 +549,33 @@ public class RegBuilder {
         while (!selectStack.isEmpty()) {
             // 从栈上弹出一个节点
             MipsOperand n = selectStack.pop();
+//            System.out.println("assign color："+n);
             // 这里做了一个包含所有待分配颜色的数组，可以看到是对于每个弹出节点，都会有这样的一个集合，表示这个节点可能的颜色
             // 这个集合会通过与其邻接点比对而不断缩小
-            HashSet<Integer> okColors = new HashSet<>(MipsRealReg.canAllocateRegIndex);
+            HashSet<RegType> okColors = new HashSet<>(RegType.regsCanAlloca);
             // 遍历与这个弹出的节点
             for (MipsOperand w : adjList.getOrDefault(n, new HashSet<>())) {
                 MipsOperand a = getAlias(w);
                 // 如果这个邻接点是物理寄存器，那么就要移除掉
                 if (a.isAllocated() || a.isPrecolored()) {
-                    okColors.remove(((MipsRealReg) a).getIndex());
+                    okColors.remove(((MipsRealReg) a).getType());
                 }
                 // 如果邻接点是一个虚拟寄存器，而且已经被着色了
-                else if (a instanceof MipsVirReg) {
+                else if (a instanceof MipsVirtualReg) {
                     if (colored.containsKey(a)) {
                         MipsOperand color = colored.get(a);
-                        okColors.remove(((MipsRealReg) color).getIndex());
+                        okColors.remove(((MipsRealReg) color).getType());
                     }
                 }
             }
             // 如果没有备选颜色，那么就发生实际溢出
             if (okColors.isEmpty()) {
                 spilledNodes.add(n);
+//                System.out.println("发生溢出" + n);
             } else {
-                Integer color = okColors.iterator().next();
+                RegType color = okColors.iterator().next();
                 colored.put(n, new MipsRealReg(color, true));
+//                System.out.println("添加映射1: " + n + " - " + color);
             }
         }
 
@@ -594,30 +589,33 @@ public class RegBuilder {
             // 如果合并的节点里有物理寄存器，而且还是一个预着色寄存器
             if (alias.isPrecolored()) {
                 colored.put(coalescedNode, alias);
+                System.out.println("添加映射2: " + coalescedNode + " - " + alias);
             }
             // 如果全是虚拟寄存器
             else {
                 colored.put(coalescedNode, colored.get(alias));
+                System.out.println("添加映射3: "+ coalescedNode + " - " + colored.get(alias));
             }
         }
 
-        // 这里完成了替换
-        for (MyList.MyNode<MipsBlock> blockNode : func.getMipsBlocks()) {
-            MipsBlock block = blockNode.getVal();
+        // 完成替换
+        for(MipsBlock block : func.getMipsBlocks()){
+            for(MipsInstruction instruction : block.getInstructions()){
+//                System.out.println("准备进行替换: " + func.getName() + " 指令: " + instruction);
+                ArrayList<MipsOperand> defRegs = new ArrayList<>(instruction.getDefRegs());
+                ArrayList<MipsOperand> useRegs = new ArrayList<>(instruction.getUseRegs());
 
-            for (MyList.MyNode<MipsInstruction> instrEntry : block.getInstrs()) {
-                MipsInstruction instr = instrEntry.getVal();
-                ArrayList<MipsOperand> defs = new ArrayList<>(instr.getRegDef());
-                ArrayList<MipsOperand> uses = new ArrayList<>(instr.getRegUse());
-
-                for (MipsOperand def : defs) {
+                for (MipsOperand def : defRegs) {
+//                    System.out.println("defReg " + def);
                     if (colored.containsKey(def)) {
-                        instr.replaceReg(def, colored.get(def));
+//                        System.out.println("完成def替换: " + "原寄存器: " + def + " ，新寄存器: " + colored.get(def));
+                        instruction.replaceReg(def, colored.get(def));
                     }
                 }
-                for (MipsOperand use : uses) {
+                for (MipsOperand use : useRegs) {
                     if (colored.containsKey(use)) {
-                        instr.replaceReg(use, colored.get(use));
+//                        System.out.println("完成use替换: " + "原寄存器: " + use + " ，新寄存器: " + colored.get(use));
+                        instruction.replaceReg(use, colored.get(use));
                     }
                 }
             }
@@ -625,127 +623,120 @@ public class RegBuilder {
         }
     }
 
+
     /**
-     * 这个方法用于确定加入溢出 load 和 store 的 offset
-     *
-     * @param func      函数
-     * @param instrNode load 或者 store 节点
+     * 寄存器溢出替换：首次使用
      */
-    private void fixOffset(MipsFunction func, MyList.MyNode<MipsInstruction> instrNode) {
-        MipsInstruction instr = instrNode.getVal();
+    private MipsInstruction firstUseStore = null;
+    /**
+     * 寄存器溢出替换：最后一次定义
+     */
+    private MipsInstruction lastDefLoad = null;
+    /**
+     * 替换者所在的基本块的指令序列
+     */
+    private LinkedList<MipsInstruction> srcInstructions = new LinkedList<>();
+    // TODO 草率修改代码，认定load无作用，但事实上其承担着溢出寄存器在栈上的实现
+    private void checkPoint(MipsFunction func) throws Exception{
         int offset = func.getAllocaSize();
-        MipsImm objOffset = new MipsImm(offset);
-        // offset 的编码规则与之前不同
-        if (instr instanceof MipsLoad) {
-            MipsLoad objLoad = (MipsLoad) instr;
-            objLoad.setOffset(objOffset);
-        } else if (instr instanceof MipsStore) {
-            MipsStore objStore = (MipsStore) instr;
-            objStore.setOffset(objOffset);
+        MipsImm offsetImm = new MipsImm(offset);
+        // 在使用之前，插入从栈中读取的指令
+        if (firstUseStore != null) {
+            MipsLoad load = new MipsLoad(vReg, MipsRealReg.SP, offsetImm);
+            MipsTool.insertBefore(srcInstructions, firstUseStore, load);
+//            System.out.println("成功替换溢出者:" + firstUseStore + ", 新的指令：" + load);
+            firstUseStore = null;
         }
-    }
-
-    /**
-     * 用于完成将新的，处理溢出的临时变量插入到基本块中的功能
-     *
-     * @param func 函数
-     */
-    private void checkPoint(MipsFunction func) {
-        if (firstUseNode != null) {
-            MipsLoad objLoad = new MipsLoad(vReg, SP, null);
-            MyList.MyNode<MipsInstruction> objLoadNode = new MyList.MyNode<>(objLoad);
-            objLoadNode.insertBefore(firstUseNode);
-            fixOffset(func, objLoadNode);
-
-            firstUseNode = null;
+        // 在定义之后，插入存栈的指令
+        if (lastDefLoad != null) {
+            MipsStore store = new MipsStore(vReg, MipsRealReg.SP, offsetImm);
+            MipsTool.insertAfter(srcInstructions, lastDefLoad, store);
+//            System.out.println("成功替换溢出者:" + lastDefLoad + ", 新的指令：" + store);
+            lastDefLoad = null;
         }
-
-        if (lastDefNode != null) {
-            MipsStore objStore = new MipsStore(vReg, SP, null);
-            MyList.MyNode<MipsInstruction> objStoreNode = new MyList.MyNode<>(objStore);
-            objStoreNode.insertAfter(lastDefNode);
-            fixOffset(func, objStoreNode);
-
-            lastDefNode = null;
-        }
-
         vReg = null;
     }
 
-    private void rewriteProgram(MipsFunction func) {
+    // TODO 还是的采用边遍历边修改数组的老方法：直接采用int i=0进行遍历
+    /**
+     * 处理寄存器不够用（溢出），转而要在栈中存储变量的场合
+     */
+    private void rewriteProgram(MipsFunction func) throws Exception{
         for (MipsOperand n : spilledNodes) {
-            for (MyList.MyNode<MipsBlock> blockNode : func.getMipsBlocks()) {
-                MipsBlock block = blockNode.getVal();
+            System.out.println("处理溢出的结点：" + n);
 
+            // 遍历所有基本块
+            ArrayList<MipsBlock> blocks = func.getMipsBlocks();
+            for (MipsBlock block : blocks) {
                 vReg = null;
-                firstUseNode = null;
-                lastDefNode = null;
-                // cntInstr 是 block 中已经处理的指令的个数
-                int cntInstr = 0;
-                for (MyList.MyNode<MipsInstruction> instrNode : block.getInstrs()) {
-                    MipsInstruction instr = instrNode.getVal();
-                    HashSet<MipsOperand> defs = new HashSet<>(instr.getRegDef());
-                    HashSet<MipsOperand> uses = new HashSet<>(instr.getRegUse());
+                firstUseStore = null;
+                lastDefLoad = null;
 
-                    for (MipsOperand use : uses) {
+                srcInstructions = block.getInstructions();
+                // 遍历所有指令
+                int cntInstr = 0;
+                for(int i = 0; i < srcInstructions.size(); i++){
+                    MipsInstruction instruction = srcInstructions.get(i);
+
+                    // 遍历该指令内的所有 use，如果使用过当前溢出的寄存器 n，那么取消该寄存器分配，转而换为虚拟寄存器
+                    for (MipsOperand use : instruction.getUseRegs()) {
                         if (use.equals(n)) {
                             if (vReg == null) {
-                                vReg = new MipsVirReg();
-                                func.addUsedVirReg(vReg);
+                                vReg = new MipsVirtualReg();
+                                func.addUsedVirtualReg(vReg);
                             }
-                            instr.replaceReg(use, vReg);
+                            instruction.replaceReg(use, vReg);
 
-                            if (firstUseNode == null && lastDefNode == null) {
-                                firstUseNode = instrNode;
+                            if (firstUseStore == null && lastDefLoad == null) {
+                                firstUseStore = instruction;
                             }
                         }
                     }
-                    // n 是最外层遍历的实际溢出的节点
-                    // 这里说的是如果这个溢出的节点是目的寄存器
-                    for (MipsOperand def : defs) {
-                        // 这里似乎只针对第一个等于 n 的目的寄存器
-                        // 因为显然只需要一个虚拟寄存器来保存溢出节点
+                    // 遍历该指令内的所有 def，如果定义过当前溢出的寄存器 n，那么取消该寄存器分配，转而换为虚拟寄存器
+                    for (MipsOperand def : instruction.getDefRegs()) {
                         if (def.equals(n)) {
                             if (vReg == null) {
-                                vReg = new MipsVirReg();
-                                func.addUsedVirReg(vReg);
+                                vReg = new MipsVirtualReg();
+                                func.addUsedVirtualReg(vReg);
                             }
-                            instr.replaceReg(def, vReg);
-                            lastDefNode = instrNode;
+                            instruction.replaceReg(def, vReg);
+                            lastDefLoad = instruction;
                         }
                     }
-
-                    // TODO 这里其实是一个权衡，改这里会不会让时间变快
+                    cntInstr++;
                     if (cntInstr > 30) {
+                        // firstUse会在本条指令前方插入
+                        if(firstUseStore != null){
+                            i++;
+                        }
                         checkPoint(func);
                     }
-
-                    cntInstr++;
                 }
-
+                // 一轮只处理一个
                 checkPoint(func);
             }
-
             // 为这个临时变量在栈上分配空间
             func.addAllocaSize(4);
         }
     }
 
+    /**
+     * 重置所有物理寄存器为未分配状态
+     */
     private void clearRealRegState() {
         for (MipsFunction function : mipsModule.getFunctions()) {
-            for (MyList.MyNode<MipsBlock> objBlockNode : function.getMipsBlocks()) {
-                MipsBlock objBlock = objBlockNode.getVal();
-                for (MyList.MyNode<MipsInstruction> instrNode : objBlock.getInstrs()) {
-                    MipsInstruction instr = instrNode.getVal();
-                    for (MipsOperand objReg : instr.getRegDef()) {
-                        if (objReg instanceof MipsRealReg) {
-                            ((MipsRealReg) objReg).setAllocated(false);
+            for(MipsBlock block : function.getMipsBlocks()){
+                for(MipsInstruction instruction : block.getInstructions()){
+
+                    for (MipsOperand reg : instruction.getDefRegs()) {
+                        if (reg instanceof MipsRealReg) {
+                            ((MipsRealReg) reg).setAllocated(false);
                         }
                     }
 
-                    for (MipsOperand objReg : instr.getRegUse()) {
-                        if (objReg instanceof MipsRealReg) {
-                            ((MipsRealReg) objReg).setAllocated(false);
+                    for (MipsOperand reg : instruction.getUseRegs()) {
+                        if (reg instanceof MipsRealReg) {
+                            ((MipsRealReg) reg).setAllocated(false);
                         }
                     }
                 }
@@ -757,12 +748,14 @@ public class RegBuilder {
      * 进行寄存器分配
      * 入口方法
      */
-    public void process() {
+    public void buildRegs() {
         // 遍历所有函数
         for (MipsFunction function : mipsModule.getFunctions()) {
-            if(function.isLibFunc()){
+            if (function.isLibFunc()) {
+//                System.out.println("规避内联函数:" + function.getName());
                 continue;
             }
+//            System.out.println("开始分析函数 " + function.getName());
             curFunction = function;
             // 对于每个函数，进行活跃变量分析直至不再变化
             boolean finished = false;
@@ -770,14 +763,13 @@ public class RegBuilder {
                 initStatus();
                 build();
                 makeWorklist();
-
                 do {
                     if (!simplifyWorklist.isEmpty()) {
                         simplify();
                     }
-                    if (!worklistMoves.isEmpty()) {
-                        coalesce();
-                    }
+//                    if (!worklistMoves.isEmpty()) {
+//                        coalesce();
+//                    }
                     if (!freezeWorklist.isEmpty()) {
                         freeze();
                     }
@@ -788,15 +780,20 @@ public class RegBuilder {
                         freezeWorklist.isEmpty() && spillWorklist.isEmpty()));
                 assignColors(function);
 
-                // 这里看一下实际溢出的节点
+                // 实际溢出的节点
                 if (spilledNodes.isEmpty()) {
                     finished = true;
                 }
                 // 存在实际溢出的点
                 else {
-                    rewriteProgram(function);
+                    try{
+                        rewriteProgram(function);
+                    } catch (Exception e){
+                        System.out.println("[RewriteProgramException] " + e);
+                    }
                 }
             }
+//            System.out.println("寄存器分配执行完成 " + function.getName());
         }
 
         // 因为在 color 的时候，会把 isAllocated 设置成 true，这个函数的功能就是设置成 false
@@ -804,7 +801,7 @@ public class RegBuilder {
         clearRealRegState();
 
         for (MipsFunction function1 : mipsModule.getFunctions()) {
-            if(function1.isLibFunc()){
+            if (function1.isLibFunc()) {
                 continue;
             }
             function1.rebuildStack();

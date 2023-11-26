@@ -94,6 +94,7 @@ public class Module extends Value{
         for (Function irFunction : functions){
             // 构建函数对象
             MipsFunction mipsFunction = new MipsFunction(irFunction.getName(), irFunction.isLibFunc());
+
             Mc.addFunctionMapping(irFunction, mipsFunction);
             MipsModule.addFunction(mipsFunction);
 

@@ -29,7 +29,7 @@ public class MipsRet extends MipsInstruction {
         }
         // 主函数直接结束运行
         if (function.getName().equals("main")) {
-            sb.append("li\t$v0,\t10\n");
+            sb.append("\tli\t$v0,\t10\n");
             sb.append("\tsyscall\n\n");
         }
         // 非主函数，需要恢复现场
@@ -41,7 +41,7 @@ public class MipsRet extends MipsInstruction {
                 stackOffset -= 4;
             }
             // 跳转返回
-            sb.append("jr\t$ra\n");
+            sb.append("\tjr\t$ra\n");
         }
 
         return sb.toString();
