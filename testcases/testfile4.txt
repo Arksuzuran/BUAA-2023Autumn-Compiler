@@ -1,17 +1,77 @@
-int main(){
-    int a1=1,a2=1;
-    int n=10,i=1,temp;
-    for(i=1;i<n+1;i=i+1){
-        temp=a2;
-        a2=a1+a2;
-        a1=temp;
-        if(i%2==1){
-            continue;
-        }
-        printf("round %d: %d\n",i,a1);
-        if(i>19){
-            break;
-        }
+int defn(){
+    return 4;
+}
+
+//简单函数调用
+int defn1(int a){
+    return a;
+}
+
+int defn2(int a,int b){
+    return a + b;
+}
+
+//多变量函数调用
+int defn3(int a,int b,int c,int d,int e,int f,int g,int h,int i,int j,int k,int l,int m,int n,int o){
+    return a + b + c + d + e + f + g + h + i + j + k + l + m + n + o;
+}
+
+//数组变量函数调用
+int defn4(int a[]){
+    return a[0];
+}
+
+int defn5(int a[]){
+    return a[0] + a[1];
+}
+
+int defn6(int a[], int b[]){
+    return a[0] + a[1] + b[0] + b[1];
+}
+
+//递归函数调用
+int defn7(int a){
+    if(a <= 0){
+        return 0;
     }
+    else{
+        return a + defn7(a - 1);
+    }
+        return 0;
+}
+
+
+int fibo(int a){
+    if(a <= 2){
+        return 1;
+    }
+    else{
+        return fibo(a - 1) + fibo(a - 2);
+    }
+    return 0;
+}
+
+
+int main(){
+    int a = defn();
+    int b = defn1(1);
+    int c = defn2(1,2);
+    int d = defn3(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15);
+    int e[10] = {1,2,3,4,5,6,7,8,9,10};
+    int f = defn4(e);
+    int g = defn5(e);
+    int h[10] = {1,2,3,4,5,6,7,8,9,10};
+    int i = defn6(e,h);
+    int j = defn7(10);
+    int k = fibo(10);
+    printf("a = %d\n",a);
+    printf("b = %d\n",b);
+    printf("c = %d, d = %d\n",c,d);
+    printf("e = %d\n",e[0]);
+    printf("f = %d\n",f);
+    printf("g = %d\n",g);
+    printf("h = %d, i = %d\n",h[0],i);
+    printf("j = %d\n",j);
+    printf("k = %d\n",k);
     return 0;
 }

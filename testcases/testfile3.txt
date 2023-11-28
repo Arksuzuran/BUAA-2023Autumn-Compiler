@@ -1,7 +1,6 @@
 int main(){
-    int a = 1;
-    int b = 2;
-    int c = 3;
-    printf("%d%d%d",a, b, c);
+    int a;
+    a=getint();
+    printf("hello:%d");;；
     return 0;
 }

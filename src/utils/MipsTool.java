@@ -24,7 +24,7 @@ public class MipsTool {
         while (iterator.hasNext()) {
             if (iterator.next().equals(target)) {
                 iterator.add(newElement);
-                System.out.println("进入替换函数a");
+//                System.out.println("[insertAfter] " + target + ", " + newElement);
                 break;
             }
         }
@@ -36,7 +36,7 @@ public class MipsTool {
             if (iterator.next().equals(target)) {
                 iterator.previous(); // 回到目标元素的前一个位置
                 iterator.add(newElement);
-                System.out.println("进入替换函数b");
+//                System.out.println("[insertBefore] " + target + ", " + newElement);
                 break;
             }
         }
