@@ -1,11 +1,10 @@
-package backend.reg;
+package backend.opt;
 
 import backend.instructions.MipsInstruction;
 import backend.operands.MipsOperand;
 import backend.parts.MipsBlock;
 import backend.parts.MipsFunction;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 

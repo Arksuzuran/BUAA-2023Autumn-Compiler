@@ -88,6 +88,10 @@ public class MipsBinary extends MipsInstruction {
         }
     }
 
+    public BinaryType getType() {
+        return type;
+    }
+
     private final BinaryType type;
 
     public MipsBinary(BinaryType type, MipsOperand dst, MipsOperand src1, MipsOperand src2) {

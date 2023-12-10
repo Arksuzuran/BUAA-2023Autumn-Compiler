@@ -16,7 +16,7 @@ public class MipsBlock {
     /**
      * 指令列表
      */
-    private final LinkedList<MipsInstruction> instructions = new LinkedList<>();
+    private LinkedList<MipsInstruction> instructions = new LinkedList<>();
 
     private int loopDepth = 0;
     // 如果最后一条指令是有条件跳转指令，直接后继块。false指条件跳转中不满足条件下继续执行的基本块
@@ -66,6 +66,9 @@ public class MipsBlock {
     // ======= 指令序列 ========
     public LinkedList<MipsInstruction> getInstructions() {
         return instructions;
+    }
+    public void setInstructions(LinkedList<MipsInstruction> instructions) {
+        this.instructions = instructions;
     }
     public void addInstruction(MipsInstruction instruction){
         instructions.add(instruction);

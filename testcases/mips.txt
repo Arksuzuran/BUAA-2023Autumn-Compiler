@@ -55,7 +55,6 @@ FORMAT_STRING_11:
 main:
 	add	$sp,	$sp,	-172
 b0_15:
-	addiu	$t7,	$sp,	0
 	addiu	$s6,	$sp,	4
 	addiu	$s5,	$sp,	8
 	addiu	$t8,	$sp,	12
@@ -67,16 +66,13 @@ b0_15:
 	addiu	$t1,	$sp,	108
 	addiu	$t5,	$sp,	112
 	jal	defn
-	move	$v0,	$v0
 	sw	$v0,	0($t5)
 	li	$a0,	1
 	jal	defn1
-	move	$v0,	$v0
 	sw	$v0,	0($t1)
 	li	$a0,	1
 	li	$a1,	2
 	jal	defn2
-	move	$v0,	$v0
 	sw	$v0,	0($s3)
 	li	$a0,	1
 	li	$a1,	2
@@ -107,10 +103,7 @@ b0_15:
 	subiu	$sp,	$sp,	44
 	jal	defn3
 	addiu	$sp,	$sp,	44
-	move	$v0,	$v0
 	sw	$v0,	0($s2)
-	addiu	$v0,	$fp,	0
-	addiu	$v0,	$v0,	0
 	li	$t0,	1
 	sw	$t0,	0($v0)
 	addiu	$k1,	$v0,	4
@@ -140,20 +133,12 @@ b0_15:
 	addiu	$v0,	$v0,	36
 	li	$t0,	10
 	sw	$t0,	0($v0)
-	addiu	$v0,	$fp,	0
-	addiu	$v0,	$v0,	0
 	move	$a0,	$v0
 	jal	defn4
-	move	$v0,	$v0
 	sw	$v0,	0($t4)
-	addiu	$v0,	$fp,	0
-	addiu	$v0,	$v0,	0
 	move	$a0,	$v0
 	jal	defn5
-	move	$v0,	$v0
 	sw	$v0,	0($t9)
-	addiu	$k1,	$t8,	0
-	addiu	$k1,	$k1,	0
 	li	$v0,	1
 	sw	$v0,	0($k1)
 	addiu	$t0,	$k1,	4
@@ -183,182 +168,114 @@ b0_15:
 	addiu	$t0,	$k1,	36
 	li	$v0,	10
 	sw	$v0,	0($t0)
-	addiu	$t0,	$fp,	0
-	addiu	$t0,	$t0,	0
-	addiu	$v0,	$t8,	0
-	addiu	$v0,	$v0,	0
 	move	$a0,	$t0
 	move	$a1,	$v0
 	jal	defn6
-	move	$v0,	$v0
 	sw	$v0,	0($s5)
 	li	$a0,	10
 	jal	defn7
-	move	$v0,	$v0
 	sw	$v0,	0($s6)
 	li	$a0,	10
 	jal	fibo
-	move	$v0,	$v0
 	sw	$v0,	0($t7)
 	lw	$t0,	0($t5)
 	la	$v0,	FORMAT_STRING_0
-	addiu	$v0,	$v0,	0
-	addiu	$v0,	$v0,	0
 	move	$a0,	$v0
 	putstr
 	move	$a0,	$t0
 	putint
 	la	$v0,	FORMAT_STRING_1
-	addiu	$v0,	$v0,	0
-	addiu	$v0,	$v0,	0
 	move	$a0,	$v0
 	putstr
 	lw	$t0,	0($t1)
 	la	$v0,	FORMAT_STRING_2
-	addiu	$v0,	$v0,	0
-	addiu	$v0,	$v0,	0
 	move	$a0,	$v0
 	putstr
 	move	$a0,	$t0
 	putint
 	la	$v0,	FORMAT_STRING_1
-	addiu	$v0,	$v0,	0
-	addiu	$v0,	$v0,	0
 	move	$a0,	$v0
 	putstr
 	lw	$t0,	0($s3)
 	lw	$k1,	0($s2)
 	la	$v0,	FORMAT_STRING_3
-	addiu	$v0,	$v0,	0
-	addiu	$v0,	$v0,	0
 	move	$a0,	$v0
 	putstr
 	move	$a0,	$t0
 	putint
 	la	$v0,	FORMAT_STRING_4
-	addiu	$v0,	$v0,	0
-	addiu	$v0,	$v0,	0
 	move	$a0,	$v0
 	putstr
 	move	$a0,	$k1
 	putint
 	la	$v0,	FORMAT_STRING_1
-	addiu	$v0,	$v0,	0
-	addiu	$v0,	$v0,	0
 	move	$a0,	$v0
 	putstr
-	addiu	$v0,	$fp,	0
-	addiu	$v0,	$v0,	0
 	lw	$t0,	0($v0)
 	la	$v0,	FORMAT_STRING_5
-	addiu	$v0,	$v0,	0
-	addiu	$v0,	$v0,	0
 	move	$a0,	$v0
 	putstr
 	move	$a0,	$t0
 	putint
 	la	$v0,	FORMAT_STRING_1
-	addiu	$v0,	$v0,	0
-	addiu	$v0,	$v0,	0
 	move	$a0,	$v0
 	putstr
 	lw	$t0,	0($t4)
 	la	$v0,	FORMAT_STRING_6
-	addiu	$v0,	$v0,	0
-	addiu	$v0,	$v0,	0
 	move	$a0,	$v0
 	putstr
 	move	$a0,	$t0
 	putint
 	la	$v0,	FORMAT_STRING_1
-	addiu	$v0,	$v0,	0
-	addiu	$v0,	$v0,	0
 	move	$a0,	$v0
 	putstr
 	lw	$t0,	0($t9)
 	la	$v0,	FORMAT_STRING_7
-	addiu	$v0,	$v0,	0
-	addiu	$v0,	$v0,	0
 	move	$a0,	$v0
 	putstr
 	move	$a0,	$t0
 	putint
 	la	$v0,	FORMAT_STRING_1
-	addiu	$v0,	$v0,	0
-	addiu	$v0,	$v0,	0
 	move	$a0,	$v0
 	putstr
-	addiu	$v0,	$t8,	0
-	addiu	$v0,	$v0,	0
 	lw	$t0,	0($v0)
 	lw	$k1,	0($s5)
 	la	$v0,	FORMAT_STRING_8
-	addiu	$v0,	$v0,	0
-	addiu	$v0,	$v0,	0
 	move	$a0,	$v0
 	putstr
 	move	$a0,	$t0
 	putint
 	la	$v0,	FORMAT_STRING_9
-	addiu	$v0,	$v0,	0
-	addiu	$v0,	$v0,	0
 	move	$a0,	$v0
 	putstr
 	move	$a0,	$k1
 	putint
 	la	$v0,	FORMAT_STRING_1
-	addiu	$v0,	$v0,	0
-	addiu	$v0,	$v0,	0
 	move	$a0,	$v0
 	putstr
 	lw	$t0,	0($s6)
 	la	$v0,	FORMAT_STRING_10
-	addiu	$v0,	$v0,	0
-	addiu	$v0,	$v0,	0
 	move	$a0,	$v0
 	putstr
 	move	$a0,	$t0
 	putint
 	la	$v0,	FORMAT_STRING_1
-	addiu	$v0,	$v0,	0
-	addiu	$v0,	$v0,	0
 	move	$a0,	$v0
 	putstr
 	lw	$t0,	0($t7)
 	la	$v0,	FORMAT_STRING_11
-	addiu	$v0,	$v0,	0
-	addiu	$v0,	$v0,	0
 	move	$a0,	$v0
 	putstr
 	move	$a0,	$t0
 	putint
 	la	$v0,	FORMAT_STRING_1
-	addiu	$v0,	$v0,	0
-	addiu	$v0,	$v0,	0
-	move	$a0,	$v0
-	putstr
-	li	$v0,	0
-	add	$sp, 	$sp,	172
-	li	$v0,	10
-	syscall
-
 defn:
 b0_0:
-	li	$v0,	4
-		jr	$ra
 
 defn1:
 	sw	$t0,	-4($sp)
 	add	$sp,	$sp,	-8
 b0_1:
-	move	$v0,	$a0
-	addiu	$t0,	$sp,	0
-	sw	$v0,	0($t0)
-	lw	$v0,	0($t0)
-	move	$v0,	$v0
-	add	$sp, 	$sp,	8
-	lw	$t0,	-4($sp)
-	jr	$ra
 
 defn2:
 	sw	$t0,	-4($sp)
@@ -368,19 +285,9 @@ defn2:
 b0_2:
 	move	$v0,	$a1
 	move	$t0,	$a0
-	addiu	$t7,	$sp,	0
 	addiu	$k1,	$sp,	4
 	sw	$t0,	0($k1)
 	sw	$v0,	0($t7)
-	lw	$t0,	0($k1)
-	lw	$v0,	0($t7)
-	addu	$v0,	$t0,	$v0
-	move	$v0,	$v0
-	add	$sp, 	$sp,	20
-	lw	$t0,	-4($sp)
-	lw	$t7,	-8($sp)
-	lw	$k1,	-12($sp)
-	jr	$ra
 
 defn3:
 	sw	$v1,	-4($sp)
@@ -425,7 +332,6 @@ b0_3:
 	move	$gp,	$a2
 	move	$s0,	$a1
 	move	$s4,	$a0
-	addiu	$a2,	$sp,	0
 	addiu	$a3,	$sp,	4
 	addiu	$s3,	$sp,	8
 	addiu	$a1,	$sp,	12
@@ -487,50 +393,12 @@ b0_3:
 	lw	$v0,	0($s3)
 	addu	$t0,	$t0,	$v0
 	lw	$v0,	0($a3)
-	addu	$t0,	$t0,	$v0
-	lw	$v0,	0($a2)
-	addu	$v0,	$t0,	$v0
-	move	$v0,	$v0
-	add	$sp, 	$sp,	168
-	lw	$v1,	-4($sp)
-	lw	$t0,	-8($sp)
-	lw	$t1,	-12($sp)
-	lw	$t2,	-16($sp)
-	lw	$t3,	-20($sp)
-	lw	$t4,	-24($sp)
-	lw	$t5,	-28($sp)
-	lw	$t6,	-32($sp)
-	lw	$t7,	-36($sp)
-	lw	$s0,	-40($sp)
-	lw	$s1,	-44($sp)
-	lw	$s2,	-48($sp)
-	lw	$s3,	-52($sp)
-	lw	$s4,	-56($sp)
-	lw	$s5,	-60($sp)
-	lw	$s6,	-64($sp)
-	lw	$s7,	-68($sp)
-	lw	$t8,	-72($sp)
-	lw	$t9,	-76($sp)
-	lw	$k0,	-80($sp)
-	lw	$k1,	-84($sp)
-	lw	$gp,	-88($sp)
-	lw	$fp,	-92($sp)
-	lw	$ra,	-96($sp)
-	jr	$ra
 
 defn4:
 	sw	$t0,	-4($sp)
 	add	$sp,	$sp,	-8
 b0_4:
 	move	$v0,	$a0
-	addiu	$t0,	$sp,	0
-	sw	$v0,	0($t0)
-	lw	$v0,	0($t0)
-	lw	$v0,	0($v0)
-	move	$v0,	$v0
-	add	$sp, 	$sp,	8
-	lw	$t0,	-4($sp)
-	jr	$ra
 
 defn5:
 	sw	$t0,	-4($sp)
@@ -538,19 +406,10 @@ defn5:
 	add	$sp,	$sp,	-12
 b0_5:
 	move	$v0,	$a0
-	addiu	$k1,	$sp,	0
 	sw	$v0,	0($k1)
 	lw	$v0,	0($k1)
 	lw	$t0,	0($v0)
 	lw	$v0,	0($k1)
-	addiu	$v0,	$v0,	4
-	lw	$v0,	0($v0)
-	addu	$v0,	$t0,	$v0
-	move	$v0,	$v0
-	add	$sp, 	$sp,	12
-	lw	$t0,	-4($sp)
-	lw	$k1,	-8($sp)
-	jr	$ra
 
 defn6:
 	sw	$t0,	-4($sp)
@@ -560,7 +419,6 @@ defn6:
 b0_6:
 	move	$t0,	$a1
 	move	$v0,	$a0
-	addiu	$k1,	$sp,	0
 	addiu	$t7,	$sp,	4
 	sw	$v0,	0($t7)
 	sw	$t0,	0($k1)
@@ -574,15 +432,6 @@ b0_6:
 	lw	$v0,	0($v0)
 	addu	$t0,	$t0,	$v0
 	lw	$v0,	0($k1)
-	addiu	$v0,	$v0,	4
-	lw	$v0,	0($v0)
-	addu	$v0,	$t0,	$v0
-	move	$v0,	$v0
-	add	$sp, 	$sp,	20
-	lw	$t0,	-4($sp)
-	lw	$t7,	-8($sp)
-	lw	$k1,	-12($sp)
-	jr	$ra
 
 defn7:
 	sw	$t0,	-4($sp)
@@ -591,40 +440,12 @@ defn7:
 	add	$sp,	$sp,	-16
 b0_7:
 	move	$v0,	$a0
-	addiu	$t0,	$sp,	0
-	sw	$v0,	0($t0)
-	lw	$k1,	0($t0)
-	sle	$v0,	$k1,	$zero
-	ble	$k1,	0,	b3_8
 b5_10:
 	lw	$k1,	0($t0)
 	lw	$v0,	0($t0)
 	addiu	$v0,	$v0,	-1
-	move	$a0,	$v0
-	jal	defn7
-	move	$v0,	$v0
-	addu	$v0,	$k1,	$v0
-	move	$v0,	$v0
-	add	$sp, 	$sp,	16
-	lw	$t0,	-4($sp)
-	lw	$k1,	-8($sp)
-	lw	$ra,	-12($sp)
-	jr	$ra
 b4_9:
-	li	$v0,	0
-	add	$sp, 	$sp,	16
-	lw	$t0,	-4($sp)
-	lw	$k1,	-8($sp)
-	lw	$ra,	-12($sp)
-	jr	$ra
 b3_8:
-	li	$v0,	0
-	add	$sp, 	$sp,	16
-	lw	$t0,	-4($sp)
-	lw	$k1,	-8($sp)
-	lw	$ra,	-12($sp)
-	jr	$ra
-	j	b4_9
 
 fibo:
 	sw	$t0,	-4($sp)
@@ -633,12 +454,7 @@ fibo:
 	add	$sp,	$sp,	-16
 b0_11:
 	move	$v0,	$a0
-	addiu	$t0,	$sp,	0
 	sw	$v0,	0($t0)
-	lw	$k1,	0($t0)
-	li	$v0,	2
-	sle	$v0,	$k1,	$v0
-	ble	$k1,	2,	b3_12
 b5_14:
 	lw	$v0,	0($t0)
 	addiu	$v0,	$v0,	-1
@@ -647,29 +463,6 @@ b5_14:
 	move	$k1,	$v0
 	lw	$v0,	0($t0)
 	addiu	$v0,	$v0,	-2
-	move	$a0,	$v0
-	jal	fibo
-	move	$v0,	$v0
-	addu	$v0,	$k1,	$v0
-	move	$v0,	$v0
-	add	$sp, 	$sp,	16
-	lw	$t0,	-4($sp)
-	lw	$k1,	-8($sp)
-	lw	$ra,	-12($sp)
-	jr	$ra
 b4_13:
-	li	$v0,	0
-	add	$sp, 	$sp,	16
-	lw	$t0,	-4($sp)
-	lw	$k1,	-8($sp)
-	lw	$ra,	-12($sp)
-	jr	$ra
 b3_12:
-	li	$v0,	1
-	add	$sp, 	$sp,	16
-	lw	$t0,	-4($sp)
-	lw	$k1,	-8($sp)
-	lw	$ra,	-12($sp)
-	jr	$ra
-	j	b4_13
 

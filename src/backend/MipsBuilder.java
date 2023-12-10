@@ -2,10 +2,11 @@ package backend;
 
 import backend.instructions.*;
 import backend.operands.*;
+import backend.opt.Peephole;
 import backend.parts.MipsBlock;
 import backend.parts.MipsFunction;
 import backend.parts.MipsModule;
-import backend.reg.RegBuilder;
+import backend.opt.RegBuilder;
 import ir.values.*;
 import ir.values.Module;
 import ir.values.constants.ConstInt;
@@ -33,6 +34,10 @@ public class MipsBuilder {
         // 寄存器分配
         RegBuilder regBuilder = new RegBuilder();
         regBuilder.buildRegs();
+        // 窥孔优化
+        Peephole peephole = new Peephole();
+        peephole.doPeephole();
+
         return MipsModule.getInstance();
     }
 

@@ -1,4 +1,4 @@
-package backend.reg;
+package backend.opt;
 
 import backend.instructions.MipsInstruction;
 import backend.instructions.MipsLoad;
@@ -341,6 +341,8 @@ public class RegBuilder {
         return u;
     }
 
+// TODO coalesce1
+
 //    /**
 //     * 将一个节点从 freezeWorklist 移动到 simplifyWorklist 中
 //     * coalesce 过程的子方法，主要用于合并
@@ -351,7 +353,7 @@ public class RegBuilder {
 //            simplifyWorklist.add(u);
 //        }
 //    }
-
+//
 //    /**
 //     * 判断 v，u 是否可以合并
 //     * 判断方法是考虑 v 的临边关系，这种判断方法被称为 George
@@ -469,6 +471,8 @@ public class RegBuilder {
 ////            System.out.println("执行coalesce合并4：" + objMove);
 //        }
 //    }
+
+// TODO coalesce2
 
     /**
      * 这个会遍历每一条与 u 有关的 mov 指令，然后将这些 mov 指令从 active 和 worklist 中移出

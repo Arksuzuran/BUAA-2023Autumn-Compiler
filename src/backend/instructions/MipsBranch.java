@@ -10,10 +10,19 @@ import ir.values.instructions.Icmp;
  * @Date 2023/11/19
  **/
 public class MipsBranch extends MipsInstruction {
+    public MipsCondType getCondType() {
+        return condType;
+    }
+
     /**
      * 跳转时src比较的条件，或null代表无条件跳转
      */
     private MipsCondType condType;
+
+    public MipsBlock getTarget() {
+        return target;
+    }
+
     /**
      * 目的Mips块
      */

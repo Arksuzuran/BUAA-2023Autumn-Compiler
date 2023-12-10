@@ -1,6 +1,10 @@
+int f(int a[][2]){
+    int b = a[1][1];
+    int c = f(a);
+    return 0;
+}
 int main(){
-    int a;
-    a=getint();
-    printf("hello:%d");;；
+    int a[2][2] = {{0, 1}, {2, 3}};
+    f(a);
     return 0;
 }
