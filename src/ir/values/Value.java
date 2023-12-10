@@ -3,6 +3,7 @@ package ir.values;
 import ir.types.ValueType;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 /**
  * @Description 基本的Value类
@@ -19,7 +20,7 @@ public class Value {
         return name;
     }
 
-    public String getNameCnt(){
+    public String getNameCnt() {
         return name.substring(1);
     }
 
@@ -34,9 +35,11 @@ public class Value {
     public ArrayList<User> getUsers() {
         return users;
     }
+
     public boolean isArg() {
         return isArg;
     }
+
     public int getArgNumber() {
         return argNumber;
     }
@@ -69,12 +72,14 @@ public class Value {
      */
     private boolean isArg = false;  // 是否是函数参数
     private int argNumber = 0;      // 第几个参数, 从0开始
+
     public Value(String name, ValueType type, Value parent) {
         this.id = applyNewId();
         this.name = name;
         this.type = type;
         this.parent = parent;
     }
+
     public Value(String name, ValueType type, Value parent, int argNumber) {
         this.id = applyNewId();
         this.name = name;
@@ -86,40 +91,75 @@ public class Value {
 
     /**
      * 向user列表内添加user
-     * @param user  要添加的user
+     *
+     * @param user 要添加的user
      */
-    public void adduser(User user){
+    public void addUser(User user) {
         this.users.add(user);
     }
+
     public void removeUser(User user) {
         users.remove(user);
     }
+
     private static int idCnt = 0;
+
     /**
      * 申请新的独特id
-     * @return  新的id
+     *
+     * @return 新的id
      */
-    private static int applyNewId(){
+    private static int applyNewId() {
         return idCnt++;
     }
-    public static void setIdCntZero(){
+
+    public static void setIdCntZero() {
         idCnt = 0;
     }
 
     /**
-     * 重命名一个value
-     * @param name  新name
+     * For PHI
      */
-    public void rename(String name){
+    public void replaceAllUsesWith(Value replacement) {
+        ArrayList<User> usersClone = new ArrayList<>(users);
+        for (User user : usersClone) {
+            for (int i = 0; i < user.getOperands().size(); i++) {
+                if (user.getOperands().get(i) == this) {
+                    user.setUsedValue(i, replacement);
+                }
+            }
+        }
+        users.clear();
+    }
+
+    /**
+     * 重命名一个value
+     *
+     * @param name 新name
+     */
+    public void rename(String name) {
         this.name = name;
+    }
+    @Override
+    public boolean equals(Object o)
+    {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Value value = (Value) o;
+        return id == value.id;
     }
 
     @Override
-    public String toString(){
+    public int hashCode()
+    {
+        return Objects.hash(id);
+    }
+    @Override
+    public String toString() {
         return type + " " + name;
     }
 
-    public void buildMips(){
+    public void buildMips() {
         System.out.println("Value类: buildMips");
     }
 }

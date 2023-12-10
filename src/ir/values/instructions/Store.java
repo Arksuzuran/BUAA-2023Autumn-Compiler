@@ -32,7 +32,9 @@ public class Store extends Instruction{
     public Value getPointer(){
         return getOperands().get(1);
     }
-
+    public Value getValue(){
+        return getOperands().get(0);
+    }
     @Override
     public String toString(){
         StringBuilder stringBuilder = new StringBuilder();

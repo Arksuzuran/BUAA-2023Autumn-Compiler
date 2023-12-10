@@ -34,7 +34,7 @@ public class DomainTreeAnalyzer {
      */
     public static void analyzeDominanceInfo(Function function) {
         // 入口块
-        BasicBlock entry = function.getEntryBlock();
+        BasicBlock entry = function.getHeadBlock();
         // 基本块的数目
         int blockNum = function.getBasicBlocks().size();
         // 每个基本块都有一个 bitSet，用于表示这个块的 domer

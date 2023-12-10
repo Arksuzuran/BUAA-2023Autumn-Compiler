@@ -23,6 +23,14 @@ public class Load extends Instruction{
         super(name, IrTool.getPointingTypeOfPointer(pointer), parent, pointer);
     }
 
+    /**
+     * 获取指令中的地址操作数
+     * @return  地址操作数的value对象
+     */
+    public Value getPointer(){
+        return getOperands().get(0);
+    }
+
     // %2 = load i32, i32* @c
     @Override
     public String toString(){

@@ -25,10 +25,14 @@ public class Config {
     public static boolean outputMIPS = true;
     // 是否开启控制台的debug输出
     public static boolean debugging = false;
+    // 是否开启优化
+    public static boolean openMem2RegOpt = true;
+    // 是否生成Mips 为false则生成llvm
+    public static boolean genMips = false;
 
     // ============== 本地测试路径 ================
     // 输入文件路径
-    public static String localInputFilePath = rootPath + "/testcases/testfile4.txt";
+    public static String localInputFilePath = rootPath + "/testcases/testfile3.txt";
     // 默认输出文件路径
     public static String localOutputFilePath = rootPath + "/testcases/output.txt";
     // 错误处理输出文件路径

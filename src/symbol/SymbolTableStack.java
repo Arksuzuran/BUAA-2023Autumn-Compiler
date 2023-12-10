@@ -70,11 +70,17 @@ public class SymbolTableStack {
         }
         return false;
     }
-    // 检查整个栈内是否包含指定名称指定类型的元素
+    // 检查整个栈<第一个>指定名称的元素 是否为指定类型。如果没有该元素，也返回false
     public static boolean stackHasSymbol(String name, SymbolType symbolType){
-        for(SymbolTable symbolTable : instance.stack){
-            if(symbolTable.hasSymbol(name, symbolType)){
-                return true;
+//        for(SymbolTable symbolTable : instance.stack){
+//            if(symbolTable.hasSymbol(name, symbolType)){
+//                return true;
+//            }
+//        }
+        for(int i=instance.stack.size()-1; i>=0; i--){
+            Symbol symbol = instance.stack.get(i).getSymbol(name, null);
+            if(symbol != null){
+                return symbol.type == symbolType;
             }
         }
         return false;
@@ -82,18 +88,18 @@ public class SymbolTableStack {
     // 在整个栈内查找并返回第一个指定名称指定类型的元素
     public static Symbol getSymbol(String name, SymbolType symbolType){
         Symbol symbol = null;
-        for (SymbolTable symbolTable : instance.stack){
-            symbol = symbolTable.getSymbol(name, symbolType);
-            if(symbol != null){
-                return symbol;
-            }
-        }
-//        for(int i=instance.stack.size()-1; i>=0; i--){
-//            symbol = instance.stack.get(i).getSymbol(name, symbolType);
+//        for (SymbolTable symbolTable : instance.stack){
+//            symbol = symbolTable.getSymbol(name, symbolType);
 //            if(symbol != null){
 //                return symbol;
 //            }
 //        }
+        for(int i=instance.stack.size()-1; i>=0; i--){
+            symbol = instance.stack.get(i).getSymbol(name, symbolType);
+            if(symbol != null){
+                return symbol;
+            }
+        }
         return null;
     }
 

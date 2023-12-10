@@ -107,7 +107,9 @@ public class Compiler {
         doChecking();
         if(!hasError){
             doIrBuilding();
-            doMipsBuilding();
+            if(Config.genMips){
+                doMipsBuilding();
+            }
         }
         System.out.println("[编译]执行完成!");
     }

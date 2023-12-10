@@ -6,6 +6,7 @@ import ir.values.User;
 import ir.values.Value;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -26,6 +27,17 @@ public class Instruction extends User {
         super("%i" + name, type, parent, new ArrayList<>(){{
             addAll(List.of(operands));
         }});
+    }
+    /**
+     *
+     * for PHI
+     */
+    public Instruction(String name, ValueType type, BasicBlock parent, boolean phi, Value[] operands) {
+        super("%p" + name, type, parent, new ArrayList<>(Arrays.asList(operands)));
+    }
+
+    public void eraseFromParent() {
+        getParent().delInstruction(this);
     }
     @Override
     public BasicBlock getParent(){

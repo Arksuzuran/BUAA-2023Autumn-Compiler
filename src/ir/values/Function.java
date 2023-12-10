@@ -27,9 +27,6 @@ public class Function extends Value{
         basicBlocks.clear();
         basicBlocks.addAll(newBlocks);
     }
-    public BasicBlock getEntryBlock(){
-        return basicBlocks.get(0);
-    }
     public ValueType getReturnType() {
         return returnType;
     }
@@ -115,7 +112,7 @@ public class Function extends Value{
     }
 
     /**
-     * 获取函数头部的第一个基本块
+     * 获取函数头部的第一个基本块(入口块)
      */
     public BasicBlock getHeadBlock(){
         return basicBlocks.get(0);

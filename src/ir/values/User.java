@@ -11,17 +11,6 @@ import java.util.Arrays;
  * @Date 2023/10/30
  **/
 public class User extends Value{
-    public ArrayList<Value> getOperands() {
-        return operands;
-    }
-
-    /**
-     * 向操作数列表中添加操作数op
-     * @param op    要添加的操作数
-     */
-    public void addOperands(Value op){
-        operands.add(op);
-    }
     /**
      * 该User使用过的Value
      */
@@ -41,8 +30,24 @@ public class User extends Value{
     public User(String name, ValueType type, Value parent, ArrayList<Value> operands) {
         super(name, type, parent);
         this.operands.addAll(operands);
+        // 绑定被使用者
+        for (Value value : operands) {
+            if (value != null) {
+                value.addUser(this);
+            }
+        }
     }
 
+    public ArrayList<Value> getOperands() {
+        return operands;
+    }
+    /**
+     * 向操作数列表中添加操作数op
+     * @param op    要添加的操作数
+     */
+    public void addOperands(Value op){
+        operands.add(op);
+    }
     /**
      * 获取第index个操作数, ！！从1开始！！
      * @param index 索引
@@ -59,9 +64,20 @@ public class User extends Value{
      * 清除所有op对自己的引用，用于删除自身之前
      */
     public void dropAllOperands() {
-        for (Value operand : operands)
-        {
+        for (Value operand : operands) {
             operand.removeUser(this);
         }
+    }
+    /**
+     * 去掉原来 index 对应的 Value，并且解除 oldValue 的 use
+     * @param newValue 新的Value
+     */
+    public void setUsedValue(int index, Value newValue) {
+        Value oldValue = operands.get(index);
+        if (oldValue != null) {
+            oldValue.removeUser(this);
+        }
+        operands.set(index, newValue);
+        newValue.addUser(this);
     }
 }

@@ -11,6 +11,7 @@ import backend.parts.MipsFunction;
 import ir.types.PointerType;
 import ir.types.ValueType;
 import ir.values.BasicBlock;
+import ir.values.User;
 import ir.values.Value;
 import ir.values.constants.ConstArray;
 import utils.IrTool;
@@ -23,11 +24,13 @@ import java.util.ArrayList;
  * @Author
  * @Date 2023/10/30
  **/
-public class Alloca extends Instruction{
+public class Alloca extends Instruction {
     public ConstArray getInitValue() {
         return initArray;
     }
-
+    public ValueType getAllocaedType() {
+        return allocaedType;
+    }
     /**
      * 处理局部常量数组的场合
      */
@@ -36,9 +39,10 @@ public class Alloca extends Instruction{
 
     /**
      * alloca 指令没有操作数
-     * @param name     指令Value的名称
-     * @param pointingType     要指向的类型
-     * @param parent   parent一定是BasicBlock
+     *
+     * @param name         指令Value的名称
+     * @param pointingType 要指向的类型
+     * @param parent       parent一定是BasicBlock
      */
     public Alloca(String name, ValueType pointingType, BasicBlock parent) {
         super(name, new PointerType(pointingType), parent);
@@ -49,7 +53,8 @@ public class Alloca extends Instruction{
      * 用于处理带初值的数组常量
      * 该常量的内容被写入了alloca的地址
      * 因此该初值也由alloca对象来保存
-     * @param initArray   常量初值
+     *
+     * @param initArray 常量初值
      */
     public Alloca(String name, ValueType pointingType, BasicBlock parent, ConstArray initArray) {
         super(name, new PointerType(pointingType), parent);
@@ -57,8 +62,25 @@ public class Alloca extends Instruction{
         allocaedType = pointingType;
     }
 
+    /**
+     * 只要是没有使用 gep 的，都可以在 mem2reg 中被提升
+     */
+    public boolean canPromotable() {
+        if (getUsers().isEmpty()) {
+            return true;
+        }
+        for (User user : getUsers()) {
+            if (user instanceof GetElementPtr getElementPtr) {
+                if (getElementPtr.getOp(1) == this) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
     @Override
-    public String toString(){
+    public String toString() {
         return getName() + " = alloca " + allocaedType;
     }
 

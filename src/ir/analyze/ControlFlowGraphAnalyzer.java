@@ -39,7 +39,7 @@ public class ControlFlowGraphAnalyzer {
 //            block.getPreBlocks().clear();
 //        }
         // 从首个块开始dfs，因为该dfs一定可以到达所有的控制块（仅考虑连通性）
-        BasicBlock entryBlock = function.getEntryBlock();
+        BasicBlock entryBlock = function.getHeadBlock();
         dfsBlock(entryBlock);
         // 删除无用的基本块
         delUnreachableBlock(function, entryBlock);
