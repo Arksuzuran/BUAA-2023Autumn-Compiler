@@ -13,17 +13,17 @@ import java.util.HashSet;
  * @Description 控制流图分析
  * 控制流的产生源于块之间的跳转关系，即末尾的Br指令
  * 透过Br指令中带有的跳转参数，即可构筑各个块之间的跳转关系
- * @Author  H1KARI
+ * @Author H1KARI
  * @Date 2023/11/18
  **/
 public class ControlFlowGraphAnalyzer {
     /**
      * 入口方法 开始进行分析
      */
-    public static void analyze(){
+    public static void analyze() {
         ArrayList<Function> functions = Module.getFunctions();
-        for(Function function : functions){
-            if(!function.isLibFunc()){
+        for (Function function : functions) {
+            if (!function.isLibFunc()) {
                 buildBlockPreAndSuc(function);
             }
         }
@@ -51,13 +51,11 @@ public class ControlFlowGraphAnalyzer {
      * DFS
      * 构建指定块的控制流
      */
-    private static void dfsBlock(BasicBlock curBlock)
-    {
+    private static void dfsBlock(BasicBlock curBlock) {
         visited.add(curBlock);
         Instruction instruction = curBlock.getInstructions().getLast();
-        BasicBlock sucBlock = null;
-        if (instruction instanceof Br br)
-        {
+        BasicBlock sucBlock;
+        if (instruction instanceof Br br) {
             if (br.isConditional()) {
                 // true
                 sucBlock = (BasicBlock) br.getOp(2);
@@ -65,14 +63,17 @@ public class ControlFlowGraphAnalyzer {
                 // false
                 sucBlock = (BasicBlock) br.getOp(3);
                 addEdgeAndVisit(curBlock, sucBlock);
-            }
-            else {
+            } else {
                 sucBlock = (BasicBlock) br.getOp(1);
                 addEdgeAndVisit(curBlock, sucBlock);
             }
         }
     }
-    private static void addEdgeAndVisit(BasicBlock preBlock, BasicBlock sucBlock){
+
+    /**
+     * 确立前驱和后继的关系，并尝试访问后继
+     */
+    private static void addEdgeAndVisit(BasicBlock preBlock, BasicBlock sucBlock) {
         preBlock.addSucBlock(sucBlock);
         sucBlock.addPreBlock(preBlock);
         if (!visited.contains(sucBlock)) {
@@ -87,21 +88,21 @@ public class ControlFlowGraphAnalyzer {
         ArrayList<BasicBlock> newBlocks = new ArrayList<>();
 
         // 遍历所有基本块
-        for(BasicBlock block : function.getBasicBlocks()){
+        for (BasicBlock block : function.getBasicBlocks()) {
             // 找到了没有前驱且不是入口的基本块
-            if(block.getPreBlocks().isEmpty() && block != entryBlock){
+            if (block.getPreBlocks().isEmpty() && block != entryBlock) {
                 // 删除其后继结点与自己的关系
-                for(BasicBlock sucBlock : block.getSucBlocks()){
+                for (BasicBlock sucBlock : block.getSucBlocks()) {
                     sucBlock.getPreBlocks().remove(block);
                 }
                 // 清除指令内的所有user引用
-                for(Instruction instruction : block.getInstructions()){
+                for (Instruction instruction : block.getInstructions()) {
                     instruction.dropAllOperands();
                 }
                 block.delAllInstruction();
             }
             // 是不需要删除的块
-            else{
+            else {
                 newBlocks.add(block);
             }
         }

@@ -10,18 +10,14 @@ import ir.values.instructions.Icmp;
  * @Date 2023/11/19
  **/
 public class MipsBranch extends MipsInstruction {
-    public MipsCondType getCondType() {
-        return condType;
-    }
+
 
     /**
      * 跳转时src比较的条件，或null代表无条件跳转
      */
     private MipsCondType condType;
 
-    public MipsBlock getTarget() {
-        return target;
-    }
+
 
     /**
      * 目的Mips块
@@ -50,6 +46,19 @@ public class MipsBranch extends MipsInstruction {
         super(null, src1, src2);
         this.target = target;
         this.condType = condType;
+    }
+
+    public void setTarget(MipsBlock target) {
+        this.target = target;
+    }
+    public MipsBlock getTarget() {
+        return target;
+    }
+    public MipsCondType getCondType() {
+        return condType;
+    }
+    public void setCondType(MipsCondType type) {
+        this.condType = type;
     }
 
     @Override

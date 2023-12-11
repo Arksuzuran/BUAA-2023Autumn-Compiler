@@ -1,6 +1,5 @@
 package ir.analyze;
 
-import backend.instructions.MipsInstruction;
 import config.Config;
 import ir.IrBuilder;
 import ir.values.*;
@@ -20,11 +19,11 @@ public class Mem2Reg {
     /**
      * 当前分析的 alloca 唯一一个 store 指令
      */
-    private Store onlyStore;
+    private Store uniqueAllocaStore;
     /**
      * 如果 store 和 load 在同一个块
      */
-    private BasicBlock onlyBlock;
+    private BasicBlock singleBlock;
     /**
      * 当前函数的入口块
      */
@@ -32,47 +31,47 @@ public class Mem2Reg {
     /**
      * 对于特定的 alloca 指令，其 load 所在的块
      */
-    private final HashSet<BasicBlock> usingBlocks = new HashSet<>();
+    private final HashSet<BasicBlock> loadUsingBlocks = new HashSet<>();
     /**
      * 对于特定的 alloca 指令，其 store 所在的块
      */
-    private final HashSet<BasicBlock> definingBlocks = new HashSet<>();
-    private Function function;
+    private final HashSet<BasicBlock> storeDefiningBlocks = new HashSet<>();
+    private Function curFunction;
     /**
      * 这里面记录当前函数可以被提升的 allocas
      */
-    private final ArrayList<Alloca> allocas = new ArrayList<>();
-    private final HashMap<Phi, Alloca> phi2Alloca = new HashMap<>();
+    private final ArrayList<Alloca> promotableAllocas = new ArrayList<>();
+    private final HashMap<Phi, Alloca> phi2AllocaMap = new HashMap<>();
 
     public void analyze() {
         if (Config.openMem2RegOpt) {
             for (Function function : Module.getFunctions()) {
                 if (!function.isLibFunc()) {
-                    this.function = function;
-                    process();
+                    this.curFunction = function;
+                    processFunction();
                 }
 //                System.out.println("遍历函数并生成phi " + function.getName());
             }
         }
     }
 
-    private void process() {
-        entryBlock = function.getHeadBlock();
+    private void processFunction() {
+        entryBlock = curFunction.getHeadBlock();
         // 寻找可以被消去的alloca
         for(Instruction instruction : entryBlock.getInstructions()){
             if (instruction instanceof Alloca && ((Alloca) instruction).canPromotable()) {
-                allocas.add((Alloca) instruction);
+                promotableAllocas.add((Alloca) instruction);
             }
         }
 
         // llvm doesn't include this step, I add it to make things simple
-        for (BasicBlock block : function.getBasicBlocks()){
+        for (BasicBlock block : curFunction.getBasicBlocks()){
             sweepBlock(block);
         }
 
         // promote alloca one by one
         // 遍历 alloca 数组
-        Iterator<Alloca> iterator = allocas.iterator();
+        Iterator<Alloca> iterator = promotableAllocas.iterator();
         while (iterator.hasNext()) {
             Alloca alloca = iterator.next();
             // is alloca is never used, we can safely delete it
@@ -91,7 +90,7 @@ public class Mem2Reg {
 
             // prune optimization
             // no store，那么就删除这个 alloca 和与之相关的 load
-            if (definingBlocks.size() == 0) {
+            if (storeDefiningBlocks.size() == 0) {
                 // 如果没有 store 那么使用者只有 load 了，那么删掉 load 就好了，因为不能读没有的值
                 // 之所以在这里 clone， 是因为不然 alloca - load 的关系也没了
                 ArrayList<User> loadClone = new ArrayList<>(alloca.getUsers());
@@ -109,42 +108,42 @@ public class Mem2Reg {
             }
 
             // onlyStore
-            if (onlyStore != null && dealOnlyStore(alloca)) {
+            if (uniqueAllocaStore != null && handleOnlyStore(alloca)) {
                 iterator.remove();
                 continue;
             }
 
             // store / load in one block
-            if (onlyBlock != null) {
-                dealOneBlock(alloca);
+            if (singleBlock != null) {
+                handleSingleBlock(alloca);
                 iterator.remove();
                 continue;
             }
 
             // 所有 definingBlocks 的递归支配边界（递归边界的闭包）都是需要插入 phi 节点的
-            HashSet<BasicBlock> phiBlocks = calIDF(definingBlocks);
+            HashSet<BasicBlock> phiBlocks = calculateIDF(storeDefiningBlocks);
             // 去掉不需要插入的节点
             phiBlocks.removeIf(block -> !isPhiAlive(alloca, block));
 
             // insert phi node
-            insertPhiNode(alloca, phiBlocks);
+            insertPhi(alloca, phiBlocks);
         }
 
         // 如果 alloca 都被删除了（一般表示不需要插入 phi 就可以结束战斗）
-        if (allocas.isEmpty()) {
+        if (promotableAllocas.isEmpty()) {
             return;
         }
 
         // rename phi node and add incoming <value, block>
-        renamePhiNode();
+        renamePhi();
 
-        for (Alloca ai : allocas) {
+        for (Alloca ai : promotableAllocas) {
             ai.dropAllOperands();
             ai.eraseFromParent();
         }
 
-        allocas.clear();
-        phi2Alloca.clear();
+        promotableAllocas.clear();
+        phi2AllocaMap.clear();
     }
 
     /**
@@ -154,12 +153,11 @@ public class Mem2Reg {
      * @param definingBlocks 拥有 store 的点
      * @return 支配边界的闭包
      */
-    private HashSet<BasicBlock> calIDF(HashSet<BasicBlock> definingBlocks) {
+    private HashSet<BasicBlock> calculateIDF(HashSet<BasicBlock> definingBlocks) {
         HashSet<BasicBlock> ans = new HashSet<>();
         for (BasicBlock definingBlock : definingBlocks) {
             ans.addAll(definingBlock.getDominanceFrontier());
         }
-
         boolean changed = true;
         while (changed) {
             changed = false;
@@ -172,7 +170,6 @@ public class Mem2Reg {
                 ans = newAns;
             }
         }
-
         return ans;
     }
 
@@ -184,10 +181,10 @@ public class Mem2Reg {
      */
     private void analyzeAllocaInfo(Alloca alloca) {
         // 清空
-        definingBlocks.clear();
-        usingBlocks.clear();
-        onlyBlock = null;
-        onlyStore = null;
+        storeDefiningBlocks.clear();
+        loadUsingBlocks.clear();
+        singleBlock = null;
+        uniqueAllocaStore = null;
 
         // 使用 alloca 的 store 的指令个数
         int storeCnt = 0;
@@ -195,22 +192,22 @@ public class Mem2Reg {
         for (Value user : alloca.getUsers()) {
             // 如果是 store
             if (user instanceof Store) {
-                definingBlocks.add(((Store) user).getParent());
+                storeDefiningBlocks.add(((Store) user).getParent());
                 if (storeCnt == 0) {
-                    onlyStore = (Store) user;
+                    uniqueAllocaStore = (Store) user;
                 }
                 storeCnt++;
             } else if (user instanceof Load) {
-                usingBlocks.add(((Load) user).getParent());
+                loadUsingBlocks.add(((Load) user).getParent());
             }
         }
 
         if (storeCnt > 1) {
-            onlyStore = null;
+            uniqueAllocaStore = null;
         }
 
-        if (definingBlocks.size() == 1 && definingBlocks.equals(usingBlocks)) {
-            onlyBlock = definingBlocks.iterator().next();
+        if (storeDefiningBlocks.size() == 1 && storeDefiningBlocks.equals(loadUsingBlocks)) {
+            singleBlock = storeDefiningBlocks.iterator().next();
         }
     }
 
@@ -220,38 +217,38 @@ public class Mem2Reg {
      * @param alloca 当前 alloca
      * @return usingBlock 是否为空，本质上是是否需要进行下一步处理，如果是 false 那么就需要继续处理
      */
-    private boolean dealOnlyStore(Alloca alloca) {
+    private boolean handleOnlyStore(Alloca alloca) {
         // construct later
-        usingBlocks.clear();
+        loadUsingBlocks.clear();
         // replaceValue 是 store 向内存写入的值
-        Value replaceValue = onlyStore.getValue();
+        Value replaceValue = uniqueAllocaStore.getValue();
         ArrayList<User> users = new ArrayList<>(alloca.getUsers());
         // 只有一个 store ，其他都是 load
         for (User user : users) {
             if (user instanceof Store) {
-                if (!user.equals(onlyStore)) {
+                if (!user.equals(uniqueAllocaStore)) {
                     throw new AssertionError("ai has store user different from onlyStore in dealOnlyStore");
                 }
             } else {
                 Load load = (Load) user;
                 // 如果 store 所在的块是 load 的支配者，那么就将用到 load 读入值的地方换成 store
-                if (onlyStore.getParent() != load.getParent() && onlyStore.getParent().isDominating(load.getParent())) {
+                if (uniqueAllocaStore.getParent() != load.getParent() && uniqueAllocaStore.getParent().isDominating(load.getParent())) {
                     load.replaceAllUsesWith(replaceValue);
                     load.dropAllOperands();
                     load.eraseFromParent();
                 }
                 // 没有这么好的条件的话，就加入 usingBlocks
                 else {
-                    usingBlocks.add(load.getParent());
+                    loadUsingBlocks.add(load.getParent());
                 }
             }
         }
 
-        boolean result = usingBlocks.isEmpty();
+        boolean result = loadUsingBlocks.isEmpty();
         // 如果没有比较差的 load，那么 store 就可以删除了，因为都被 replace 了
         if (result) {
-            onlyStore.dropAllOperands();
-            onlyStore.eraseFromParent();
+            uniqueAllocaStore.dropAllOperands();
+            uniqueAllocaStore.eraseFromParent();
             alloca.dropAllOperands();
             alloca.eraseFromParent();
         }
@@ -259,23 +256,23 @@ public class Mem2Reg {
         return result;
     }
 
-    private void dealOneBlock(Alloca alloca) {
-        boolean encounterStore = false;
+    private void handleSingleBlock(Alloca alloca) {
+        boolean meetStore = false;
         // 遍历所有的指令
-        LinkedList<Instruction> instructions = new LinkedList<>(onlyBlock.getInstructions());
+        LinkedList<Instruction> instructions = new LinkedList<>(singleBlock.getInstructions());
         for(Instruction instruction : instructions){
             // 遇到了还没有 store 就先 load 的情况，直接删掉
-            if (isAllocLoad(instruction, alloca) && !encounterStore) {
+            if (isAllocLoad(instruction, alloca) && !meetStore) {
                 instruction.replaceAllUsesWith(ConstInt.ZERO());
                 instruction.dropAllOperands();
                 instruction.eraseFromParent();
             }
             else if (isAllocStore(instruction, alloca)) {
-                if (encounterStore) {
+                if (meetStore) {
                     instruction.dropAllOperands();
                     instruction.eraseFromParent();
                 } else {
-                    encounterStore = true;
+                    meetStore = true;
                 }
             }
         }
@@ -373,25 +370,25 @@ public class Mem2Reg {
      * @param alloca    当前 alloca
      * @param phiBlocks 需要插入 phi 的基本块
      */
-    private void insertPhiNode(Alloca alloca, HashSet<BasicBlock> phiBlocks) {
+    private void insertPhi(Alloca alloca, HashSet<BasicBlock> phiBlocks) {
         for (BasicBlock phiBlock : phiBlocks) {
             Phi phi = IrBuilder.buildPhi(alloca.getAllocaedType(), phiBlock);
-            phi2Alloca.put(phi, alloca);
+            phi2AllocaMap.put(phi, alloca);
         }
     }
 
     /**
      * 重命名，完成 phi 的嵌入
      */
-    private void renamePhiNode() {
+    private void renamePhi() {
         HashMap<BasicBlock, Boolean> visitMap = new HashMap<>();
         HashMap<Alloca, Value> variableVersion = new HashMap<>();
         
-        for(BasicBlock block : function.getBasicBlocks()){
+        for(BasicBlock block : curFunction.getBasicBlocks()){
             visitMap.put(block, false);
         }
 
-        for (Alloca alloca : allocas) {
+        for (Alloca alloca : promotableAllocas) {
             // default undef is 0
             variableVersion.put(alloca, ConstInt.ZERO());
         }
@@ -412,7 +409,7 @@ public class Mem2Reg {
             int i = 0;
             LinkedList<Instruction> instructions = new LinkedList<>(currentBlock.getInstructions());
             while (instructions.get(i) instanceof Phi) {
-                variableVersion.put(phi2Alloca.get((Phi) instructions.get(i)), instructions.get(i));
+                variableVersion.put(phi2AllocaMap.get((Phi) instructions.get(i)), instructions.get(i));
                 i++;
             }
             while (i < instructions.size()) {
@@ -438,7 +435,7 @@ public class Mem2Reg {
                 i = 0;
                 while (instructions.get(i) instanceof Phi) {
                     Phi phi = (Phi) (instructions.get(i));
-                    Alloca ai = phi2Alloca.get(phi);
+                    Alloca ai = phi2AllocaMap.get(phi);
                     phi.addIncoming(variableVersion.get(ai), currentBlock);
                     i++;
                 }
@@ -453,7 +450,7 @@ public class Mem2Reg {
 
     /**
      * 如果当前指令是 store，而且地址是 alloca
-     * @param instruction
+     * @param instruction   当前指令
      */
     private boolean isAllocStore(Instruction instruction){
         return instruction instanceof Store && ((Store) instruction).getPointer() instanceof Alloca;
@@ -461,14 +458,14 @@ public class Mem2Reg {
 
     /**
      * 如果当前指令是 load，而且地址是 alloca
-     * @param instruction
+     * @param instruction   当前指令
      */
     private boolean isAllocLoad(Instruction instruction){
         return instruction instanceof Load && ((Load) instruction).getPointer() instanceof Alloca;
     }
     /**
      * 如果当前指令是 store，而且地址是指定的 alloca
-     * @param instruction
+     * @param instruction   当前指令
      */
     private boolean isAllocStore(Instruction instruction, Alloca alloca){
         return instruction instanceof Store && ((Store) instruction).getPointer() == alloca;
@@ -476,7 +473,7 @@ public class Mem2Reg {
 
     /**
      * 如果当前指令是 load，而且地址是指定的 alloca
-     * @param instruction
+     * @param instruction   当前指令
      */
     private boolean isAllocLoad(Instruction instruction, Alloca alloca){
         return instruction instanceof Load && ((Load) instruction).getPointer() == alloca;

@@ -7,9 +7,11 @@ import backend.parts.MipsBlock;
 import backend.parts.MipsFunction;
 import backend.parts.MipsModule;
 import backend.opt.RegBuilder;
+import config.Config;
 import ir.values.*;
 import ir.values.Module;
 import ir.values.constants.ConstInt;
+import utils.CompilePhase;
 import utils.IO;
 import utils.MipsMath;
 import utils.Pair;
@@ -21,29 +23,36 @@ import java.util.ArrayList;
  * @Author
  * @Date 2023/11/17
  **/
-public class MipsBuilder {
+public class MipsBuilder implements CompilePhase {
     private Module irModule;
 
     public MipsBuilder(Module irModule) {
         this.irModule = irModule;
     }
 
-    public MipsModule doMipsBuilding(){
+    @Override
+    public void process() {
         // 生成带有虚拟寄存器的目标代码
         irModule.buildMips();
         // 寄存器分配
-        RegBuilder regBuilder = new RegBuilder();
-        regBuilder.buildRegs();
-        // 窥孔优化
-        Peephole peephole = new Peephole();
-        peephole.doPeephole();
+        if(Config.openRegAllocOpt){
+            RegBuilder regBuilder = new RegBuilder();
+            regBuilder.buildRegs();
+            if(Config.openPeepHoleOpt){
+                Peephole peephole = new Peephole();
+                peephole.doPeephole();
+            }
+        }
 
-        return MipsModule.getInstance();
     }
 
-    public void outputMIPS(){
-        IO.write(IO.IOType.MIPS_BUILDER, MipsModule.getInstance().toString(), false, false);
+    @Override
+    public void outputResult() {
+        if(Config.outputMIPS){
+            IO.write(IO.IOType.MIPS_BUILDER, MipsModule.getInstance().toString(), false, false);
+        }
     }
+
 
     // ================= 指令的简单构造方法 ===================
     // 主要作用是构建指令并将其挂载在对应block下

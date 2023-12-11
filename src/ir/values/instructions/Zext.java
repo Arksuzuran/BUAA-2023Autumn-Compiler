@@ -37,7 +37,7 @@ public class Zext extends Instruction{
     public void buildMips() {
         Value i1 = getOp(1);
         if(i1 instanceof Icmp){
-            ((Icmp) i1).buildMips();
+            ((Icmp) i1).buildMips1();
             // 将Zext结果与i1的解析结果页进行绑定
             Mc.addOperandMapping(this, Mc.op(i1));
         } else {

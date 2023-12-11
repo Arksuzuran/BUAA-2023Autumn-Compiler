@@ -31,6 +31,13 @@ public class MipsBlock {
         this.name = name.substring(1) + "_" + getNameCnt();
         this.loopDepth = loopDepth;
     }
+    /**
+     * 由phi生长出来的Block
+     */
+    public MipsBlock(int loopDepth) {
+        this.name = "t_" + getNameCnt();
+        this.loopDepth = loopDepth;
+    }
     public static int getNameCnt(){
         return nameCnt++;
     }
@@ -83,6 +90,27 @@ public class MipsBlock {
         return instructions.getLast();
     }
 
+    /**
+     *  phi 指令解析的时候会产生一大堆没有归属的 mov 指令
+     *  如果这个块只有一个后继块，那么我们需要把这些 mov 指令插入到最后一条跳转指令之前，这样就可以完成 phi 的更新
+     */
+    public void insertPhiMovesTail(ArrayList<MipsInstruction> phiMoves) {
+//        System.out.println("对于块[" + getName() + "]执行phi插入:\n" + phiMoves);
+        for (MipsInstruction phiMove : phiMoves) {
+            instructions.add(instructions.size()-1, phiMove);
+        }
+//        System.out.println("插入完成后的指令序列:\n" + instructions);
+    }
+
+    /**
+     * phiMoves 的顺序已经是正确的了，所以这个方法会确保 phiMoves 按照其原来的顺序插入到 block 的头部
+     * @param phiMoves 待插入的 copy 序列
+     */
+    public void insertPhiCopysHead(ArrayList<MipsInstruction> phiMoves) {
+        for (int i = phiMoves.size() - 1; i >= 0; i--) {
+            instructions.addFirst(phiMoves.get(i));
+        }
+    }
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();

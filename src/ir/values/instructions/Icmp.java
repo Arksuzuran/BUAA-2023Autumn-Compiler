@@ -95,6 +95,9 @@ public class Icmp extends Instruction{
      */
     @Override
     public void buildMips() {
+    }
+
+    public void buildMips1() {
 
         MipsCondType mipsCondType = MipsCondType.IrCondType2MipsCondType(condType);
         Value op1 = getOp(1), op2 = getOp(2);

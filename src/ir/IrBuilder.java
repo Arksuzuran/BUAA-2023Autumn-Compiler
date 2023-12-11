@@ -1,5 +1,6 @@
 package ir;
 
+import config.Config;
 import ir.analyze.*;
 import ir.types.ValueType;
 import ir.values.*;
@@ -10,6 +11,7 @@ import ir.values.constants.ConstString;
 import ir.values.constants.Constant;
 import ir.values.instructions.*;
 import node.CompUnitNode;
+import utils.CompilePhase;
 import utils.IO;
 import utils.IrTool;
 
@@ -21,7 +23,7 @@ import java.util.HashMap;
  * @Author
  * @Date 2023/10/28
  **/
-public class IrBuilder {
+public class IrBuilder implements CompilePhase {
 
     //==================构建器===================
     private final CompUnitNode compUnitNode;
@@ -29,13 +31,8 @@ public class IrBuilder {
     public IrBuilder(CompUnitNode compUnitNode) {
         this.compUnitNode = compUnitNode;
     }
-
-    /**
-     * 开启中间代码生成
-     *
-     * @return 中间代码语法树根节点Module
-     */
-    public Module doIrBuilding() {
+    @Override
+    public void process() {
         // ============ 生成中间代码 ============
         compUnitNode.buildIr();             // 生成中间代码
         // ===== 中间代码分析 与 目标代码预处理 =====
@@ -43,13 +40,18 @@ public class IrBuilder {
         ControlFlowGraphAnalyzer.analyze(); // 控制流图构建
         DomainTreeAnalyzer.analyze();       // domain树生成
         LoopAnalyzer.analyze();             // 循环分析
-        new Mem2Reg().analyze();            // Mem2Reg
-
-        return Module.getInstance();
+        if (Config.openMem2RegOpt) {
+            new Mem2Reg().analyze();            // Mem2Reg
+        }
     }
-
-    public void outputIr() {
-        IO.write(IO.IOType.IR_BUILDER, Module.getInstance().toString(), false, false);
+    @Override
+    public void outputResult() {
+        if(Config.outputIr){
+            IO.write(IO.IOType.IR_BUILDER, Module.getInstance().toString(), false, false);
+        }
+    }
+    public Module getIrModule(){
+        return Module.getInstance();
     }
 
     //===================中间代码生成方法=================
@@ -412,4 +414,6 @@ public class IrBuilder {
         parent.addInstructionAtHead(phi);
         return phi;
     }
+
+
 }

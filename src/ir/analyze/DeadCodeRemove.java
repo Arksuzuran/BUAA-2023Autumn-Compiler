@@ -12,8 +12,8 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 
 /**
- * @Description 删除基本块中，ret和Br后面的死代码
- * @Author
+ * @Description 简单的死代码删除。删除基本块中，ret和Br后面的死代码
+ * @Author  H1KARI
  * @Date 2023/12/11
  **/
 public class DeadCodeRemove {

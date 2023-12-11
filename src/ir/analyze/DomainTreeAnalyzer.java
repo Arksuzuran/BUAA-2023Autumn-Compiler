@@ -11,7 +11,7 @@ import java.util.Stack;
 
 /**
  * @Description 构造支配树
- * @Author
+ * @Author  HIKARI
  * @Date 2023/11/18
  **/
 public class DomainTreeAnalyzer {
@@ -34,7 +34,7 @@ public class DomainTreeAnalyzer {
      */
     public static void analyzeDominanceInfo(Function function) {
         // 入口块
-        BasicBlock entry = function.getHeadBlock();
+        BasicBlock entryBlock = function.getHeadBlock();
         // 基本块的数目
         int blockNum = function.getBasicBlocks().size();
         // 每个基本块都有一个 bitSet，用于表示这个块的 domer
@@ -48,7 +48,7 @@ public class DomainTreeAnalyzer {
 //            block.getIdomees().clear();
             domers.add(new BitSet());
             // 入口块的支配者是自己
-            if(block == entry){
+            if(block == entryBlock){
                 domers.get(index).set(index);
             }
             else{
@@ -65,7 +65,7 @@ public class DomainTreeAnalyzer {
             // 遍历基本块
             for(BasicBlock curBlock : blocks){
                 // 对于非入口块
-                if(curBlock != entry){
+                if(curBlock != entryBlock){
                     // temp 初始全置1
                     BitSet temp = new BitSet();
                     temp.set(0, blockNum);
@@ -120,7 +120,7 @@ public class DomainTreeAnalyzer {
             }
         }
         // 计算支配树深度
-        analyzeDominanceLevel(entry, 0);
+        analyzeDominanceLevel(entryBlock, 0);
     }
     /**
      * DFS计算支配树深度
@@ -136,7 +136,7 @@ public class DomainTreeAnalyzer {
     }
 
     /**
-     * Compute the dominance frontier of all the basic blocks of a function.
+     * 计算一个函数中所有基本块的支配边界
      * @param function 当前函数
      */
     public static void analyzeDominanceFrontier(Function function) {

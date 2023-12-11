@@ -9,8 +9,8 @@ import java.util.HashSet;
 import java.util.Stack;
 
 /**
- * @Description TODO
- * @Author
+ * @Description 循环分析
+ * @Author  H1KARI
  * @Date 2023/11/18
  **/
 public class LoopAnalyzer {
@@ -51,7 +51,7 @@ public class LoopAnalyzer {
                 // 制作出一个新的 loop
                 // 从这里可以看出，此时的 block 就是入口块的意思
                 Loop loop = new Loop(block, latchBlocks);
-                completeLoop(latchBlocks, loop);
+                buildLoop(latchBlocks, loop);
                 // 为下一次计算做准备
                 latchBlocks.clear();
             }
@@ -66,7 +66,7 @@ public class LoopAnalyzer {
      * @param latchBlocks 栓块集合
      * @param loop 当前循环
      */
-    private static void completeLoop(ArrayList<BasicBlock> latchBlocks, Loop loop) {
+    private static void buildLoop(ArrayList<BasicBlock> latchBlocks, Loop loop) {
         // bfs，将所有的闩块加入队列
         ArrayList<BasicBlock> queue = new ArrayList<>(latchBlocks);
 

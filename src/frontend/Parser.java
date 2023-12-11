@@ -1,10 +1,12 @@
 package frontend;
 
+import config.Config;
 import error.Error;
 import node.*;
 import error.*;
 import token.Token;
 import token.TokenType;
+import utils.CompilePhase;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -15,7 +17,7 @@ import java.util.HashMap;
  * @Author H1KARI
  * @Date 2023/9/18
  **/
-public class Parser {
+public class Parser implements CompilePhase {
     int flag = 0;
     // 词法分析器的token列表
     private final ArrayList<Token> tokens;
@@ -33,22 +35,23 @@ public class Parser {
         this.maxPos = tokens.size() - 1;
         this.curToken = tokens.get(pos);
     }
-
-    // 进行语法分析
-    public void doParsing(){
+    @Override
+    public void process() {
         if(tokens!=null && !tokens.isEmpty()){
             parsingResultNode = CompUnit();
         }
     }
+    @Override
+    public void outputResult() {
+        if(Config.outputParsing){
+            parsingResultNode.print();
+        }
+    }
+
     // 返回语法分析结果
     public CompUnitNode getParsingResultNode(){
         return parsingResultNode;
     }
-    // 输出语法分析结果至文件
-    public void outputParsingResult(){
-        parsingResultNode.print();
-    }
-
 
     // matchToken所用到的，缺失token和错误类型的对应关系
     private final HashMap<TokenType, ErrorType> tokenErrorMap = new HashMap<>(){{
@@ -738,4 +741,6 @@ public class Parser {
         }
         return new LOrExpNode(lAndExpNode, opToken, lOrExpNode);
     }
+
+
 }

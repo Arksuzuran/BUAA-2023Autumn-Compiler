@@ -1,12 +1,13 @@
 package frontend;
 
+import config.Config;
 import exception.LexerException;
 import token.Token;
 import token.TokenType;
 import utils.IO;
+import utils.CompilePhase;
 
 import java.util.ArrayList;
-import java.util.List;
 
 
 /**
@@ -14,7 +15,7 @@ import java.util.List;
  * @Author H1KARI
  * @Date 2023/9/14
  **/
-public class Lexer {
+public class Lexer implements CompilePhase {
     private final String text;    // 文本
     private final int maxPos;     // pos最大值
     private int pos;        // 当前扫描到了文本字符串的哪个单词
@@ -34,6 +35,34 @@ public class Lexer {
         this.lineNum = 1;
         this.token = null;
         this.maxPos = text.length() - 1;
+    }
+
+    @Override
+    public void process() {
+        Token token;
+        try {
+            do {
+                token = next();
+                if (token != null && Config.debuggingTokens) {
+                    System.out.println(token);
+                }
+            } while (token != null);
+        } catch (LexerException e) {
+            System.out.println(e);
+        }
+    }
+    @Override
+    public void outputResult() {
+        if(Config.outputLexicalAnalysis){
+            // 读取词法分析结果
+            StringBuilder stringBuilder = new StringBuilder();
+            for(Token token : lexerResultList){
+                stringBuilder.append(token.type).append(" ").append(token.str).append("\n");
+            }
+            String result = stringBuilder.toString();
+            // 输出词法分析结果至文件
+            IO.write(IO.IOType.LEXER, result, false, false);
+        }
     }
 
     // 跳过空白字符
@@ -201,33 +230,6 @@ public class Lexer {
         }
         // 在此产生报错
         return token;
-    }
-
-    // 直接进行一次完整的扫描
-    public void doLexicalAnalysisByPass(boolean printResult){
-        Token token = null;
-        try {
-            do {
-                token = next();
-                if (token != null && printResult) {
-                    System.out.println(token);
-                }
-            } while (token != null);
-        } catch (LexerException e) {
-            System.out.println(e);
-        }
-    }
-
-    // 输出词法分析结果到文件
-    public void outputLexicalResult(){
-        // 读取词法分析结果
-        StringBuilder stringBuilder = new StringBuilder();
-        for(Token token : lexerResultList){
-            stringBuilder.append(token.type).append(" ").append(token.str).append("\n");
-        }
-        String result = stringBuilder.toString();
-        // 输出词法分析结果至文件
-        IO.write(IO.IOType.LEXER, result, false, false);
     }
 }
 

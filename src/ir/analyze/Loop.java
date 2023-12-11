@@ -4,7 +4,7 @@ import ir.values.BasicBlock;
 import java.util.ArrayList;
 
 /**
- * @Description 基本块所处的循环
+ * @Description 基本块所处的循环的信息
  * @Author
  * @Date 2023/11/18
  **/
@@ -55,21 +55,6 @@ public class Loop {
         entryBlock.setLoop(this);
         this.latchBlocks.addAll(latchBlocks);
     }
-
-    public int getId()
-    {
-        return id;
-    }
-
-    /**
-     * 每当重新构建循环信息的时候，重置循环计数器的名字，
-     * 有利于 debug
-     */
-    public static void resetIdCounter()
-    {
-        idCounter = 0;
-    }
-
     public Loop getParentLoop() {
         return parentLoop;
     }
@@ -81,16 +66,6 @@ public class Loop {
     public void setParentLoop(Loop parentLoop)
     {
         this.parentLoop = parentLoop;
-    }
-
-    public ArrayList<Loop> getSubLoops()
-    {
-        return subLoops;
-    }
-
-    public ArrayList<BasicBlock> getAllBlocks()
-    {
-        return allBlocks;
     }
 
     public void addSubLoop(Loop loop) {
@@ -110,11 +85,6 @@ public class Loop {
     public void setLoopDepth(int loopDepth)
     {
         this.loopDepth = loopDepth;
-    }
-
-    public ArrayList<BasicBlock> getLatchBlocks()
-    {
-        return latchBlocks;
     }
 
     public int getLoopDepth()

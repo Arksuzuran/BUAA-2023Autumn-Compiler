@@ -9,6 +9,7 @@ import ir.values.Module;
 import node.CompUnitNode;
 import token.Token;
 import utils.IO;
+import utils.CompilePhase;
 
 import java.util.ArrayList;
 
@@ -37,6 +38,17 @@ public class Compiler {
         inputText = IO.read();
         return inputText;
     }
+    public void processProtectedPhase(CompilePhase phase){
+        if(Config.REProtect){
+            try {
+                phase.process();
+            } catch (Exception e){
+                System.out.println(e);
+            }
+        } else {
+            phase.process();
+        }
+    }
     // 词法分析
     public void doLexicalAnalysis(){
         System.out.println("=====[词法分析]开始=====");
@@ -44,26 +56,24 @@ public class Compiler {
             System.out.println("文件未读入！");
             return;
         }
-
         lexer = new Lexer(inputText);
-        lexer.doLexicalAnalysisByPass(false);
+        // 词法分析
+        processProtectedPhase(lexer);
+        // 输出词法分析结果
+        lexer.outputResult();
+        // 保存token列表
         lexerResultList = lexer.getLexerResultList();
-
-        // 输出词法分析结果 如果未指定路径则按照Config配置
-        if(Config.outputLexicalAnalysis){
-            lexer.outputLexicalResult();
-        }
         System.out.println("=====[词法分析]完成!=====");
     }
-
     // 语法分析
     public void doParsing(){
         System.out.println("=====[语法分析]开始=====");
         parser = new Parser(lexerResultList);
-        parser.doParsing();
-        if(Config.outputParsing){
-            parser.outputParsingResult();
-        }
+        // 语法分析
+        processProtectedPhase(parser);
+        // 输出语法分析结果
+        parser.outputResult();
+        // 保存语法树
         compUnitNode = parser.getParsingResultNode();
         System.out.println("=====[语法分析]完成!=====");
     }
@@ -72,30 +82,34 @@ public class Compiler {
     public void doChecking(){
         System.out.println("=====[错误处理与符号表生成]开始=====");
         checker = new Checker(compUnitNode);
-        hasError = checker.doCheck();
-        if(Config.outputErrors){
-            checker.outputError();
-        }
+        // 错误处理
+        processProtectedPhase(checker);
+        // 输出错误
+        checker.outputResult();
+        // 记录是否有错误
+        hasError = checker.hasError();
         System.out.println("=====[错误处理与符号表生成]完成=====");
     }
 
     public void doIrBuilding(){
         System.out.println("=====[LLVM生成]开始=====");
         irBuilder = new IrBuilder(compUnitNode);
-        irModule = irBuilder.doIrBuilding();
-        if(Config.outputIr){
-            irBuilder.outputIr();
-        }
+        // 生成中间代码
+        processProtectedPhase(irBuilder);
+        // 输出中间代码
+        irBuilder.outputResult();
+        // 记录中间代码的语法树
+        irModule = irBuilder.getIrModule();
         System.out.println("=====[LLVM生成]完成=====");
     }
 
     public void doMipsBuilding() {
         System.out.println("=====[MIPS生成]开始=====");
         mipsBuilder = new MipsBuilder(irModule);
-        mipsBuilder.doMipsBuilding();
-        if(Config.outputMIPS){
-            mipsBuilder.outputMIPS();
-        }
+        // 生成目标代码
+        processProtectedPhase(mipsBuilder);
+        // 输出目标代码
+        mipsBuilder.outputResult();
         System.out.println("=====[MIPS生成]完成=====");
     }
 
@@ -113,7 +127,6 @@ public class Compiler {
         }
         System.out.println("[编译]执行完成!");
     }
-
     public static void main(String[] args) {
         Compiler compiler = new Compiler();
         compiler.doCompiling();

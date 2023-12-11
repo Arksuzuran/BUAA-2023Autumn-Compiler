@@ -27,11 +27,9 @@ import java.util.List;
  **/
 public class Call extends Instruction {
 
-    private ArrayList<Value> rArgs = new ArrayList<>();
     private Function function;
     /**
      * call指令的ValueType为函数返回值的ValueType
-     *
      * @param parent   一定是Block
      * @param function op1 函数对象
      * @param rArgs    op2 3 ...函数的实参
@@ -41,10 +39,20 @@ public class Call extends Instruction {
             add(function);
             addAll(rArgs);
         }}.toArray(new Value[0]));
-        this.rArgs.addAll(rArgs);
         this.function = function;
     }
 
+    /**
+     * 注意！因为phi的处理，这里rArgs随时会有变化，因此不再记录rArgs，而是去父类的op里找
+     * @return call指令传递给函数的参数
+     */
+    public ArrayList<Value> getArgs() {
+        ArrayList<Value> args = new ArrayList<>();
+        for (int i = 0; i < ((Function) getOp(1)).getArgValues().size(); i++) {
+            args.add(getOp(i + 2));
+        }
+        return args;
+    }
     //  %7 = call i32 @aaa(i32 %5, i32 %6)
     //  call void @putint(i32 %7)
     @Override
@@ -85,9 +93,9 @@ public class Call extends Instruction {
         }
 
         // 进行传参, 遍历所有irValue参数
-        int argc = rArgs.size();
+        int argc = getArgs().size();
         for (int i = 0; i < argc; i++) {
-            Value irArg = rArgs.get(i);
+            Value irArg = getArgs().get(i);
             MipsOperand src;
             // 前四个参数存储在a0-3内
             if (i < 4) {

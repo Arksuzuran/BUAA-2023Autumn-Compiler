@@ -23,16 +23,25 @@ public class Config {
     public static boolean outputIr = true;
     // 是否输出目标代码
     public static boolean outputMIPS = true;
-    // 是否开启控制台的debug输出
-    public static boolean debugging = false;
-    // 是否开启优化
+
+    // ============== 优化配置开关 ================
+    // 是否生成Mips 为false则只生成llvm,不进入后端
+    public static boolean genMips = true;
+    // 是否开启Mem2Reg优化
+//    public static boolean openMem2RegOpt = false;
     public static boolean openMem2RegOpt = true;
-    // 是否生成Mips 为false则生成llvm
-    public static boolean genMips = false;
+
+    // 是否开启窥孔优化
+    public static boolean openPeepHoleOpt = true;
+    // 是否开启寄存器分配
+    public static boolean openRegAllocOpt = true;
+    // 是否启用防止莫名其妙RE的保护
+//    public static boolean REProtect = false;
+    public static boolean REProtect = true;
 
     // ============== 本地测试路径 ================
     // 输入文件路径
-    public static String localInputFilePath = rootPath + "/testcases/testfile3.txt";
+    public static String localInputFilePath = rootPath + "/testcases/testfile4.txt";
     // 默认输出文件路径
     public static String localOutputFilePath = rootPath + "/testcases/output.txt";
     // 错误处理输出文件路径
@@ -53,4 +62,10 @@ public class Config {
     public static String outputIRFilePath = "llvm_ir.txt";
     // MIPS输出文件路径
     public static String outputMIPSFilePath = "mips.txt";
+
+    // =============== 控制台相关输出开关 ==================
+    // 是否在控制台输出词法分析的tokens
+    public static boolean debuggingTokens = false;
+    // 是否开启控制台的debug输出
+    public static boolean debugging = false;
 }

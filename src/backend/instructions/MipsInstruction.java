@@ -62,7 +62,6 @@ public class MipsInstruction {
         }
         this.dst = dst;
     }
-
     /**
      * 编号从1开始
      */
@@ -71,23 +70,6 @@ public class MipsInstruction {
             addUseReg(this.src.get(index - 1), src);
         }
         this.src.set(index - 1, src);
-    }
-    // 对于使用、定义寄存器，都是对物理寄存器而言的
-    /**
-     * 不带替换的登记先使用寄存器
-     */
-    public void addUseReg(MipsOperand reg) {
-        if (MipsTool.isReg(reg)) {
-            useRegs.add(reg);
-        }
-    }
-    /**
-     * 不带替换的登记先定义寄存器
-     */
-    public void addDefReg(MipsOperand reg) {
-        if (MipsTool.isReg(reg)) {
-            defRegs.add(reg);
-        }
     }
     /**
      * 带替换的登记先定义物理寄存器
@@ -107,13 +89,31 @@ public class MipsInstruction {
         }
         addUseReg(newReg);
     }
+    // 对于使用、定义寄存器，都是对物理寄存器而言的
+    /**
+     * 不带替换的登记先使用寄存器
+     */
+    public void addUseReg(MipsOperand reg) {
+        if (MipsTool.isReg(reg)) {
+            useRegs.add(reg);
+        }
+    }
+    /**
+     * 不带替换的登记先定义寄存器
+     */
+    public void addDefReg(MipsOperand reg) {
+        if (MipsTool.isReg(reg)) {
+            defRegs.add(reg);
+        }
+    }
+
+    /**
+     * 替换所有指定寄存器
+     */
     public void replaceReg(MipsOperand oldReg, MipsOperand newReg) {
         if (dst != null && dst.equals(oldReg)) {
             setDst(newReg);
         }
-        replaceUseReg(oldReg, newReg);
-    }
-    public void replaceUseReg(MipsOperand oldReg, MipsOperand newReg) {
         for(int i=0; i<src.size(); i++){
             MipsOperand reg = src.get(i);
             if(reg != null && reg.equals(oldReg)){

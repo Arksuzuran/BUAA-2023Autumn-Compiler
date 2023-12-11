@@ -1,5 +1,9 @@
 package ir.values.instructions;
 
+import backend.Mc;
+import backend.MipsBuilder;
+import backend.operands.MipsOperand;
+import backend.operands.MipsRealReg;
 import ir.types.ValueType;
 import ir.values.BasicBlock;
 import ir.values.Value;
@@ -87,14 +91,17 @@ public class Phi extends Instruction {
         eraseFromParent();
     }
 
+    /**
+     * 寻找指定preBlock在该phi里对应的value
+     */
     public Value getInputValForBlock(BasicBlock block) {
-        for (int i = 0; i < predecessorNum; i++) {
-            if (getOp(i + predecessorNum + 1) == block) {
-                return getOp(i + 1);
+        for (int i = 1; i <= predecessorNum; i++) {
+            if (getOp(i + predecessorNum) == block) {
+                return getOp(i);
             }
         }
-
-        throw new AssertionError("block not found for phi!");
+        System.out.println("block not found for phi!");
+        return null;
     }
 
     @Override
@@ -107,5 +114,10 @@ public class Phi extends Instruction {
         }
         s.delete(s.length() - 2, s.length());
         return s.toString();
+    }
+
+    // 直接跳过生成，最后手动插入
+    @Override
+    public void buildMips() {
     }
 }

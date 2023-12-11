@@ -11,6 +11,9 @@ import ir.types.VoidType;
 import ir.values.BasicBlock;
 import ir.values.Function;
 import ir.values.constants.ConstInt;
+import ir.values.instructions.Br;
+import ir.values.instructions.Instruction;
+import ir.values.instructions.Ret;
 import symbol.*;
 import token.Token;
 import utils.ErrorCheckTool;
@@ -67,12 +70,6 @@ public class MainFuncDefNode extends Node{
         // 进入函数
         blockNode.check();
 
-        // 如果函数体最后不是return语句
-        // 那么要补上返回0
-        if(!ErrorCheckTool.hasReturnEnd(blockNode)){
-            IrBuilder.buildRetInstruction(Irc.curBlock, ConstInt.ZERO());
-        }
-
         // 离开函数
         // 弹栈
         SymbolTableStack.pop();
@@ -89,6 +86,11 @@ public class MainFuncDefNode extends Node{
         Irc.curFunction.setSymbolTable(IrSymbolTableStack.push());
         // 解析函数体
         blockNode.buildIr();
+
+        // 如果函数体最后不是return语句
+        if(!ErrorCheckTool.hasReturnEnd(blockNode)){
+            IrBuilder.buildRetInstruction(Irc.curBlock, ConstInt.ZERO());
+        }
         // 符号表退栈
         IrSymbolTableStack.pop();
     }

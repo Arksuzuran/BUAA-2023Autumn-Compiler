@@ -14,6 +14,9 @@ public class MipsMove extends MipsInstruction {
         super(dst, src1);
     }
 
+    public void setSrc(MipsOperand src) {
+        super.setSrc(1, src);
+    }
     public String toString() {
         // 立即数:li
         if (getSrc(1) instanceof MipsImm) {
