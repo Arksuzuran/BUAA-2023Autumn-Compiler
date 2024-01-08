@@ -5,17 +5,13 @@ import ir.IrSymbolTableStack;
 import ir.Irc;
 import ir.types.ArrayType;
 import ir.types.IntType;
-import ir.values.Value;
 import ir.values.constants.ConstArray;
-import ir.values.constants.ConstInt;
 import ir.values.instructions.Alloca;
-import ir.values.instructions.GetElementPtr;
-import ir.values.instructions.Store;
 import symbol.NumSymbol;
 import symbol.SymbolTableStack;
 import symbol.SymbolType;
 import token.Token;
-import utils.ErrorCheckTool;
+import error.ErrorCheckTool;
 
 import java.util.ArrayList;
 

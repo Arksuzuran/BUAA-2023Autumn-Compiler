@@ -4,8 +4,7 @@ import ir.IrBuilder;
 import ir.Irc;
 import ir.values.Value;
 import token.Token;
-import token.TokenType;
-import utils.ErrorCheckTool;
+import error.ErrorCheckTool;
 
 /**
  * @Description 语句 ForStmt → LVal '=' Exp

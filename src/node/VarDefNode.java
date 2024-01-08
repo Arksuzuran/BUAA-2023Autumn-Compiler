@@ -13,7 +13,7 @@ import symbol.NumSymbol;
 import symbol.SymbolTableStack;
 import symbol.SymbolType;
 import token.Token;
-import utils.ErrorCheckTool;
+import error.ErrorCheckTool;
 
 import java.util.ArrayList;
 

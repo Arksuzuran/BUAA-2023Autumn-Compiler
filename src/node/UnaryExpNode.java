@@ -15,7 +15,7 @@ import ir.values.instructions.Icmp;
 import symbol.*;
 import token.Token;
 import token.TokenType;
-import utils.ErrorCheckTool;
+import error.ErrorCheckTool;
 
 import java.util.ArrayList;
 
@@ -140,7 +140,7 @@ public class UnaryExpNode extends Node{
                     Irc.synValue = IrBuilder.buildIcmpInstruction(
                             ConstInt.ZERO(), Irc.synValue,
                             Icmp.CondType.EQL, Irc.curBlock);
-                    Irc.synValue = IrBuilder.buildZextInstruction(Irc.synValue, Irc.curBlock);  //TODO
+                    Irc.synValue = IrBuilder.buildZextInstruction(Irc.synValue, Irc.curBlock);  // TODO
                 }
             }
             // Ident '(' [FuncRParams] ')'

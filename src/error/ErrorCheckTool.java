@@ -1,4 +1,4 @@
-package utils;
+package error;
 
 import error.Error;
 import error.ErrorHandler;

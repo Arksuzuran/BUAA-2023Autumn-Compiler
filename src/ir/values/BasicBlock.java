@@ -113,8 +113,7 @@ public class BasicBlock extends Value{
      * 支配边际，即刚好不被当前基本块支配的基本块
      */
     private final HashSet<BasicBlock> dominanceFrontier = new HashSet<>();
-    public ArrayList<BasicBlock> getDomers()
-    {
+    public ArrayList<BasicBlock> getDomers() {
         return domers;
     }
     /**

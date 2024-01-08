@@ -8,7 +8,7 @@ import ir.types.ValueType;
 import symbol.NumSymbol;
 import symbol.SymbolTableStack;
 import token.Token;
-import utils.ErrorCheckTool;
+import error.ErrorCheckTool;
 
 import java.util.ArrayList;
 

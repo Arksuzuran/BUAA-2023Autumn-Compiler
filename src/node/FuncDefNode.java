@@ -1,23 +1,16 @@
 package node;
 
-import error.Error;
-import error.ErrorHandler;
-import error.ErrorType;
 import ir.IrBuilder;
 import ir.IrSymbolTableStack;
 import ir.Irc;
 import ir.types.ValueType;
 import ir.types.VoidType;
-import ir.values.Function;
-import ir.values.Value;
 import ir.values.constants.ConstInt;
-import ir.values.instructions.Alloca;
-import ir.values.instructions.Store;
 import symbol.FuncSymbol;
 import symbol.NumSymbol;
 import symbol.SymbolTableStack;
 import token.Token;
-import utils.ErrorCheckTool;
+import error.ErrorCheckTool;
 
 import java.util.ArrayList;
 

@@ -11,8 +11,8 @@ public class Config {
 
     // ============== 输出配置开关 ================、
     // 当前是否正在本地测试（false提交时用，true本地测试用）
-//    public static boolean atLocalTest = true;
-    public static boolean atLocalTest = false;
+    public static boolean atLocalTest = true;
+//    public static boolean atLocalTest = false;
     // 是否输出词法分析结果
     public static boolean outputLexicalAnalysis = false;
     // 是否输出语法分析结果
@@ -32,16 +32,17 @@ public class Config {
     public static boolean openMem2RegOpt = true;
 
     // 是否开启窥孔优化
+//    public static boolean openPeepHoleOpt = false;
     public static boolean openPeepHoleOpt = true;
     // 是否开启寄存器分配
     public static boolean openRegAllocOpt = true;
-    // 是否启用防止莫名其妙RE的保护
+    // 是否启用防止[莫名其妙RE但本地可以跑通]的保护
 //    public static boolean REProtect = false;
     public static boolean REProtect = true;
 
     // ============== 本地测试路径 ================
     // 输入文件路径
-    public static String localInputFilePath = rootPath + "/testcases/testfile4.txt";
+    public static String localInputFilePath = rootPath + "/testcases/testfile3.txt";
     // 默认输出文件路径
     public static String localOutputFilePath = rootPath + "/testcases/output.txt";
     // 错误处理输出文件路径

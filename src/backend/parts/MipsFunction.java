@@ -190,19 +190,19 @@ public class MipsFunction {
     // TODO 以下方法涉及PHI
     /**
      * 这个函数用于处理非直接后继块（就是这个后继块我们不打算放在当前块的正后面），在这里是处理 true 后继
-     * 对于这种块，我们不能把 copy 指令放到 cur 里，所以要么插入 succ，要么再做一个块
+     * 对于这种块，我们不能把 copy 指令放到 cur 里，所以要么插入 Suc，要么再做一个块
      * 之所以不能的原因是他不会直接放在 cur 的后面
      *
      * @param curBlock  当前块
-     * @param succBlock 间接后继
+     * @param SucBlock 间接后继
      * @param phiCopys  copy
      */
-    private void handleTrueCopys(MipsBlock curBlock, MipsBlock succBlock, ArrayList<MipsInstruction> phiCopys) {
+    private void handleTrueCopys(MipsBlock curBlock, MipsBlock SucBlock, ArrayList<MipsInstruction> phiCopys) {
         // 如果没有 copy 的话，就不用费事了
         if (!phiCopys.isEmpty()) {
             // 如果后继块前只有一个前驱块（当前块），那么就可以直接插入到后继块的最开始
-            if (succBlock.getPreBlocks().size() == 1) {
-                succBlock.insertPhiCopysHead(phiCopys);
+            if (SucBlock.getPreBlocks().size() == 1) {
+                SucBlock.insertPhiCopysHead(phiCopys);
             }
             // 如果后继块前有多个前驱块（无法确定从哪个块来），那么就应该新形成一个块
             else {
@@ -213,16 +213,16 @@ public class MipsFunction {
                 transferBlock.insertPhiCopysHead(phiCopys);
 
                 // 做出一个中转块跳转到的指令
-                MipsBranch transferJump = new MipsBranch(succBlock);
+                MipsBranch transferJump = new MipsBranch(SucBlock);
                 transferBlock.addInstruction(transferJump);
 
                 // transfer 登记前驱后继
-                transferBlock.setTrueSucBlock(succBlock);
+                transferBlock.setTrueSucBlock(SucBlock);
                 transferBlock.addPreBlock(curBlock);
 
-                // succ 登记前驱后继
-                succBlock.removePreBlock(curBlock);
-                succBlock.addPreBlock(transferBlock);
+                // Suc 登记前驱后继
+                SucBlock.removePreBlock(curBlock);
+                SucBlock.addPreBlock(transferBlock);
 
                 // cur 登记前驱后继
                 curBlock.setTrueSucBlock(transferBlock);
@@ -239,16 +239,16 @@ public class MipsFunction {
      * 如果已经放置，那么就再做一个 jump
      *
      * @param curBlock  当前块
-     * @param succBlock 后继块
+     * @param SucBlock 后继块
      * @param phiCopys  copy
      */
-    private void handleFalseCopys(MipsBlock curBlock, MipsBlock succBlock, ArrayList<MipsInstruction> phiCopys) {
+    private void handleFalseCopys(MipsBlock curBlock, MipsBlock SucBlock, ArrayList<MipsInstruction> phiCopys) {
         for (MipsInstruction phiCopy : phiCopys) {
             curBlock.addInstruction(phiCopy);
         }
         // 如果已经序列化了，那么还需要增加一条 branch 指令，跳转到已经序列化的后继块上
-        if (hasSerial.contains(succBlock)) {
-            MipsBranch MipsBranch = new MipsBranch(succBlock);
+        if (hasSerial.contains(SucBlock)) {
+            MipsBranch MipsBranch = new MipsBranch(SucBlock);
             curBlock.addInstruction(MipsBranch);
         }
     }
@@ -261,14 +261,14 @@ public class MipsFunction {
      * @param curBlock     当前块
      * @param phiWaitLists phi copy
      */
-    private void swapSuccBlock(MipsBlock curBlock, HashMap<Pair<MipsBlock, MipsBlock>, ArrayList<MipsInstruction>> phiWaitLists) {
-        MipsBlock trueSucc = curBlock.getTrueSucBlock();
-        MipsBlock falseSucc = curBlock.getFalseSucBlock();
-        Pair<MipsBlock, MipsBlock> falseLookUp = new Pair<>(curBlock, falseSucc);
-        if (!hasSerial.contains(trueSucc) ||
-                hasSerial.contains(trueSucc) && hasSerial.contains(falseSucc) && (!phiWaitLists.containsKey(falseLookUp) || phiWaitLists.get(falseLookUp).isEmpty())) {
-            curBlock.setTrueSucBlock(falseSucc);
-            curBlock.setFalseSucBlock(trueSucc);
+    private void swapSucBlock(MipsBlock curBlock, HashMap<Pair<MipsBlock, MipsBlock>, ArrayList<MipsInstruction>> phiWaitLists) {
+        MipsBlock trueSuc = curBlock.getTrueSucBlock();
+        MipsBlock falseSuc = curBlock.getFalseSucBlock();
+        Pair<MipsBlock, MipsBlock> falseLookUp = new Pair<>(curBlock, falseSuc);
+        if (!hasSerial.contains(trueSuc) ||
+                hasSerial.contains(trueSuc) && hasSerial.contains(falseSuc) && (!phiWaitLists.containsKey(falseLookUp) || phiWaitLists.get(falseLookUp).isEmpty())) {
+            curBlock.setTrueSucBlock(falseSuc);
+            curBlock.setFalseSucBlock(trueSuc);
             MipsBranch tailBranch = (MipsBranch) curBlock.getTailInstruction();
             MipsCondType cond = tailBranch.getCondType();
             tailBranch.setCondType(MipsCondType.getOppCondType(cond));
@@ -302,32 +302,32 @@ public class MipsFunction {
 
         // 如果没有false后继块,说明只有一个后继块，那么就应该考虑与当前块合并
         if (curBlock.getFalseSucBlock() == null) {
-            MipsBlock succBlock = curBlock.getTrueSucBlock();
+            MipsBlock SucBlock = curBlock.getTrueSucBlock();
             // 这个前驱后继关系用于查询有多少个 phiMove 要插入，一个后继块，直接将这些指令插入到跳转之前即可
-            Pair<MipsBlock, MipsBlock> trueLookup = new Pair<>(curBlock, succBlock);
-//            System.out.println("Lookup PHIS: " + curBlock.getName() +" "+ succBlock.getName() + "\n[phiWaitLists]\n" + phiWaitLists.getOrDefault(trueLookup, new ArrayList<>()));
+            Pair<MipsBlock, MipsBlock> trueLookup = new Pair<>(curBlock, SucBlock);
+//            System.out.println("Lookup PHIS: " + curBlock.getName() +" "+ SucBlock.getName() + "\n[phiWaitLists]\n" + phiWaitLists.getOrDefault(trueLookup, new ArrayList<>()));
             curBlock.insertPhiMovesTail(phiWaitLists.getOrDefault(trueLookup, new ArrayList<>()));
 
             // 合并的条件是后继块还未被序列化，此时只需要将当前块最后一条跳转指令移除掉就好了
-            if (!hasSerial.contains(succBlock)) {
+            if (!hasSerial.contains(SucBlock)) {
                 curBlock.removeInstruction();
-                blockSerialPHI(succBlock, phiWaitLists);
+                blockSerialPHI(SucBlock, phiWaitLists);
             }
             // 但是不一定能够被合并成功，因为又可以后继块已经被先序列化了，那么就啥都不需要干了
         }
         // 如果有两个后继块
         else {
             // 交换块的目的是让处理更加快捷
-            swapSuccBlock(curBlock, phiWaitLists);
+            swapSucBlock(curBlock, phiWaitLists);
 
-            MipsBlock trueSuccBlock = curBlock.getTrueSucBlock();
-            MipsBlock falseSuccBlock = curBlock.getFalseSucBlock();
-            Pair<MipsBlock, MipsBlock> trueLookup = new Pair<>(curBlock, trueSuccBlock);
-            Pair<MipsBlock, MipsBlock> falseLookup = new Pair<>(curBlock, falseSuccBlock);
+            MipsBlock trueSucBlock = curBlock.getTrueSucBlock();
+            MipsBlock falseSucBlock = curBlock.getFalseSucBlock();
+            Pair<MipsBlock, MipsBlock> trueLookup = new Pair<>(curBlock, trueSucBlock);
+            Pair<MipsBlock, MipsBlock> falseLookup = new Pair<>(curBlock, falseSucBlock);
 
-            handleTrueCopys(curBlock, trueSuccBlock, phiWaitLists.getOrDefault(trueLookup, new ArrayList<>()));
+            handleTrueCopys(curBlock, trueSucBlock, phiWaitLists.getOrDefault(trueLookup, new ArrayList<>()));
 
-            handleFalseCopys(curBlock, falseSuccBlock, phiWaitLists.getOrDefault(falseLookup, new ArrayList<>()));
+            handleFalseCopys(curBlock, falseSucBlock, phiWaitLists.getOrDefault(falseLookup, new ArrayList<>()));
 
             if (!hasSerial.contains(curBlock.getFalseSucBlock())) {
                 blockSerialPHI(curBlock.getFalseSucBlock(), phiWaitLists);

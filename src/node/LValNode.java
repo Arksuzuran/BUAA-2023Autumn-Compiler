@@ -15,7 +15,7 @@ import ir.values.constants.Constant;
 import ir.values.instructions.Alloca;
 import symbol.*;
 import token.Token;
-import utils.ErrorCheckTool;
+import error.ErrorCheckTool;
 import utils.IrTool;
 
 import java.util.ArrayList;

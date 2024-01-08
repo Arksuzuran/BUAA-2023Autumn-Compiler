@@ -43,7 +43,6 @@ public class MipsBuilder implements CompilePhase {
                 peephole.doPeephole();
             }
         }
-
     }
 
     @Override

@@ -10,10 +10,9 @@ import ir.types.VoidType;
 import ir.values.BasicBlock;
 import ir.values.Function;
 import ir.values.Value;
-import ir.values.constants.ConstInt;
 import symbol.SymbolTableStack;
 import token.Token;
-import utils.ErrorCheckTool;
+import error.ErrorCheckTool;
 import utils.IrTool;
 
 import java.util.ArrayList;
